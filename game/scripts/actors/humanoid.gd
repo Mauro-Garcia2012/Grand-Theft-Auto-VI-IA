@@ -239,10 +239,17 @@ func try_fire() -> bool:
 	if not (Game.infinite_ammo and is_player):
 		w.clip = int(w.clip) - 1
 	fire_cd = float(d.rate)
+	var npc := not is_player and team != "player"
+	if npc:
+		# NPCs fire in slower bursts
+		fire_cd *= randf_range(1.8, 3.0)
 	var from := muzzle_position()
 	var aim := aim_point
 	if aim == Vector3.ZERO:
 		aim = from - global_basis.z * 50.0
+	if npc and randf() < 0.55:
+		# deliberate miss (GTA-style forgiving NPC accuracy)
+		aim += Vector3(randf_range(-1.6, 1.6), randf_range(-0.6, 1.4), randf_range(-1.6, 1.6))
 	if d.type == "launcher":
 		Combat.fire_rocket(from, (aim - from).normalized(), self)
 	else:
@@ -340,6 +347,8 @@ func take_damage(amount: float, attacker: Node = null, hit_pos := Vector3.ZERO, 
 		return
 	if is_player and Game.god_mode:
 		return
+	if team == "player" and attacker is Humanoid and attacker.team != "player":
+		amount *= 0.45 if is_player else 0.3
 	if vehicle and kind == "bullet" and vehicle.has_method("is_enclosed") and vehicle.is_enclosed():
 		amount *= 0.35
 	# headshots

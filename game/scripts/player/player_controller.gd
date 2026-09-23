@@ -197,6 +197,14 @@ func _drive(delta: float, input: Vector2) -> void:
 			_flip_hold += delta
 		else:
 			_flip_hold = 0.0
+	# tanks: the turret follows the camera, LMB fires the cannon
+	if v is Vehicle and v.turret != null:
+		v.aim_turret(rig.aim_point, delta)
+		if Input.is_action_pressed("fire"):
+			v.fire_cannon(rig.aim_point, h)
+		h.aiming = false
+		_fire_was = Input.is_action_pressed("fire")
+		return
 	# drive-by: aim with RMB and shoot sideways with pistol/smg
 	var d := h.current_def()
 	var can_driveby: bool = d.get("hold", "") == "pistol" or d.get("type", "") == "gun" and v is Boat

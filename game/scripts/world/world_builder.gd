@@ -100,6 +100,10 @@ func build(p_city: CityMap, progress: Callable) -> void:
 	progress.call(0.6, "Plantando palmeras...")
 	await get_tree().process_frame
 	_build_street_props()
+	var signals := TrafficSignals.new()
+	signals.name = "TrafficSignals"
+	add_child(signals)
+	signals.build(self)
 	print("  street props %d ms" % (Time.get_ticks_msec() - t0)); t0 = Time.get_ticks_msec()
 	progress.call(0.68, "Construyendo el puerto, el aeropuerto y los Cayos...")
 	await get_tree().process_frame
@@ -520,6 +524,7 @@ func _extract_mesh(path: String, target_h: float) -> Mesh:
 	if sc == null:
 		return null
 	var inst: Node3D = sc.instantiate()
+	ModelUtil.recolor(inst)
 	# merge all meshes into one ArrayMesh normalized to target height, base at y=0
 	var parts: Array = []
 	var aabb := AABB()
@@ -664,6 +669,8 @@ func _flush_chunks() -> void:
 			var mmi := MultiMeshInstance3D.new()
 			mmi.multimesh = mm
 			mmi.visibility_range_end = 700.0 if not pk.begins_with("palm") else 1200.0
+			if pk in ["traffic_light", "sign_stop", "cone"]:
+				mmi.visibility_range_end = 450.0
 			if pk in ["grass", "flower", "bin", "bench", "rock", "bush2"]:
 				mmi.visibility_range_end = 250.0
 				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

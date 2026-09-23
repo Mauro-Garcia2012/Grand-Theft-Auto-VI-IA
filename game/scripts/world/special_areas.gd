@@ -28,6 +28,35 @@ func _y() -> float:
 	return CityMap.LAND + 0.02
 
 
+# Quaternius airliner parts: .010 fuselage & wings, .011 cabin windows, .013 tail & engines, .026 belly stripe
+const _PLANE_LIVERY := [
+	{"material.010": Color(0.95, 0.95, 0.97), "material.011": Color(0.1, 0.12, 0.15), "material.013": Color(0.1, 0.6, 0.68), "material.026": Color(0.95, 0.45, 0.62)},
+	{"material.010": Color(0.95, 0.95, 0.97), "material.011": Color(0.1, 0.12, 0.15), "material.013": Color(0.9, 0.3, 0.55), "material.026": Color(0.3, 0.3, 0.35)},
+	{"material.010": Color(0.95, 0.95, 0.97), "material.011": Color(0.1, 0.12, 0.15), "material.013": Color(0.12, 0.22, 0.55), "material.026": Color(0.8, 0.15, 0.2)},
+]
+
+
+## Static decoration model (ModelUtil.make) placed at `pos` (base) with a yaw.
+func _model(path: String, pos: Vector3, yaw: float, length: float, overrides := {}) -> Node3D:
+	var m := ModelUtil.make(path, length, overrides)
+	if m == null:
+		return null
+	wb.add_child(m)
+	m.position = pos
+	m.rotation.y = yaw
+	return m
+
+
+## Box collider standing on `pos` (bottom centre).
+func _collider(pos: Vector3, yaw: float, size: Vector3) -> void:
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	cs.shape = box
+	cs.transform = Transform3D(Basis(Vector3.UP, yaw), pos + Vector3.UP * size.y * 0.5)
+	wb.add_shape(cs)
+
+
 func _make_umbrella_meshes() -> void:
 	for i in UMB_COLORS.size():
 		var am := ArrayMesh.new()
@@ -146,14 +175,14 @@ func _port() -> void:
 	# warehouses
 	for i in 3:
 		wb.add_building(Vector3(610.0, y, 690.0 + i * 55.0), Vector3(50.0, 12.0, 40.0), Color(0.55, 0.57, 0.6), 7, rng.randf())
-	# cruise ships moored east of the port (in water)
+	# cruise ships moored east of the port (Quaternius "CruiseShip", bow = +Z)
 	for s in 2:
 		var sz := 600.0 + s * 160.0
-		var sx := 750.0
-		wb.add_box(Transform3D(Basis().scaled(Vector3(30.0, 14.0, 140.0)), Vector3(sx, -6.0, sz)), Color(0.95, 0.95, 0.97), 4, 0.55)
-		wb.add_box(Transform3D(Basis().scaled(Vector3(26.0, 12.0, 110.0)), Vector3(sx, 8.0, sz + 5.0)), Color(0.95, 0.95, 0.97), 4, 0.55)
-		wb.add_box(Transform3D(Basis().scaled(Vector3(20.0, 8.0, 70.0)), Vector3(sx, 20.0, sz + 8.0)), Color(0.93, 0.93, 0.96), 4, 0.95)
-		wb.add_box(Transform3D(Basis().scaled(Vector3(8.0, 9.0, 12.0)), Vector3(sx, 28.0, sz + 20.0)), Color(0.9, 0.2, 0.5), 6, 0.0)
+		var ship := _model("res://assets/q/ships/CruiseShip.fbx", Vector3(750.0, -9.0, sz), s * PI, 150.0,
+			{"texture": Color(0.95, 0.95, 0.97)})
+		if ship:
+			var a := ModelUtil.mesh_aabb(ship.get_child(0))
+			_collider(Vector3(750.0, -9.0, sz), s * PI, Vector3(a.size.x * 0.9, a.size.y * 0.55, a.size.z * 0.92))
 	wb.city.landmarks.append({"name": "Puerto de Vice City", "pos": Vector3(560, 1, 700), "kind": "port"})
 
 
@@ -188,6 +217,35 @@ func _airport() -> void:
 	wb.add_building(Vector3(-1200, _y() + 45, -520), Vector3(16, 7, 16), Color(0.2, 0.3, 0.35), 0, 0.5)
 	for i in 5:
 		wb.add_building(Vector3(-1700 + i * 90, _y(), -520), Vector3(70, 20, 50), Color(0.6, 0.62, 0.64), 7, rng.randf())
+	# concrete apron in front of the terminal and hangars, with taxiways to both runways
+	var apron := StandardMaterial3D.new()
+	apron.albedo_color = Color(0.46, 0.47, 0.48)
+	apron.roughness = 0.9
+	for r in [Rect2(-1760, -675, 580, 225), Rect2(-1395, -450, 30, 125), Rect2(-1395, -1075, 30, 345)]:
+		var am := PlaneMesh.new()
+		am.size = r.size
+		am.material = apron
+		var ami := MeshInstance3D.new()
+		ami.mesh = am
+		ami.position = Vector3(r.get_center().x, CityMap.LAND + 0.035, r.get_center().y)
+		ami.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		wb.add_child(ami)
+	# airliners at the terminal gates (nose = -X in the model), one waiting on runway 09
+	for i in 5:
+		var gp := Vector3(-1460.0 + i * 55.0, _y(), -648.0)
+		if _model("res://assets/q/planes/Commercial_Airplane.fbx", gp, -PI * 0.5, 38.0, _PLANE_LIVERY[i % _PLANE_LIVERY.size()]):
+			_collider(gp, 0.0, Vector3(4.5, 5.0, 27.0))
+	_model("res://assets/q/planes/Commercial_Airplane.fbx", Vector3(-1720, _y(), -1100), PI, 38.0, _PLANE_LIVERY[2])
+	_collider(Vector3(-1720, _y(), -1100), PI * 0.5, Vector3(4.5, 5.0, 27.0))
+	# business jets (nose -Z) and light aircraft (nose +Z) in front of the hangars
+	for i in 5:
+		var hp := Vector3(-1700.0 + i * 90.0, _y(), -468.0)
+		if i % 2 == 0:
+			_model("res://assets/q/planes/Private_plane.fbx", hp, PI, 17.0, {"body": Color(0.95, 0.95, 0.97), "material": Color(0.12, 0.2, 0.45)})
+			_collider(hp, 0.0, Vector3(2.8, 3.0, 12.0))
+		else:
+			_model("res://assets/q/planes/SmallPlane.fbx", hp + Vector3(-12, 0, 0), 0.0, 9.0, {"body": Color(0.95, 0.95, 0.95), "bottom": Color(0.8, 0.15, 0.2), "material": Color(0.15, 0.15, 0.16)})
+			_model("res://assets/q/planes/SmallPlane.fbx", hp + Vector3(12, 0, 4), 0.3, 9.0, {"body": Color(0.95, 0.9, 0.5), "bottom": Color(0.15, 0.3, 0.7), "material": Color(0.15, 0.15, 0.16)})
 	wb.city.landmarks.append({"name": "Aeropuerto", "pos": Vector3(-1350, 1, -700), "kind": "airport"})
 
 
@@ -268,7 +326,23 @@ func _mansions(r: Rect2, n: int) -> void:
 			wb.add_prop(["palm_tall", "palm_detail", "palm_bend"][k], p + Vector3(rng.randf_range(-14, 14), 0, rng.randf_range(9, 18)), rng.randf() * TAU, 1.0, 0.35)
 
 
+func _sailboats() -> void:
+	## Anchored sailboats in Biscayne-like bay between the mainland and Vice Beach
+	var city := wb.city
+	var n := 0
+	var tries := 0
+	while n < 14 and tries < 400:
+		tries += 1
+		var p := Vector3(rng.randf_range(420, 800), -0.35, rng.randf_range(-1300, 1000))
+		if city.land_sdf(p.x, p.z) > -14.0:
+			continue
+		var big := rng.randf() < 0.15
+		_model("res://assets/q/ships/Sail_ship.fbx" if big else "res://assets/q/ships/BoatWSail.fbx", p, rng.randf() * TAU, 22.0 if big else 10.0)
+		n += 1
+
+
 func _marinas() -> void:
+	_sailboats()
 	# wooden piers on the bay side of the mainland (x=360) and of Vice Beach (x=820)
 	var pier_col := Color(0.55, 0.42, 0.3)
 	for z in [700.0, 800.0, 900.0, -450.0, -1000.0]:

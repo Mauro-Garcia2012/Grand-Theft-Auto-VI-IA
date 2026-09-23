@@ -1,9 +1,12 @@
 class_name VehicleDB
 extends RefCounted
 ## Vehicle catalogue. Models: Kenney "Car Kit" (CC0), Kenney "Racing Kit" motorcycle (CC0),
-## Neill Bogie low-poly cars set (CC-BY 4.0), Kenney "Watercraft Pack" (CC0).
+## Neill Bogie low-poly cars set (CC-BY 4.0), Kenney "Watercraft Pack" (CC0),
+## Quaternius "Realistic Car Pack" / "Ultimate Vehicles" / "Tanks" (CC0).
 
 const NB := "res://assets/vehicles/lowpoly_cars_set.glb"
+const Q := "res://assets/q/"
+const B := "res://assets/vehicles/brand/"
 
 # front: "-z" means the model's nose points to -Z (Godot forward); "+z" needs a 180° turn.
 const CARS := {
@@ -42,6 +45,28 @@ const CARS := {
 	"nb_minipickup": {"name": "Mini Pickup", "src": NB, "node": "car_mini-pickup", "front": "+z", "length": 4.4, "mass": 1500, "accel": 6.5, "top": 42, "grip": 0.95, "paint": true, "kind": "civil"},
 	"nb_skis": {"name": "Rally Ski", "src": NB, "node": "car_sports_skiis", "front": "+z", "length": 4.4, "mass": 1200, "accel": 10.5, "top": 60, "grip": 1.2, "paint": false, "kind": "sport"},
 	"nb_dragster": {"name": "Dragster", "src": NB, "node": "car_dragster", "front": "+z", "length": 6.5, "mass": 1000, "accel": 16.0, "top": 85, "grip": 1.2, "paint": false, "kind": "super"},
+	# ---- Quaternius "Realistic Car Pack" (CC0)
+	"q_primo": {"name": "Primo", "src": Q + "cars/NormalCar1.fbx", "front": "+z", "length": 4.6, "mass": 1400, "accel": 7.5, "top": 48, "grip": 1.05, "paint": true, "paint_mats": ["blue"], "kind": "civil"},
+	"q_asterope": {"name": "Asterope", "src": Q + "cars/NormalCar2.fbx", "front": "+z", "length": 4.7, "mass": 1450, "accel": 7.5, "top": 48, "grip": 1.05, "paint": true, "paint_mats": ["lightblue"], "kind": "civil"},
+	"q_cavalcade": {"name": "Cavalcade", "src": Q + "cars/SUV.fbx", "front": "+z", "length": 5.0, "mass": 2100, "accel": 7.0, "top": 46, "grip": 1.0, "paint": true, "paint_mats": ["white"], "kind": "civil"},
+	"q_infernus": {"name": "Infernus Vice", "src": Q + "cars/SportsCar.fbx", "front": "+z", "length": 4.6, "mass": 1250, "accel": 13.0, "top": 76, "grip": 1.35, "paint": true, "paint_mats": ["orange", "darkorange"], "kind": "super"},
+	"q_comet": {"name": "Comet Leonida", "src": Q + "cars/SportsCar2.fbx", "front": "+z", "length": 4.5, "mass": 1300, "accel": 11.5, "top": 68, "grip": 1.25, "paint": true, "paint_mats": ["white"], "kind": "sport"},
+	"q_taxi": {"name": "Taxi Downtown Cab Co.", "src": Q + "cars/Taxi.fbx", "front": "+z", "length": 4.7, "mass": 1450, "accel": 7.5, "top": 46, "grip": 1.0, "paint": false, "kind": "taxi"},
+	"q_cop": {"name": "Police Cruiser VCPD", "src": Q + "cars/Cop.fbx", "front": "+z", "length": 4.8, "mass": 1600, "accel": 10.5, "top": 60, "grip": 1.15, "paint": false, "kind": "police", "siren": true},
+	"q_cop_suv": {"name": "Police Ranger VCPD", "src": Q + "cars/Cop_SUV.fbx", "front": "+z", "length": 5.0, "mass": 2200, "accel": 9.0, "top": 55, "grip": 1.1, "paint": false, "kind": "police", "siren": true},
+	# ---- Quaternius "Ultimate Vehicles" (CC0, untextured: recolored by material name)
+	"q_bus": {"name": "Autobús VC Transit", "src": Q + "transport/Bus.fbx", "front": "-x", "length": 10.5, "width": 2.8, "mass": 11000, "accel": 3.8, "top": 30, "grip": 0.85, "paint": false, "kind": "work", "white": true,
+		"recolor": {"material": Color(0.08, 0.08, 0.08), "top": Color(0.95, 0.95, 0.95), "bottom": Color(0.1, 0.62, 0.66)}},
+	"q_schoolbus": {"name": "Autobús escolar", "src": Q + "transport/SchoolBus.fbx", "front": "-x", "length": 9.5, "width": 2.7, "mass": 9500, "accel": 3.8, "top": 30, "grip": 0.85, "paint": false, "kind": "work", "white": true},
+	"q_ambulance": {"name": "Ambulancia Leonida", "src": Q + "transport/Ambulance.fbx", "front": "+z", "length": 6.2, "width": 2.4, "mass": 3200, "accel": 6.5, "top": 44, "grip": 0.95, "paint": false, "kind": "emergency", "siren": true, "white": true,
+		"recolor": {"material": Color(0.08, 0.08, 0.08), "grey": Color(0.4, 0.4, 0.42)}},
+	"q_tank": {"name": "Rhino", "src": Q + "tanks/Tank.fbx", "front": "-x", "length": 9.0, "width": 4.6, "mass": 40000, "accel": 4.0, "top": 22, "grip": 1.6, "paint": false, "kind": "military",
+		"turret": "Tank_Turret", "gun": "Tank_Gun", "armored": true},
+	# ---- detailed licensed-look cars (fan uploads, converted with tools/brand_cars.gd)
+	"b_m5": {"name": "BMW M5 CS", "src": B + "bmw_m5.glb", "front": "+z", "length": 4.98, "mass": 1800, "accel": 12.5, "top": 74, "grip": 1.3, "paint": true, "paint_mats": ["bm_carpaint_max1"], "kind": "sport"},
+	"b_m8": {"name": "BMW M8 Competition", "src": B + "bmw_m8.glb", "front": "+z", "length": 4.87, "mass": 1850, "accel": 13.0, "top": 76, "grip": 1.3, "paint": true, "paint_mats": ["bbmw_m8rewardrecycled_2020paint_material1"], "kind": "sport"},
+	"b_challenger": {"name": "Dodge Challenger R/T", "src": B + "challenger.glb", "front": "+z", "length": 5.02, "mass": 1900, "accel": 12.0, "top": 68, "grip": 1.1, "paint": true, "paint_mats": ["ddodge_challengerrtshakerf7_2015paint_material1"], "kind": "sport"},
+	"b_roadster": {"name": "Tesla Roadster", "src": B + "roadster.glb", "front": "+z", "length": 4.6, "mass": 1700, "accel": 15.0, "top": 80, "grip": 1.4, "paint": true, "paint_mats": ["car_main_paint"], "kind": "super"},
 	# ---- two wheels
 	"motorcycle": {"name": "Moto Sanchez", "src": "res://assets/vehicles/motorcycle.glb", "front": "+z", "length": 2.3, "mass": 260, "accel": 11.0, "top": 60, "grip": 1.2, "paint": false, "kind": "bike", "bike": true, "open": true},
 }
@@ -63,10 +88,12 @@ const PAINTS := [
 ]
 
 const TRAFFIC_WEIGHTS := {
-	"sedan": 10, "nb_daily": 8, "suv": 6, "taxi": 6, "nb_minivan": 4, "hatchbackSports": 4, "nb_pickup": 5,
-	"sedanSports": 3, "suvLuxury": 3, "van": 3, "delivery": 2, "nb_breadvan": 1, "nb_minipickup": 3,
+	"q_primo": 9, "q_asterope": 9, "q_cavalcade": 7, "q_taxi": 6, "q_comet": 3, "q_infernus": 2,
+	"sedan": 4, "nb_daily": 5, "suv": 3, "taxi": 2, "nb_minivan": 3, "hatchbackSports": 2, "nb_pickup": 4,
+	"sedanSports": 2, "suvLuxury": 2, "van": 3, "delivery": 2, "nb_breadvan": 1, "nb_minipickup": 2,
 	"nb_convertible": 3, "nb_beemer": 3, "nb_charger": 2, "truck": 1, "garbageTruck": 1, "nb_removals": 1,
-	"nb_sports": 1, "nb_limo": 1, "motorcycle": 2, "deliveryFlat": 1, "ambulance": 1,
+	"nb_sports": 1, "nb_limo": 1, "motorcycle": 2, "deliveryFlat": 1, "q_ambulance": 1, "q_bus": 2, "q_schoolbus": 1,
+	"b_m5": 1, "b_m8": 1, "b_challenger": 1, "b_roadster": 1,
 }
 
 static var _scene_cache := {}

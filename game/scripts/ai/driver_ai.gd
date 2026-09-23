@@ -77,10 +77,7 @@ func start_pursuit(t: Node3D) -> void:
 
 func _lane_point(a: Vector3, b: Vector3, width: float) -> Array:
 	var d := Vector3(b.x - a.x, 0, b.z - a.z).normalized()
-	var right := Vector3(-d.z, 0, d.x) * -1.0   # right-hand traffic
-	right = Vector3(-d.z, 0, d.x)
-	# Godot: forward d, right = d x up
-	right = d.cross(Vector3.UP).normalized()
+	var right := d.cross(Vector3.UP).normalized()   # right-hand traffic (Godot: right = forward x up)
 	var off := width * 0.25
 	return [a + right * off, b + right * off, d]
 
@@ -215,6 +212,13 @@ func _cruise(delta: float) -> void:
 		panic_t -= delta
 		if panic_t <= 0.0:
 			mode = M.CRUISE
+	# traffic lights: stop at the line on red (and on amber when there is room to stop)
+	if mode == M.CRUISE and remaining < 30.0:
+		var sig := TrafficSignals.state(to_node, b - a)
+		if sig == 2 or (sig == 1 and remaining > 14.0):
+			var stop_at: float = e.get("width", 14.0) * 0.5 + 6.0
+			if remaining > stop_at - 2.0:
+				limit = minf(limit, maxf(0.0, (remaining - stop_at) * 0.6))
 	# slow down before a sharp turn at the next node
 	if next_node >= 0 and remaining < 25.0:
 		var d1 := (b - a)

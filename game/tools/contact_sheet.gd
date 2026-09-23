@@ -12,7 +12,7 @@ func _init():
 	var filt: String = args[4] if args.size() > 4 else ""
 	var d = DirAccess.open(dir)
 	for f in d.get_files():
-		if (f.ends_with(".glb") or f.ends_with(".gltf")) and (filt == "" or f.contains(filt)):
+		if (f.ends_with(".glb") or f.ends_with(".gltf") or f.ends_with(".fbx")) and (filt == "" or f.contains(filt)):
 			files.append(dir.path_join(f))
 	files.sort()
 	var root := Node3D.new()
@@ -60,7 +60,7 @@ func _init():
 	cam.size = max(w, h * 1.0) * 1.05
 	cam.far = 500
 	root.add_child(cam)
-	cam.look_at_from_position(Vector3(w * 0.5 - cell * 0.5, 40, h * 0.5 - cell * 0.5 + 20), Vector3(w * 0.5 - cell * 0.5, 0, h * 0.5 - cell * 0.5))
+	cam.look_at_from_position(Vector3(w * 0.5 - cell * 0.5, max(w, h) * 0.9, h * 0.5 - cell * 0.5 + max(w, h) * 0.9), Vector3(w * 0.5 - cell * 0.5, 0, h * 0.5 - cell * 0.5))
 	get_root().size = Vector2i(1800, int(1800 * max(0.4, h / w)))
 func _aabb(n: Node) -> AABB:
 	var res := AABB()

@@ -136,6 +136,9 @@ func _warm_up() -> void:
 	for id in VehicleDB.BOATS:
 		VehicleDB.load_src(VehicleDB.BOATS[id].src)
 	CharacterModel.get_anim_library()
+	# weapon models (first NPC with a gun would otherwise hitch while the pack loads)
+	for w in ["pistol", "smg"]:
+		WeaponDB.make_model(w).free()
 	for p in CharacterModel.BODY_SCENES.values() + CharacterModel.HAIR_SCENES.values():
 		CharacterModel.load_scene(p)
 	# instantiate one car of the multi-car set to cache its prototypes
@@ -203,6 +206,7 @@ func _spawn_protagonists() -> void:
 	# a car waiting for them on Ocean Drive
 	VehicleDB.spawn("nb_convertible", start + Vector3(-7.5, 0.8, 6), 0.0, Color(0.95, 0.35, 0.6))
 	VehicleDB.spawn("motorcycle", start + Vector3(-7.5, 0.8, -4), 0.0)
+	VehicleDB.spawn("b_m8", start + Vector3(-7.5, 0.8, 16), 0.0, Color(0.05, 0.05, 0.06))
 
 
 func _set_active(i: int, instant := false) -> void:

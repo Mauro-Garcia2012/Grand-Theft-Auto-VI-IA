@@ -3,7 +3,8 @@ game/.godot/
 game/export/
 *.tmp
 # builds are attached as zip only
-builds/*.exe
-builds/*.pck
+builds/**/*.exe
+builds/**/*.pck
+builds/**/*.console.exe
 __pycache__/
 game/tools/py/labels_*.png

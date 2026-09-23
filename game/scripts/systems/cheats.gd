@@ -36,10 +36,16 @@ static func apply(code: String) -> void:
 			_spawn("sedanSports")
 		"MOTO", "BIKE":
 			_spawn("motorcycle")
-		"TANQUE", "TANK", "CAMION":
+		"TANQUE", "TANK", "RHINO":
+			_spawn("q_tank")
+		"CAMION":
 			_spawn("garbageTruck")
+		"AUTOBUS", "BUS":
+			_spawn("q_bus")
+		"INFERNUS":
+			_spawn("q_infernus")
 		"PATRULLA", "COPCAR":
-			_spawn("police")
+			_spawn("q_cop")
 		"DRAGSTER":
 			_spawn("nb_dragster")
 		"LANCHA", "BOAT":

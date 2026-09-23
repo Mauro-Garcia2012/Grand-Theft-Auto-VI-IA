@@ -46,6 +46,13 @@ var _skid_snd: AudioStreamPlayer3D
 var _siren_lights: Array = []
 var _headlights: Array = []
 var _brake_mat: StandardMaterial3D
+var _siren_mats: Array = []
+var turret: Node3D                # tanks: rotating turret + gun
+var gun: Node3D
+var _turret_rest := Basis()
+var _muzzle_local := Vector3.ZERO
+var _turret_yaw := 0.0
+var cannon_cd := 0.0
 var _last_vel := Vector3.ZERO
 var _crash_cd := 0.0
 var _flip_timer := 0.0
@@ -107,14 +114,35 @@ func _build_model() -> void:
 	var holder := Node3D.new()
 	model_root.add_child(holder)
 	holder.add_child(inst)
-	if def.front == "+z":
-		holder.rotation.y = PI
+	holder.rotation.y = {"+z": PI, "+x": PI * 0.5, "-x": -PI * 0.5}.get(def.get("front", "-z"), 0.0)
+	for n in inst.find_children("*", "Light3D", true, false) + inst.find_children("*", "Camera3D", true, false):
+		n.free()
+	if def.has("recolor") or def.get("white", false):
+		ModelUtil.recolor(inst, def.get("recolor", {}))
 	# collect wheels & compute bounds (in model_root space, unscaled)
 	var wheel_nodes: Array = []
-	for n in inst.find_children("*", "Node3D", true, false):
+	for n in inst.find_children("*", "MeshInstance3D", true, false):
 		var nm := String(n.name).to_lower()
-		if nm.begins_with("wheel") and n is MeshInstance3D:
+		if nm.contains("wheel") and not nm.contains("steer") and not nm.contains("spare"):
 			wheel_nodes.append(n)
+	for extra in def.get("hide", []):
+		var hn := inst.find_child(extra, true, false)
+		if hn:
+			hn.visible = false
+	if def.has("turret"):
+		turret = inst.find_child(def.turret, true, false)
+		gun = inst.find_child(def.get("gun", ""), true, false) if def.has("gun") else null
+		if turret and gun and gun.get_parent() == turret.get_parent():
+			# the gun barrel is a sibling in the source file: parent it to the turret so they turn together
+			var gt := turret.transform.affine_inverse() * gun.transform
+			gun.get_parent().remove_child(gun)
+			turret.add_child(gun)
+			gun.transform = gt
+		if turret:
+			_turret_rest = turret.transform.basis
+			var ga: AABB = (turret.transform * gun.transform) * (gun as MeshInstance3D).get_aabb() if gun else AABB(turret.position, Vector3.ONE)
+			# the barrel rests along -X of the source model
+			_muzzle_local = turret.transform.affine_inverse() * Vector3(ga.position.x, ga.get_center().y, ga.get_center().z)
 	var body_aabb := AABB()
 	var first := true
 	for mi in inst.find_children("*", "MeshInstance3D", true, false) + ([inst] if inst is MeshInstance3D else []):
@@ -131,9 +159,17 @@ func _build_model() -> void:
 			body_aabb = body_aabb.merge(a)
 	var length_raw := body_aabb.size.z
 	var k: float = float(def.length) / maxf(length_raw, 0.01)
-	model_root.scale = Vector3.ONE * k
-	body_size = body_aabb.size * k
-	var body_center := body_aabb.get_center() * k
+	var kv := Vector3.ONE * k
+	if def.has("width"):
+		kv.x = float(def.width) / maxf(body_aabb.size.x, 0.01)
+	model_root.scale = kv
+	body_size = body_aabb.size * kv
+	var body_center := body_aabb.get_center() * kv
+	# keep the body centred on the rigid body origin (some models have their pivot at one end)
+	var xz := Vector3(body_center.x, 0.0, body_center.z)
+	if xz.length() > 0.1:
+		model_root.position -= xz
+		body_center -= xz
 	# Paint
 	var col := paint
 	if col.r < 0.0 and def.get("paint", false):
@@ -145,11 +181,14 @@ func _build_model() -> void:
 			if mat == null:
 				continue
 			var mname := String(mat.resource_name).to_lower()
-			if def.get("paint", false) and col.r >= 0.0 and (mname.begins_with("paint") or mname.contains("paint") or mname == "lospec material"):
-				if mname == "lospec material":
-					continue
+			if mname == "lospec material":
+				continue
+			var is_paint := false
+			if def.get("paint", false) and col.r >= 0.0:
+				is_paint = mname in def.paint_mats if def.has("paint_mats") else mname.contains("paint")
+			if is_paint:
 				var pm2: StandardMaterial3D = mat.duplicate()
-				pm2.albedo_color = col
+				pm2.albedo_color = col.darkened(0.12) if mname.begins_with("dark") else col
 				pm2.metallic = 0.35
 				pm2.roughness = 0.25
 				m.set_surface_override_material(s, pm2)
@@ -160,14 +199,21 @@ func _build_model() -> void:
 				wm.metallic = 0.8
 				wm.roughness = 0.08
 				m.set_surface_override_material(s, wm)
-			elif mname.contains("lightback") or mname.contains("brake"):
+			elif mname.contains("bluelight") or mname.contains("redlight"):
+				var sm: StandardMaterial3D = mat.duplicate()
+				sm.emission_enabled = true
+				sm.emission = Color(0.1, 0.3, 1.0) if mname.contains("blue") else Color(1.0, 0.05, 0.05)
+				sm.emission_energy_multiplier = 0.2
+				m.set_surface_override_material(s, sm)
+				_siren_mats.append(sm)
+			elif mname.contains("lightback") or mname.contains("brake") or mname.contains("taillight"):
 				if _brake_mat == null:
 					_brake_mat = (mat as StandardMaterial3D).duplicate()
 					_brake_mat.emission_enabled = true
 					_brake_mat.emission = Color(1, 0.05, 0.05)
 					_brake_mat.emission_energy_multiplier = 0.3
 				m.set_surface_override_material(s, _brake_mat)
-			elif mname.contains("lightfront"):
+			elif mname.contains("lightfront") or mname.contains("headlight"):
 				var hm: StandardMaterial3D = mat.duplicate()
 				hm.emission_enabled = true
 				hm.emission = Color(1, 0.95, 0.8)
@@ -188,17 +234,27 @@ func _build_model() -> void:
 		w.get_parent().remove_child(w)
 		spin.add_child(w)
 		w.transform = Transform3D(Basis(), -center) * gt
-		var local := center * k   # vehicle space
+		var local := center * kv + Vector3(model_root.position.x, 0.0, model_root.position.z)   # vehicle space
 		var front := local.z < body_center.z
-		wheels.append({
-			"pivot": pivot, "spin": spin, "pos": local, "radius": radius, "front": front,
-			"left": local.x < 0.0, "compression": 0.0, "contact": false, "rot": 0.0, "slip": 0.0,
-			"normal": Vector3.UP, "hit": Vector3.ZERO,
-		})
+		# one mesh holding both wheels of an axle: two physics wheels share the visual
+		var axle := waabb.size.x > 2.2 * maxf(waabb.size.y, waabb.size.z)
+		var offs := [0.0] if not axle else [-waabb.size.x * 0.42 * kv.x, waabb.size.x * 0.42 * kv.x]
+		for oi in offs.size():
+			var p: Vector3 = local + Vector3(offs[oi], 0, 0)
+			wheels.append({
+				"pivot": pivot if oi == 0 else null, "spin": spin, "pos": p, "radius": radius, "front": front,
+				"left": p.x < 0.0, "compression": 0.0, "contact": false, "rot": 0.0, "slip": 0.0,
+				"normal": Vector3.UP, "hit": Vector3.ZERO, "axle": axle,
+			})
 	# Shift so that the lowest wheel touches y=0 at rest (origin = ground level)
-	var min_y := 0.0
+	var min_y := INF
 	for w in wheels:
 		min_y = minf(min_y, w.pos.y - w.radius)
+	if not wheels.is_empty() and absf(min_y) > 0.08:
+		model_root.position.y -= min_y
+		body_center.y -= min_y
+		for w in wheels:
+			w.pos.y -= min_y
 	# collision box (body only, lifted a bit so wheels do the ground work)
 	var cs := CollisionShape3D.new()
 	var box := BoxShape3D.new()
@@ -211,9 +267,12 @@ func _build_model() -> void:
 	add_child(cs)
 	body_size = Vector3(body_size.x, body_size.y, body_size.z)
 	if wheels.is_empty():
-		# fallback 4 virtual wheels
-		for p in [Vector3(-0.8, 0.35, -1.4), Vector3(0.8, 0.35, -1.4), Vector3(-0.8, 0.35, 1.4), Vector3(0.8, 0.35, 1.4)]:
-			wheels.append({"pivot": null, "spin": null, "pos": p, "radius": 0.35, "front": p.z < 0, "left": p.x < 0,
+		# fallback 4 virtual wheels (tanks, models without wheel nodes)
+		var wr := clampf(body_size.y * 0.16, 0.3, 0.6)
+		var wx := body_size.x * 0.36
+		var wz := body_size.z * 0.34
+		for p in [Vector3(-wx, wr, body_center.z - wz), Vector3(wx, wr, body_center.z - wz), Vector3(-wx, wr, body_center.z + wz), Vector3(wx, wr, body_center.z + wz)]:
+			wheels.append({"pivot": null, "spin": null, "pos": p, "radius": wr, "front": p.z < body_center.z, "left": p.x < 0,
 				"compression": 0.0, "contact": false, "rot": 0.0, "slip": 0.0, "normal": Vector3.UP, "hit": Vector3.ZERO})
 	# seats
 	var sx := body_size.x * 0.22
@@ -370,6 +429,8 @@ func get_exit_position(s: int) -> Vector3:
 func take_damage(amount: float, attacker: Node = null, _hit_pos := Vector3.ZERO) -> void:
 	if destroyed:
 		return
+	if def.get("armored", false):
+		amount *= 0.12
 	if Game.god_mode and driver() != null and driver().is_player:
 		amount *= 0.1
 	health -= amount
@@ -443,6 +504,7 @@ func set_paint(c: Color) -> void:
 
 # --------------------------------------------------------------- physics
 func _physics_process(delta: float) -> void:
+	cannon_cd -= delta
 	var drv := driver()
 	if sleeping and drv == null and not on_fire:
 		return
@@ -715,11 +777,16 @@ func _update_audio_fx(delta: float, skid: float, grounded: int) -> void:
 			var ph := fmod(_siren_t * 3.0, 1.0)
 			_siren_lights[0].light_energy = 6.0 if ph < 0.5 else 0.0
 			_siren_lights[1].light_energy = 6.0 if ph >= 0.5 else 0.0
+			for i in _siren_mats.size():
+				var on := (ph < 0.5) == (i % 2 == 0) if _siren_mats.size() > 1 else fmod(_siren_t * 6.0, 1.0) < 0.5
+				_siren_mats[i].emission_energy_multiplier = 8.0 if on else 0.3
 		else:
 			if _siren_snd.playing:
 				_siren_snd.stop()
 			for l in _siren_lights:
 				l.light_energy = 0.0
+			for sm in _siren_mats:
+				sm.emission_energy_multiplier = 0.2
 	# lights
 	var night: bool = Game.sky != null and Game.sky.is_night()
 	var want_lights := (engine_on or ai_owned) and not destroyed and (night or lights_on)
@@ -735,8 +802,48 @@ func _process(delta: float) -> void:
 		if w.pivot == null:
 			continue
 		var target_y: float = w.pos.y + w.compression - rest * 0.5
-		w.pivot.position.y = lerpf(w.pivot.position.y, target_y / model_root.scale.y, 0.5)
-		if w.front:
+		w.pivot.position.y = lerpf(w.pivot.position.y, (target_y - model_root.position.y) / model_root.scale.y, 0.5)
+		if w.front and not w.axle:
 			w.pivot.rotation.y = steer_angle
 		w.rot += forward_speed / maxf(w.radius, 0.1) * delta
 		w.spin.rotation.x = -w.rot
+
+
+# --------------------------------------------------------------- tank turret
+## Turn the turret (around the model's up axis) towards a world point.
+func aim_turret(target: Vector3, delta: float) -> void:
+	if turret == null or destroyed:
+		return
+	var root := turret.get_parent() as Node3D
+	var lp := root.global_transform.affine_inverse() * target - turret.position
+	var want := atan2(lp.z, -lp.x)
+	_turret_yaw = rotate_toward(_turret_yaw, want, delta * 1.6)
+	turret.transform.basis = Basis(Vector3.UP, _turret_yaw) * _turret_rest
+
+
+func muzzle_position() -> Vector3:
+	if turret == null:
+		return global_position + Vector3.UP * body_size.y
+	return turret.global_transform * _muzzle_local
+
+
+func fire_cannon(target: Vector3, shooter: Node) -> bool:
+	if turret == null or cannon_cd > 0.0 or destroyed:
+		return false
+	cannon_cd = 1.4
+	var from := muzzle_position()
+	var root := turret.get_parent() as Node3D
+	var barrel := (root.global_transform.basis * (turret.transform.basis * _turret_rest.inverse() * Vector3.LEFT)).normalized()
+	var dir := (target - from).normalized()
+	# keep the shell close to where the barrel points, but allow some elevation
+	var flat := Vector3(barrel.x, 0, barrel.z).normalized()
+	var dir_flat := Vector3(dir.x, 0, dir.z).normalized()
+	if flat.dot(dir_flat) < 0.94:
+		dir = (flat + Vector3.UP * clampf(dir.y, -0.25, 0.4)).normalized()
+	Combat.fire_rocket(from, dir, shooter)
+	Game.effects.muzzle_flash(from, dir, true)
+	Sfx.play_at("explosion", from, -2.0, 1.6)
+	apply_central_impulse(-dir * mass * 0.6)
+	if Game.camera_rig and shooter == Game.player:
+		Game.camera_rig.shake(0.5)
+	return true

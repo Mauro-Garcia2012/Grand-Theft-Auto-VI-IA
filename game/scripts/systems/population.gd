@@ -50,8 +50,14 @@ func _physics_process(delta: float) -> void:
 		_prof("boats", t1)
 
 
+var _prof_log := ""
 func _prof(what: String, t0: int) -> void:
 	var ms := (Time.get_ticks_usec() - t0) / 1000.0
+	_prof_log += "%s=%.0f " % [what, ms]
+	if what == "traffic" and ms > 300.0:
+		print("[population] breakdown: ", _prof_log)
+	if what in ["traffic", "peds"]:
+		_prof_log = ""
 	if ms > 25.0 and OS.is_debug_build():
 		print("[population] slow %s: %.1f ms" % [what, ms])
 
@@ -265,7 +271,9 @@ func _spawn_traffic() -> void:
 		dens *= 0.7
 	if alive >= int(max_traffic * dens * density):
 		return
+	var t0 := Time.get_ticks_usec()
 	var sp := _random_lane_point(70.0, CAR_RADIUS)
+	_prof("lane point", t0)
 	if sp.is_empty():
 		return
 	var id := VehicleDB.random_traffic(rng)
@@ -277,7 +285,9 @@ func _spawn_traffic() -> void:
 
 
 func spawn_traffic_car(id: String, pos: Vector3, yaw: float, a: int, b: int, team := "civilian") -> Vehicle:
+	var t0 := Time.get_ticks_usec()
 	var v: Vehicle = VehicleDB.spawn(id, pos, yaw)
+	_prof("vehicle " + id, t0)
 	v.ai_owned = true
 	var g := "male" if rng.randf() < 0.6 else "female"
 	var kind := ""
@@ -286,13 +296,19 @@ func spawn_traffic_car(id: String, pos: Vector3, yaw: float, a: int, b: int, tea
 		team = "police"
 	elif v.def.get("kind", "") == "taxi":
 		kind = "tee"
+	t0 = Time.get_ticks_usec()
 	var drv := spawn_ped(pos + Vector3.UP * 2.0, g, kind, team)
+	_prof("driver", t0)
 	if team == "police":
 		drv.give_weapon("pistol", 100)
 		drv.select_weapon(1)
+	t0 = Time.get_ticks_usec()
 	drv.enter_vehicle(v, 0)
+	_prof("enter", t0)
+	t0 = Time.get_ticks_usec()
 	var ai := DriverAI.new(drv, v)
 	ai.setup_on_edge(a, b)
+	_prof("ai", t0)
 	drv.brain.driver_ai = ai
 	drv.brain.state = PedBrain.S.DRIVE
 	v.set_meta("driver", drv)

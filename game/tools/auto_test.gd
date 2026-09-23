@@ -52,6 +52,20 @@ func _process(delta: float) -> void:
 			_perf()
 		"gallery":
 			_gallery()
+		"vgallery":
+			_vgallery()
+		"vview":
+			_vview()
+		"pview":
+			_pview()
+		"shots2":
+			_shots2()
+		"spawnperf":
+			_spawnperf()
+		"traffic":
+			_traffic()
+		"chase":
+			_chase()
 
 
 var _perf_next := 2.0
@@ -238,7 +252,13 @@ func _combat() -> void:
 			p.aim_point = target.global_position + Vector3.UP * 1.3
 			p.rotation.y = atan2(-(target.global_position - p.global_position).x, -(target.global_position - p.global_position).z)
 			p.try_fire()
-		if t > 5.0 and _shot_i == 0:
+		if int(t * 10) % 10 == 0:
+			var alive := 0
+			for h in get_tree().get_nodes_in_group("humanoids"):
+				if h.team.begins_with("gang") and not h.dead:
+					alive += 1
+			print("[test] t=%.1f player hp=%.0f armor=%.0f clip=%d gang_alive=%d" % [t, p.health, p.armor, int(p.current_weapon().clip), alive])
+		if t > 5.0 and _shot_i == 0 and DisplayServer.get_name() != "headless":
 			_place_cam(p.global_position + Vector3(2.5, 2.2, 3.5), p.global_position + Vector3(0, 1.2, -8))
 			await _shot("combat")
 		if t > 12.0:
@@ -302,4 +322,239 @@ func _gallery() -> void:
 	await _wait(0.5)
 	await _shot("gallery_boats")
 	print("[test] OK gallery finished")
+	get_tree().quit()
+
+
+var _sim_next := 0.0
+func _traffic() -> void:
+	# observe traffic & pedestrians health: moving / stuck ratios
+	if t < 3.0:
+		return
+	if t >= _sim_next:
+		_sim_next = t + 3.0
+		var moving := 0
+		var stuck := 0
+		var total := 0
+		var at_signal := 0
+		for v in Game.population.traffic:
+			if not is_instance_valid(v) or v.destroyed:
+				continue
+			total += 1
+			if v.linear_velocity.length() > 2.0:
+				moving += 1
+			else:
+				stuck += 1
+				var nn: int = Game.city.nearest_node(v.global_position, 26.0)
+				if nn >= 0 and TrafficSignals.signals.has(nn):
+					at_signal += 1
+		var pm := 0
+		var pt := 0
+		for h in Game.population.peds:
+			if is_instance_valid(h) and not h.dead and h.vehicle == null:
+				pt += 1
+				if Vector2(h.velocity.x, h.velocity.z).length() > 0.5:
+					pm += 1
+		var flipped := 0
+		for v in get_tree().get_nodes_in_group("vehicles"):
+			if v is Vehicle and v.global_basis.y.y < 0.5:
+				flipped += 1
+		print("[traffic] t=%.0f cars=%d moving=%d stopped=%d (at lights %d) flipped=%d | peds=%d walking=%d | fps=%d" % [t, total, moving, stuck, at_signal, flipped, pt, pm, Engine.get_frames_per_second()])
+	if t > 70.0:
+		print("[test] OK traffic finished")
+		get_tree().quit()
+
+
+var _chase_started := false
+func _chase() -> void:
+	var p := Game.player
+	if not _chase_started and t > 2.0:
+		_chase_started = true
+		var v: Vehicle = VehicleDB.spawn("sedanSports", Vector3(950, 1.8, 300), PI)
+		await _wait(0.3)
+		p.enter_vehicle(v, 0)
+		Game.wanted.set_level(3)
+	if _chase_started and p.vehicle:
+		var v = p.vehicle
+		# drive south along Collins Ave at moderate speed
+		v.throttle = 0.6 if v.speed_kmh < 70 else 0.0
+		var target := Vector3(950, 1, 1100)
+		var local = v.global_transform.affine_inverse() * target
+		v.steer_input = clampf(atan2(-local.x, -local.z) * 2.0, -1, 1)
+		if t >= _sim_next:
+			_sim_next = t + 2.0
+			var near := INF
+			var sirens := 0
+			for u in Game.wanted.units:
+				if is_instance_valid(u):
+					near = minf(near, u.global_position.distance_to(v.global_position))
+					if u.siren_on:
+						sirens += 1
+			print("[chase] t=%.0f stars=%d units=%d sirens=%d nearest=%.0f seen=%s player_speed=%.0f pos=%s" % [t, Game.get_wanted(), Game.wanted.units.size(), sirens, near, Game.wanted.seen, v.speed_kmh, v.global_position])
+	if t > 45.0:
+		print("[test] OK chase finished")
+		get_tree().quit()
+
+
+func _vgallery() -> void:
+	if step != 0 or t < 2.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 15.0
+	Game.population.set_physics_process(false)
+	Game.population.clear_all()
+	var base := Vector3(1060, 1.2, 380)
+	var ids := ["q_primo", "q_asterope", "q_cavalcade", "q_infernus", "q_comet", "q_taxi", "q_cop", "q_cop_suv", "q_ambulance", "q_bus", "q_schoolbus", "q_tank"]
+	for i in ids.size():
+		var v = VehicleDB.spawn(ids[i], base + Vector3((i % 4) * 9.0, 0.5, (i / 4) * 13.0), PI * 0.2)
+		if ids[i] in ["q_cop", "q_cop_suv", "q_ambulance"]:
+			v.siren_on = true
+	await _wait(3.0)
+	_place_cam(base + Vector3(14, 9, 42), base + Vector3(14, 0, 12))
+	await _wait(1.0)
+	await _shot("vgallery_a")
+	_place_cam(base + Vector3(-12, 5, 6), base + Vector3(10, 0, 14))
+	await _wait(0.5)
+	await _shot("vgallery_b")
+	get_tree().quit()
+
+
+## Close-up turntable of the vehicles listed in the VIEW_IDS environment variable (comma separated).
+func _vview() -> void:
+	if step != 0 or t < 2.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 13.0
+	Game.population.set_physics_process(false)
+	Game.population.clear_all()
+	var base := Vector3(1080, 1.2, 380)
+	for id in OS.get_environment("VIEW_IDS").split(","):
+		var v = VehicleDB.spawn(id, base, 0.0)
+		await _wait(2.0)
+		print("[vview] ", id, " body=", v.body_size, " y=", v.global_position.y, " mscale=", v.model_root.scale)
+		for w in v.wheels:
+			print("   wheel pos=", w.pos, " r=", w.radius, " front=", w.front, " axle=", w.get("axle", false), " contact=", w.contact)
+		var L: float = maxf(v.body_size.z, 4.0)
+		var c: Vector3 = v.global_position + Vector3(0, v.body_size.y * 0.4, 0)
+		if v.turret:
+			var tgt: Vector3 = v.global_position + Vector3(30, 2, 10)
+			for i in 90:
+				v.aim_turret(tgt, 0.05)
+			print("[vview] muzzle=", v.muzzle_position() - v.global_position)
+			v.fire_cannon(tgt, Game.player)
+			await _wait(0.12)
+		for a in [0.6, 2.4, 4.2]:
+			_place_cam(c + Vector3(sin(a), 0.35, cos(a)) * L * 1.3, c)
+			await _wait(0.3)
+			await _shot("vview_%s_%d" % [id, int(a * 10)])
+		v.queue_free()
+	get_tree().quit()
+
+
+## Line up the models listed in PVIEW (comma separated res:// paths, optional "@length") with a red
+## marker on their +Z side and a blue one on +X, to check scale and orientation.
+func _pview() -> void:
+	if step != 0 or t < 7.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 13.0
+	Game.population.set_physics_process(false)
+	Game.population.clear_all()
+	var base := Vector3(1080, 0.9, 380)
+	var items := OS.get_environment("PVIEW").split(",")
+	var ms: Array = []
+	for it in items:
+		var parts := it.split("@")
+		var spec := parts[1] if parts.size() > 1 else "0"
+		var ov := {"*debug": true} if parts.size() > 2 and parts[2] == "dbg" else {}
+		var m := ModelUtil.make(parts[0], 0.0 if spec.begins_with("h") else float(spec), ov, float(spec.substr(1)) if spec.begins_with("h") else 0.0)
+		Game.world.add_child(m)
+		m.global_position = base
+		m.visible = false
+		var a := ModelUtil.mesh_aabb(m.get_child(0))
+		print("[pview] ", parts[0].get_file(), " size=", a.size)
+		for mk in [[Vector3(0, 0.3, a.size.z * 0.5 + 0.6), Color.RED], [Vector3(a.size.x * 0.5 + 0.6, 0.3, 0), Color.BLUE]]:
+			var b := MeshInstance3D.new()
+			b.mesh = BoxMesh.new()
+			b.scale = Vector3.ONE * maxf(0.2, a.get_longest_axis_size() * 0.04)
+			var mt := StandardMaterial3D.new()
+			mt.albedo_color = mk[1]
+			b.material_override = mt
+			m.add_child(b)
+			b.position = mk[0]
+		ms.append([m, a, parts[0].get_file().get_basename()])
+	for e in ms:
+		var m: Node3D = e[0]
+		var a: AABB = e[1]
+		m.visible = true
+		var r := a.get_longest_axis_size()
+		var c := base + Vector3(0, a.size.y * 0.4, 0)
+		_place_cam(c + Vector3(0.8, 0.55, 1.0).normalized() * r * 1.4, c)
+		await _wait(0.3)
+		await _shot("pview_" + e[2])
+		m.visible = false
+	get_tree().quit()
+
+
+## Views of the newer content: traffic lights, airport gates, cruise ships, sailboats.
+func _shots2() -> void:
+	if step != 0 or t < 7.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 16.0
+	var city := Game.city
+	# nearest signalised intersection to a downtown spot
+	var best := -1
+	var bd := INF
+	for n in TrafficSignals.signals:
+		var d: float = city.nodes[n].distance_to(Vector3(60, 0, 150))
+		if d < bd:
+			bd = d
+			best = n
+	var c: Vector3 = city.nodes[best]
+	Game.player.global_position = c + Vector3(12, 0.5, 12)
+	await _wait(8.0)
+	_place_cam(c + Vector3(-9, 4.5, 28), c + Vector3(0, 3, 0))
+	await _wait(0.5)
+	await _shot("signals_day")
+	var cnt_stopped := 0
+	for v in get_tree().get_nodes_in_group("vehicles"):
+		if v is Vehicle and v.ai_owned and v.global_position.distance_to(c) < 60.0 and absf(v.forward_speed) < 0.5:
+			cnt_stopped += 1
+	print("[shots2] vehicles stopped near intersection: ", cnt_stopped)
+	Game.sky.time_of_day = 21.5
+	await _wait(1.0)
+	await _shot("signals_night")
+	Game.sky.time_of_day = 16.0
+	Game.player.global_position = Vector3(-1350, 1.5, -560)
+	await _wait(2.0)
+	_place_cam(Vector3(-1300, 25, -560), Vector3(-1380, 3, -650))
+	await _wait(0.5)
+	await _shot("airport_gates")
+	_place_cam(Vector3(-1560, 12, -420), Vector3(-1600, 2, -480))
+	await _wait(0.5)
+	await _shot("airport_hangars")
+	Game.player.global_position = Vector3(640, 1.5, 700)
+	await _wait(2.0)
+	_place_cam(Vector3(660, 40, 470), Vector3(750, 10, 650))
+	await _wait(0.5)
+	await _shot("port_cruise")
+	_place_cam(Vector3(560, 30, -200), Vector3(650, 0, 100))
+	await _wait(0.5)
+	await _shot("bay_sailboats")
+	get_tree().quit()
+
+
+func _spawnperf() -> void:
+	if step != 0 or t < 1.0:
+		return
+	step = 1
+	for round in 2:
+		for id in VehicleDB.CARS:
+			var t0 := Time.get_ticks_usec()
+			var v = VehicleDB.spawn(id, Vector3(1100, 5, 300), 0.0)
+			var dt := (Time.get_ticks_usec() - t0) / 1000.0
+			if dt > 8.0:
+				print("[spawnperf] round %d %s %.1f ms" % [round, id, dt])
+			v.queue_free()
+		await get_tree().process_frame
 	get_tree().quit()
