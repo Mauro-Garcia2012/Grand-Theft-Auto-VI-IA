@@ -13,7 +13,7 @@ const WEAPONS := {
 	"smg": {"name": "Micro SMG", "slot": 2, "type": "gun", "model": "Pistol", "length": 0.34, "damage": 17.0, "rate": 0.07,
 		"auto": true, "clip": 32, "reload": 1.5, "spread": 3.2, "range": 90.0, "pellets": 1, "price": 1200, "ammo_price": 120, "flip": false,
 		"sound": "smg", "recoil": 0.6, "icon": "🔫", "hold": "pistol", "tint": Color(0.45, 0.45, 0.5)},
-	"rifle": {"name": "Rifle de asalto", "slot": 3, "type": "gun", "model": "AssaultRifle", "length": 0.95, "damage": 30.0, "rate": 0.1,
+	"rifle": {"name": "Rifle de asalto", "slot": 3, "type": "gun", "model": "AssaultRifle", "scene": "res://assets/weapons/real/ak74.glb", "length": 0.94, "damage": 30.0, "rate": 0.1,
 		"auto": true, "clip": 30, "reload": 1.8, "spread": 1.6, "range": 180.0, "pellets": 1, "price": 3000, "ammo_price": 200, "flip": false,
 		"sound": "rifle", "recoil": 1.1, "icon": "🔫", "hold": "rifle"},
 	"shotgun": {"name": "Escopeta", "slot": 4, "type": "gun", "model": "Shotgun", "length": 1.0, "damage": 13.0, "rate": 0.85,
@@ -52,7 +52,13 @@ static func make_model(id: String) -> Node3D:
 		if id == "grenade":
 			return _grenade_model()
 		return null
-	var src: Node3D = _root().get_node(d.model)
+	var src: Node3D
+	if d.has("scene"):
+		if not _model_cache.has(d.scene):
+			_model_cache[d.scene] = load(d.scene).instantiate()
+		src = _model_cache[d.scene]
+	else:
+		src = _root().get_node(d.model)
 	var holder := Node3D.new()
 	holder.name = "WeaponModel"
 	var inst: Node3D = src.duplicate()

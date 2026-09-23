@@ -63,29 +63,46 @@ func _make_umbrella_meshes() -> void:
 	for i in UMB_COLORS.size():
 		var am := ArrayMesh.new()
 		var pole := CylinderMesh.new()
-		pole.top_radius = 0.03
-		pole.bottom_radius = 0.03
+		pole.top_radius = 0.022
+		pole.bottom_radius = 0.028
 		pole.height = 2.3
+		pole.radial_segments = 8
 		var canopy := CylinderMesh.new()
-		canopy.top_radius = 0.02
-		canopy.bottom_radius = 1.4
-		canopy.height = 0.5
-		canopy.radial_segments = 10
+		canopy.top_radius = 0.03
+		canopy.bottom_radius = 1.35
+		canopy.height = 0.42
+		canopy.radial_segments = 24
+		canopy.rings = 2
 		var m1 := StandardMaterial3D.new()
-		m1.albedo_color = Color(0.9, 0.9, 0.9)
+		m1.albedo_color = Color(0.72, 0.72, 0.74)
+		m1.metallic = 0.8
+		m1.roughness = 0.35
 		var m2 := StandardMaterial3D.new()
-		m2.albedo_color = UMB_COLORS[i]
+		# striped canvas: 8 panels alternating colour / off-white
+		var img := Image.create(64, 4, false, Image.FORMAT_RGB8)
+		for x in 64:
+			var c: Color = UMB_COLORS[i] if (x / 8) % 2 == 0 else Color(0.93, 0.92, 0.88)
+			for y in 4:
+				img.set_pixel(x, y, c)
+		m2.albedo_texture = ImageTexture.create_from_image(img)
+		m2.roughness = 0.85
 		m2.cull_mode = BaseMaterial3D.CULL_DISABLED
 		_append(am, pole, Transform3D(Basis(), Vector3(0, 1.15, 0)), m1)
-		_append(am, canopy, Transform3D(Basis(), Vector3(0, 2.3, 0)), m2)
+		_append(am, canopy, Transform3D(Basis(), Vector3(0, 2.28, 0)), m2)
 		wb.prop_meshes["umbrella%d" % i] = am
-		# towel
+		# towel with a couple of stripes
 		var towel := ArrayMesh.new()
 		var bx := BoxMesh.new()
-		bx.size = Vector3(0.9, 0.02, 1.8)
+		bx.size = Vector3(0.9, 0.012, 1.8)
 		var m3 := StandardMaterial3D.new()
-		m3.albedo_color = UMB_COLORS[(i + 2) % UMB_COLORS.size()]
-		_append(towel, bx, Transform3D(Basis(), Vector3(0, 0.01, 0)), m3)
+		var ti := Image.create(4, 32, false, Image.FORMAT_RGB8)
+		var tc: Color = UMB_COLORS[(i + 2) % UMB_COLORS.size()]
+		for y in 32:
+			for x in 4:
+				ti.set_pixel(x, y, Color(0.95, 0.95, 0.92) if y % 8 < 2 else tc)
+		m3.albedo_texture = ImageTexture.create_from_image(ti)
+		m3.roughness = 1.0
+		_append(towel, bx, Transform3D(Basis(), Vector3(0, 0.006, 0)), m3)
 		wb.prop_meshes["towel%d" % i] = towel
 	# lounger
 	var lounger := ArrayMesh.new()
@@ -261,7 +278,7 @@ func _swamp() -> void:
 		var h := wb.height_grid(x, z)
 		if h < 0.15:
 			continue
-		var k: String = ["tree_oak", "tree_default", "bush", "grass", "grass", "palm_short", "rock"][rng.randi() % 7]
+		var k: String = ["tree_oak", "tree_default", "bush", "bush2", "bush", "palm_short", "tree_default"][rng.randi() % 7]
 		wb.add_prop(k, Vector3(x, h, z), rng.randf() * TAU, rng.randf_range(0.7, 1.3), 0.3 if k.begins_with("tree") else 0.0)
 	# stilt shacks
 	for i in 6:

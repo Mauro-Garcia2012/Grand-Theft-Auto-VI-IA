@@ -25,26 +25,30 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
   Starfish Island y Fisher Island con mansiones, el puerto con grúas y cruceros, el aeropuerto
   internacional (terminal, aviones en las puertas, hangares), Grassrivers (pantano) y los Cayos
   con la autopista sobre el mar.
-- Puentes y causeways, playas con sombrillas, socorristas y paseo marítimo, palmeras, farolas,
-  bancos, 326 cruces con **semáforos que funcionan**, marinas con lanchas y veleros fondeados.
+- Puentes y causeways, playas con sombrillas, socorristas y paseo marítimo, cocoteros y árboles
+  realistas, farolas, bancos, papeleras, bocas de incendio y aparatos de aire acondicionado en las
+  azoteas (modelos fotorrealistas de Poly Haven), 326 cruces con **semáforos que funcionan**,
+  marinas con yates y veleros fondeados.
+- Texturas fotográficas PBR (arena, césped, asfalto, hormigón, estuco, ladrillo, chapa) con
+  relieve, iluminación con tonemapping AgX, oclusión ambiental y reflejos en pantalla.
 - Ciclo día/noche (atardeceres rosados, ciudad iluminada de noche) y clima dinámico: nublado,
   lluvia y tormenta con relámpagos y calles mojadas.
 
 **Personajes**
 - Jason y Lucía, jugables e intercambiables (tecla **Z**); el otro te sigue, sube al coche y
   pelea a tu lado.
-- Peatones con ropa variada, bañistas, bandas callejeras en sus barrios, policía y SWAT.
+- Personajes **realistas** (modelos Mixamo): peatones, bañistas, bandas callejeras en sus barrios,
+  médicos, policía y SWAT.
 - Animaciones completas: andar, correr, agacharse, nadar, apuntar, recargar, puñetazos, lanzar
   granadas, caídas, entrar y salir de coches.
 
-**Vehículos** (más de 40)
-- Coches de calle, deportivos, superdeportivos, SUVs, taxis, furgonetas, camiones, autobuses,
-  autobús escolar, ambulancias, bomberos, patrullas de la VCPD con sirenas y luces, motos,
-  lanchas, yate y remolcador.
-- Coches detallados de marcas reales: **BMW M5 CS, BMW M8, Dodge Challenger R/T y Tesla
-  Roadster**.
-- Tanque **Rhino** con torreta que sigue a la cámara y cañón.
-- **Aviones pilotables**: avioneta, jet privado y avión de pasajeros, con despegue, sustentación
+**Vehículos** (todos con modelos realistas)
+- Coches de calle, deportivos, SUVs, taxis, furgonetas, pick-ups, camión de basura, grúa,
+  autobuses, autobús escolar, ambulancias, bomberos, patrullas de la VCPD con sirenas y luces,
+  yates, lanchas, veleros y remolcador.
+- Coches de marcas reales: **BMW M5 CS, BMW M8, BMW M3 GTR, Dodge Challenger R/T, Tesla
+  Roadster, Ferrari 599, Porsche 911 GT3 R, McLaren F1, Chevrolet Camaro y GMC Canyon**.
+- **Aviones pilotables**: Cessna 172, Cessna Citation, Airbus A320 y caza Rafale, con despegue, sustentación
   y entrada en pérdida, aterrizaje con tren, choques y amerizajes. El avión vuela hacia donde
   miras con la cámara. Salta en pleno vuelo con **paracaídas** (Lucía te sigue).
 - Física con suspensión, derrapes con freno de mano, daños (humo → fuego → explosión),
@@ -81,7 +85,6 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 | En coche: acelerar, frenar, girar | W / S / A-D | Stick izq. |
 | Freno de mano / claxon | Espacio / H | A / R3 |
 | Sirena / luces / radio / cámara | Q / L / N / V | — / — / — / Cruceta ↑ |
-| Tanque: torreta y cañón | Ratón / Clic izq. | Cámara / RT |
 | Avión: potencia / dirección / alabeo | W-S / ratón / A-D | Stick izq. / cámara |
 | Avión: frenos / saltar en paracaídas | Espacio / F | A / Y |
 | Paracaídas: planear | WASD | Stick izq. |
@@ -89,8 +92,9 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 | Trucos | T | — |
 
 **Trucos:** `DINERO`, `ARMAS`, `VIDA`, `DIOS`, `MUNICION`, `SINPOLICIA`, `POLICIA5`,
-`SUPERCOCHE`, `INFERNUS`, `DEPORTIVO`, `MOTO`, `TANQUE`, `AUTOBUS`, `PATRULLA`, `DRAGSTER`,
-`AVIONETA`, `JET`, `JUMBO` (te sube a un avión de pasajeros en la pista),
+`SUPERCOCHE` (McLaren F1), `INFERNUS` (Ferrari), `DEPORTIVO` (BMW M5), `DRAGSTER` (Porsche),
+`MCLAREN`, `PATRULLA`, `TAXI`, `AMBULANCIA`, `BOMBEROS`, `CAMION`, `AUTOBUS`,
+`AVIONETA`, `JET`, `CAZA`, `JUMBO` (te sube a un avión de pasajeros en la pista),
 `LANCHA`, `TORMENTA`, `LLUVIA`, `SOL`, `NOCHE`, `MEDIODIA`, `ATARDECER`, `RAPIDO`, `CAOS`,
 `TELEPORT`.
 
@@ -119,14 +123,19 @@ trucos) y `ui`. `game/tools` contiene los scripts de prueba y los conversores de
 
 ## Créditos y licencias
 
-- Personajes y animaciones: Quaternius *Universal Base Characters* y *Universal Animation
-  Library* (CC0). Vehículos, aviones, barcos, tanque y semáforos: Quaternius (CC0).
-- Coches, barcos, vegetación y sonidos: Kenney (CC0). Coches low-poly: Neill Bogie,
-  *three-js-cars-3* (MIT). Mobiliario urbano: Polygonal Mind (CC0).
-- Coches de marca: colección [Vivekkk-1/3D-Models](https://github.com/Vivekkk-1/3D-Models)
+- Personajes: modelos Mixamo (Adobe) publicados en proyectos de GitHub; animaciones: Quaternius
+  *Universal Animation Library* 1 y 2 (CC0), retargeteadas en la importación.
+- Coches, servicios y barcos: proyecto [Motorpool](https://github.com/Atul-Senapati/Motorpool)
+  (exportaciones de Sketchfab) y colección [Vivekkk-1/3D-Models](https://github.com/Vivekkk-1/3D-Models)
   (Boost Software License 1.0); las marcas y diseños pertenecen a sus fabricantes.
-- Armas: *Free Low Poly Weapons Pack* de amaraha (vía Jeh3no, MIT) y *Low Poly RPG-7* de
-  Polyte (CC-BY 4.0). Tipografía Inter (SIL OFL).
+- Aviones: [FlightAirMap-3dmodels](https://github.com/Ysurac/FlightAirMap-3dmodels) (FlightGear,
+  GPL) y [FlightSim](https://github.com/vinny-palumbo/FlightSim).
+- Entorno: texturas PBR de ambientCG y Poly Haven (CC0), mobiliario urbano de Poly Haven (CC0),
+  árbol SpeedTree de [Babylon.js Assets](https://github.com/BabylonJS/Assets) (CC BY 4.0),
+  semáforos de [Rostock 3DModels](https://github.com/rostock/3DModels) (CC0).
+- Armas: AK-74 (vía [three-fps](https://github.com/mohsenheydari/three-fps)), *Free Low Poly
+  Weapons Pack* de amaraha (vía Jeh3no, MIT) y *Low Poly RPG-7* de Polyte (CC-BY 4.0).
+- Sonidos: Kenney (CC0). Tipografía Inter (SIL OFL).
 - Grand Theft Auto, Vice City y Leonida son marcas de Take-Two Interactive / Rockstar Games.
   Este proyecto no está afiliado a ellas.
 

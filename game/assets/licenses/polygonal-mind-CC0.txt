@@ -1,3 +1,0 @@
-Polygonal Mind CC0 models (props: streetlights, benches, bins, palms, electric posts)
-Source: https://github.com/ToxSam/cc0-models-Polygonal-Mind
-License: CC0 1.0 Universal (public domain dedication)

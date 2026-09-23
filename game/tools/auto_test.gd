@@ -214,7 +214,7 @@ func _drive() -> void:
 	var p := Game.player
 	if step == 0 and t > 1.5:
 		step = 1
-		var v: Vehicle = VehicleDB.spawn("p_sport", p.global_position + Vector3(0, 1, -6), 0.0)
+		var v: Vehicle = VehicleDB.spawn(OS.get_environment("DRIVE_ID") if OS.get_environment("DRIVE_ID") != "" else "p_sport", p.global_position + Vector3(0, 1, -6), 0.0)
 		await _wait(0.2)
 		p.enter_vehicle(v, 0)
 	elif step == 1 and t > 2.5:
@@ -603,10 +603,10 @@ func _readme() -> void:
 	await _shot("brand_cars")
 	# line-up of the other vehicles on the beach
 	var base := Vector3(1075, 1.2, 600)
-	var line := ["q_cop", "q_infernus", "q_taxi", "q_cavalcade", "q_bus", "q_ambulance", "q_tank", "nb_convertible"]
+	var line := ["p_police", "b_ferrari", "p_taxi", "p_suv", "p_bus", "p_ambulance", "b_mclaren", "b_camaro"]
 	for i in line.size():
 		var v = VehicleDB.spawn(line[i], base + Vector3((i % 4) * 9.0, 0.5, (i / 4) * 14.0), PI * 0.15)
-		if line[i] in ["q_cop", "q_ambulance"]:
+		if line[i] in ["p_police", "p_ambulance"]:
 			v.siren_on = true
 	await _wait(3.0)
 	_place_cam(base + Vector3(14, 8, 34), base + Vector3(14, 0, 8))

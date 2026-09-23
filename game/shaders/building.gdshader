@@ -15,13 +15,19 @@ varying vec3 base_col;
 varying vec3 osize;
 varying float base_y;
 
-float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-float noise(vec2 p) {
-	vec2 i = floor(p); vec2 f = fract(p);
-	float a = hash(i), b = hash(i + vec2(1, 0)), c = hash(i + vec2(0, 1)), d = hash(i + vec2(1, 1));
-	vec2 u = f * f * (3.0 - 2.0 * f);
-	return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-}
+#include "res://shaders/pbr_util.gdshaderinc"
+
+uniform sampler2D plaster_c : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D plaster_n : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D cwall_c : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D cwall_n : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D bricks_c : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D bricks_n : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D steel_c : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D steel_n : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D roof_c : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D roof_n : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+
 vec3 hsv2rgb(vec3 c) {
 	vec3 p = abs(fract(c.xxx + vec3(0.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0);
 	return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
@@ -58,9 +64,14 @@ void fragment() {
 	vec3 emit = vec3(0.0);
 	float h = wpos.y - base_y;
 	float top = osize.y;
+	vec3 nmap = vec3(0.5, 0.5, 1.0);
+	vec3 tng = vec3(1.0, 0.0, 0.0);
+	vec3 bin = vec3(0.0, 0.0, -1.0);
 	if (wnorm.y > 0.5) {
 		float n = noise(wpos.xz * 0.7) * 0.5 + noise(wpos.xz * 3.1) * 0.25;
-		col = vec3(0.42, 0.41, 0.4) * (0.75 + n * 0.5);
+		vec3 rt = tex2(roof_c, wpos.xz * 0.2, n);
+		nmap = nrm2(roof_n, wpos.xz * 0.2, n);
+		col = rt * 0.8 * (0.8 + n * 0.3);
 		if (style == 5) col = vec3(0.55, 0.28, 0.2) * (0.8 + n * 0.4);
 		if (style == 6 || style == 8) col = base_col * (0.8 + n * 0.3);
 		// rooftop helipad-ish marking on tall towers
@@ -79,6 +90,30 @@ void fragment() {
 		if (style == 0) { floor_h = 3.8; bay = 2.2; }
 		if (style == 3 || style == 7) { floor_h = 5.0; bay = 4.0; }
 		if (style == 5) { floor_h = 3.0; bay = 3.6; }
+		tng = tangent;
+		bin = vec3(0.0, 1.0, 0.0);
+		// photo texture detail for the wall material (tinted by the palette colour)
+		vec2 tuv = vec2(u, -h) * 0.45;
+		float tv = noise(vec2(u, h) * 0.05 + seed * 7.0);
+		vec3 wall_t;
+		if (style == 3 && hash(vec2(seed, 3.1)) > 0.5) {
+			wall_t = tex2(bricks_c, tuv * 0.8, tv) * 1.6;
+			nmap = nrm2(bricks_n, tuv * 0.8, tv);
+		} else if (style == 3 || style == 6) {
+			wall_t = tex2(cwall_c, tuv * 0.5, tv) * 1.7;
+			nmap = nrm2(cwall_n, tuv * 0.5, tv);
+		} else if (style == 7 || style == 8) {
+			wall_t = tex2(steel_c, tuv * 0.5, tv) * 1.6;
+			nmap = nrm2(steel_n, tuv * 0.5, tv);
+		} else {
+			wall_t = tex2(plaster_c, tuv, tv) * 1.2;
+			nmap = nrm2(plaster_n, tuv, tv);
+		}
+		// soften the pastel palette a little and apply the texture
+		vec3 soft = mix(vec3(lum(base_col)), base_col, 0.82);
+		vec3 wall = soft * wall_t;
+		// rain streaks / dirt towards the ground and below ledges
+		wall *= 1.0 - (1.0 - smoothstep(0.0, 2.5, h)) * 0.18;
 		vec2 cell = vec2(u / bay, h / floor_h);
 		vec2 fw = fwidth(cell);
 		vec2 f = fract(cell);
@@ -95,7 +130,7 @@ void fragment() {
 			vec3 glass = mix(vec3(0.07, 0.17, 0.24), vec3(0.14, 0.38, 0.46), params.z);
 			// subtle vertical gradient reflections
 			glass *= 0.85 + 0.3 * noise(vec2(u * 0.05, h * 0.02 + seed));
-			col = mix(base_col * 0.55, glass, m);
+			col = mix(wall * 0.55, glass, m);
 			rough = mix(0.5, 0.05, m);
 			metal = mix(0.3, 0.85, m);
 			float office = mix(step(0.35, hash(id.yx + seed)), 0.8, far_fade);
@@ -106,7 +141,7 @@ void fragment() {
 			float ledge = band(f.y, 0.84, 0.92, fw.y) * (1.0 - far_fade * 0.5);
 			float bandc = step(top - 1.6, h) * step(h, top - 0.9);
 			float fin = band(fract(u / (bay * 3.0)), 0.96, 0.995, fw.x / 3.0);
-			col = base_col * (1.0 - grime);
+			col = wall * (1.0 - grime);
 			col = mix(col, col * 0.72, ledge);
 			col = mix(col, accent, clamp(bandc + fin * 0.8, 0.0, 1.0));
 			col = mix(col, vec3(0.16, 0.24, 0.3), m * (1.0 - bandc));
@@ -124,10 +159,15 @@ void fragment() {
 		} else if (style == 2 || style == 5) {
 			float m = wmask(f, fw, vec4(0.3, 0.7, 0.3, 0.8));
 			float shutter = (wmask(f, fw, vec4(0.2, 0.3, 0.3, 0.8)) + wmask(f, fw, vec4(0.7, 0.8, 0.3, 0.8)));
-			col = base_col * (1.0 - grime * 1.5);
-			if (style == 2) col = mix(col, accent * 0.8, shutter);
-			col = mix(col, vec3(0.12, 0.15, 0.18), m);
-			rough = mix(0.9, 0.2, m);
+			float frame = clamp(wmask(f, fw, vec4(0.27, 0.73, 0.26, 0.84)) - m, 0.0, 1.0);
+			col = wall * (1.0 - grime * 1.5);
+			if (style == 2) col = mix(col, mix(vec3(lum(accent)), accent, 0.6) * 0.75, shutter);
+			col = mix(col, vec3(0.86, 0.85, 0.82), frame * (1.0 - far_fade));
+			// glass: dark interior, some curtains, reflective
+			vec3 gl = mix(vec3(0.06, 0.08, 0.09), vec3(0.35, 0.3, 0.25), step(0.7, hash(id + seed * 3.0)) * 0.6);
+			col = mix(col, gl, m);
+			rough = mix(0.9, 0.06, m);
+			metal = m * 0.35;
 			emit = vec3(1.0, 0.8, 0.5) * lit * m * night_factor * 0.8;
 			if (ground_floor && style == 2) {
 				float shop = wmask(f, fw, vec4(0.05, 0.95, 0.05, 0.72)) * step(0.4, hash(id + seed));
@@ -143,7 +183,7 @@ void fragment() {
 		} else if (style == 3 || style == 7 || style == 8) {
 			// corrugated metal / brick; Stockyard warehouses get graffiti murals
 			float rib = mix(sin(u * (style == 8 ? 9.0 : 12.0)) * 0.5 + 0.5, 0.5, far_fade);
-			col = base_col * (0.84 + rib * 0.16) * (1.0 - grime);
+			col = wall * (0.9 + rib * 0.1) * (1.0 - grime);
 			if (style != 8) {
 				float strip = wmask(f, fw, vec4(0.1, 0.9, 0.62, 0.8)) * step(1.0, id.y);
 				col = mix(col, vec3(0.15, 0.17, 0.18), strip);
@@ -176,7 +216,7 @@ void fragment() {
 			float glass = wmask(f, fw, vec4(0.1, 0.9, 0.05, 0.8));
 			float slab = band(f.y, 0.86, 1.0, fw.y);
 			float rail = band(f.y, 0.8, 0.86, fw.y);
-			col = mix(base_col, vec3(0.12, 0.32, 0.42), glass);
+			col = mix(wall, vec3(0.1, 0.22, 0.28), glass);
 			col = mix(col, vec3(0.95), slab * (1.0 - far_fade * 0.5));
 			col = mix(col, vec3(0.6, 0.75, 0.8), rail);
 			rough = mix(0.8, 0.05, glass);
@@ -184,9 +224,12 @@ void fragment() {
 			emit = vec3(1.0, 0.85, 0.6) * lit * glass * night_factor * 0.7;
 			emit += accent * step(top - 1.0, h) * night_factor * 1.5;
 		} else if (style == 6) {
-			col = base_col * (0.9 + grime);
+			col = wall * (0.9 + grime);
 		}
 	}
+	TANGENT = normalize((VIEW_MATRIX * vec4(tng, 0.0)).xyz);
+	BINORMAL = normalize((VIEW_MATRIX * vec4(bin, 0.0)).xyz);
+	NORMAL_MAP = nmap;
 	ALBEDO = col;
 	ROUGHNESS = rough;
 	METALLIC = metal;

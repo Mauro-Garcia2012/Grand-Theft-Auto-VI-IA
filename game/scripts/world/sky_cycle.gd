@@ -38,13 +38,17 @@ func _ready() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
-	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.tonemap_exposure = 1.0
-	env.tonemap_white = 6.0
+	# AgX: filmic, photographic highlight roll-off (less "cartoon" saturation than ACES)
+	env.tonemap_mode = Environment.TONE_MAPPER_AGX
+	env.tonemap_exposure = 1.05
+	env.tonemap_white = 12.0
 	env.ssao_enabled = true
 	env.ssao_radius = 1.5
 	env.ssao_intensity = 1.6
-	env.ssr_enabled = false
+	env.ssr_enabled = true
+	env.ssr_max_steps = 48
+	env.ssr_fade_in = 0.15
+	env.ssr_fade_out = 2.0
 	env.glow_enabled = true
 	env.glow_intensity = 0.7
 	env.glow_bloom = 0.08
@@ -59,7 +63,7 @@ func _ready() -> void:
 	env.fog_sky_affect = 0.25
 	env.adjustment_enabled = true
 	env.adjustment_saturation = 1.12
-	env.adjustment_contrast = 1.05
+	env.adjustment_contrast = 1.08
 	world_env.environment = env
 	add_child(world_env)
 	sun = DirectionalLight3D.new()
@@ -188,8 +192,10 @@ func _apply(delta: float) -> void:
 	sky_mat.set_shader_parameter("night", night)
 	sky_mat.set_shader_parameter("cloud_cover", lerpf(0.3, 0.85, storm))
 	sky_mat.set_shader_parameter("cloud_dark", storm)
-	env.ambient_light_energy = lerpf(0.55, 1.0, day)
-	env.ambient_light_sky_contribution = lerpf(0.6, 1.0, day)
+	# sky light mixed with a warm bounce colour: shadows stay neutral instead of deep blue
+	env.ambient_light_color = Color(0.62, 0.58, 0.52).lerp(Color(0.25, 0.22, 0.35), night)
+	env.ambient_light_energy = lerpf(0.5, 0.8, day)
+	env.ambient_light_sky_contribution = lerpf(0.6, 0.55, day)
 	env.fog_light_color = hor.lerp(Color(0.6, 0.62, 0.66), storm * 0.6)
 	env.fog_depth_begin = lerpf(350.0, 80.0, storm)
 	env.fog_depth_end = lerpf(3200.0, 900.0, storm)

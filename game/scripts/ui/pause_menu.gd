@@ -65,6 +65,7 @@ func _build() -> void:
 	_check(sett, "Sombras", true, _set_shadows)
 	_check(sett, "Pantalla completa", false, _set_fullscreen)
 	_check(sett, "SSAO (oclusión ambiental)", true, _set_ssao)
+	_check(sett, "Reflejos en pantalla (SSR)", true, func(v): if Game.sky: Game.sky.env.ssr_enabled = v)
 	# CONTROLS
 	var help := Label.new()
 	help.name = "Controles"
@@ -86,8 +87,9 @@ EN AVIÓN
 
 GENERAL
   M  Mapa (clic para marcar destino GPS)     ESC / P  Pausa     F5  Guardar     F9  Cargar     T  Trucos
-TRUCOS: DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS, MOTO, TANQUE, AUTOBUS,
-        AVIONETA, JET, JUMBO, LANCHA, PATRULLA, TORMENTA, SOL, NOCHE, MEDIODIA, RAPIDO, CAOS, TELEPORT"""
+TRUCOS: DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS, DEPORTIVO, DRAGSTER,
+        PATRULLA, TAXI, AMBULANCIA, BOMBEROS, CAMION, AUTOBUS, AVIONETA, JET, CAZA, JUMBO, LANCHA,
+        TORMENTA, SOL, NOCHE, MEDIODIA, RAPIDO, CAOS, TELEPORT"""
 	_tabs.add_child(help)
 	# GAME
 	var game := VBoxContainer.new()

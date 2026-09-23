@@ -1,12 +1,13 @@
 class_name TrafficSignals
 extends Node3D
-## Traffic lights at the busiest intersections (Quaternius "TrafficLight_2" mast-arm poles, CC0).
+## Traffic lights at the busiest intersections: galvanized mast-arm pole with a Rostock 3DModels
+## signal head (CC0), assembled in Blender (assets/props/city/traffic_signal.glb).
 ## Each signalised node alternates between its N-S and E-W approaches; AI drivers stop on red.
 ## The pole meshes are chunked MultiMeshes owned by the WorldBuilder; the lamps are small emissive
 ## spheres in per-area MultiMeshes whose colours are refreshed a few times per second near the camera.
 
-const MODEL := "res://assets/q/street/TrafficLight_2.fbx"
-const HEIGHT := 6.2
+const MODEL := "res://assets/props/city/traffic_signal.glb"
+const HEIGHT := 6.8
 const CYCLE := 18.0           # seconds for a full N-S + E-W cycle
 const AMBER := 2.0
 const URBAN := ["downtown", "ocean_beach", "brickell", "little_cuba", "vice_beach_n", "stockyard"]
@@ -194,7 +195,7 @@ func _load_model() -> bool:
 			out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
 			var mat := mi.get_active_material(s)
 			var mn := ModelUtil.base_name(mat) if mat else ""
-			var slot: int = {"red": 0, "yellow": 1, "green": 2}.get(mn, -1)
+			var slot: int = {"red": 0, "yellow": 1, "green": 2, "ampel_rot": 0, "ampel_gelb": 1, "ampel_gruen": 2}.get(mn, -1)
 			if slot >= 0:
 				var bb := AABB(verts[0], Vector3.ZERO)
 				for v in verts:

@@ -128,54 +128,46 @@ func build(p_city: CityMap, progress: Callable) -> void:
 func _make_materials() -> void:
 	building_mat = ShaderMaterial.new()
 	building_mat.shader = load("res://shaders/building.gdshader")
+	for k in ["plaster", "cwall", "bricks", "steel"]:
+		building_mat.set_shader_parameter(k + "_c", tex(k + "_c"))
+		building_mat.set_shader_parameter(k + "_n", tex(k + "_n"))
+	building_mat.set_shader_parameter("roof_c", tex("cwall_c"))
+	building_mat.set_shader_parameter("roof_n", tex("cwall_n"))
 	road_mat = ShaderMaterial.new()
 	road_mat.shader = load("res://shaders/road.gdshader")
+	road_mat.set_shader_parameter("asph_c", tex("asphalt_c"))
+	road_mat.set_shader_parameter("asph_n", tex("asphalt_n"))
 	terrain_mat = ShaderMaterial.new()
 	terrain_mat.shader = load("res://shaders/terrain.gdshader")
-	sidewalk_mat = StandardMaterial3D.new()
-	sidewalk_mat.albedo_color = Color(0.72, 0.7, 0.66)
-	sidewalk_mat.roughness = 0.9
-	sidewalk_mat.albedo_texture = _paver_texture()
-	sidewalk_mat.uv1_triplanar = true
-	sidewalk_mat.uv1_scale = Vector3(0.5, 0.5, 0.5)
+	for pair in [["sand", "sand"], ["grass", "grass"], ["conc", "concrete"], ["mud", "mud"], ["asph", "asphalt"]]:
+		terrain_mat.set_shader_parameter(pair[0] + "_c", tex(pair[1] + "_c"))
+		terrain_mat.set_shader_parameter(pair[0] + "_n", tex(pair[1] + "_n"))
+	sidewalk_mat = pbr_material("concrete", 0.33, Color(0.74, 0.72, 0.68))
 	sidewalk_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	grass_mat = StandardMaterial3D.new()
-	grass_mat.albedo_color = Color(0.32, 0.52, 0.2)
-	grass_mat.roughness = 1.0
-	grass_mat.albedo_texture = _noise_texture(Color(0.25, 0.45, 0.15), Color(0.4, 0.58, 0.22))
-	grass_mat.uv1_triplanar = true
-	grass_mat.uv1_scale = Vector3(0.1, 0.1, 0.1)
+	grass_mat = pbr_material("grass", 0.3, Color(0.95, 1.0, 0.85))
 	grass_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	unit_cube = _make_unit_cube()
 	roof_prism = _make_prism()
 
 
-func _paver_texture() -> ImageTexture:
-	var img := Image.create(64, 64, false, Image.FORMAT_RGB8)
-	for y in 64:
-		for x in 64:
-			var edge := (x % 32 < 1) or (y % 32 < 1)
-			var v := 0.92 + randf() * 0.08
-			if edge:
-				v = 0.7
-			img.set_pixel(x, y, Color(v, v * 0.98, v * 0.94))
-	img.generate_mipmaps()
-	return ImageTexture.create_from_image(img)
+## Photo texture from assets/textures (CC0 ambientCG / Poly Haven sets).
+static func tex(name: String) -> Texture2D:
+	return load("res://assets/textures/%s.jpg" % name)
 
 
-func _noise_texture(a: Color, b: Color) -> NoiseTexture2D:
-	var nt := NoiseTexture2D.new()
-	nt.width = 256
-	nt.height = 256
-	nt.seamless = true
-	var n := FastNoiseLite.new()
-	n.frequency = 0.05
-	nt.noise = n
-	var g := Gradient.new()
-	g.set_color(0, a)
-	g.set_color(1, b)
-	nt.color_ramp = g
-	return nt
+## World-space (triplanar) PBR material from a texture set: <name>_c / <name>_n.
+static func pbr_material(name: String, scale: float, tint := Color.WHITE, roughness := 0.9) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = tex(name + "_c")
+	m.albedo_color = tint
+	m.normal_enabled = true
+	m.normal_texture = tex(name + "_n")
+	m.roughness = roughness
+	m.uv1_triplanar = true
+	m.uv1_world_triplanar = true
+	m.uv1_scale = Vector3.ONE * scale
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return m
 
 
 func _make_unit_cube() -> ArrayMesh:
@@ -495,23 +487,25 @@ func _bridge_segment(a: Vector3, b: Vector3, width: float) -> void:
 
 # ------------------------------------------------------------------ props
 func _load_props() -> void:
+	# realistic vegetation (assets/props/nature) and Poly Haven street furniture (assets/props/city)
 	var defs := {
-		"palm_tall": ["res://assets/props/tree_palmTall.glb", 11.0],
-		"palm_detail": ["res://assets/props/tree_palmDetailedTall.glb", 12.0],
-		"palm_bend": ["res://assets/props/tree_palmBend.glb", 9.0],
-		"palm_short": ["res://assets/props/tree_palmDetailedShort.glb", 6.0],
-		"palm_pm": ["res://assets/props/pm_PalmTree_Art.glb", 10.0],
-		"tree_oak": ["res://assets/props/tree_oak.glb", 8.0],
-		"tree_default": ["res://assets/props/tree_default.glb", 7.0],
-		"bush": ["res://assets/props/plant_bushLarge.glb", 1.4],
-		"bush2": ["res://assets/props/plant_bushDetailed.glb", 1.2],
-		"streetlight": ["res://assets/props/pm_Light_Streetlight_01.glb", 7.5],
-		"bench": ["res://assets/props/pm_Bench_02.glb", 0.9],
-		"bin": ["res://assets/props/pm_Bin_01.glb", 1.0],
-		"rock": ["res://assets/props/rock_largeA.glb", 1.5],
-		"grass": ["res://assets/props/grass_large.glb", 0.6],
-		"flower": ["res://assets/props/flower_redA.glb", 0.5],
-		"pole": ["res://assets/props/pm_ElectricPost01_Art.glb", 8.0],
+		"palm_tall": ["res://assets/props/nature/palm_tall.glb", 11.0],
+		"palm_detail": ["res://assets/props/nature/palm_tall.glb", 13.5],
+		"palm_bend": ["res://assets/props/nature/palm_curved.glb", 9.0],
+		"palm_short": ["res://assets/props/nature/palm_short.glb", 5.5],
+		"palm_pm": ["res://assets/props/nature/palm_curved.glb", 10.5],
+		"tree_oak": ["res://assets/props/nature/broadleaf.glb", 11.0],
+		"tree_default": ["res://assets/props/nature/broadleaf.glb", 8.0],
+		"bush": ["res://assets/props/nature/bush.glb", 1.4],
+		"bush2": ["res://assets/props/nature/hedge.glb", 1.2],
+		"streetlight": ["res://assets/props/city/street_lamp_01.glb", 4.6],
+		"bench": ["res://assets/props/city/painted_wooden_bench.glb", 0.9],
+		"bin": ["res://assets/props/city/metal_trash_can.glb", 0.95],
+		"hydrant": ["res://assets/props/city/fire_hydrant.glb", 0.8],
+		"planter": ["res://assets/props/city/potted_plant_01.glb", 1.4],
+		"barrier": ["res://assets/props/city/concrete_road_barrier.glb", 0.83],
+		"aircon": ["res://assets/props/city/aircon.glb", 1.1],
+		"utility_box": ["res://assets/props/city/utility_box.glb", 1.4],
 	}
 	for k in defs:
 		var m := _extract_mesh(defs[k][0], defs[k][1])
@@ -598,6 +592,7 @@ func add_box(t: Transform3D, color: Color, style: int, accent := 0.0, collide :=
 	var c := _chunk(t.origin)
 	var sd := seed if seed >= 0.0 else rng.randf()
 	c.b.append([t, color, Color(style / 10.0 + 0.001, sd, accent, 0.0)])
+	_roof_details(t, color, style)
 	if collide:
 		var cs := CollisionShape3D.new()
 		var box := BoxShape3D.new()
@@ -609,6 +604,36 @@ func add_box(t: Transform3D, color: Color, style: int, accent := 0.0, collide :=
 		cs.transform = Transform3D(t.basis.orthonormalized(), t.origin + t.basis.y * 0.5)
 		add_shape(cs)
 		building_boxes.append(AABB(t.origin - Vector3(sx, 0, sz) * 0.5, Vector3(sx, sy, sz)))
+
+
+## Parapet walls around flat roofs and rooftop machinery, so buildings read less like plain boxes.
+func _roof_details(t: Transform3D, color: Color, style: int) -> void:
+	if style in [5, 7, 8] or not prop_meshes.has("aircon"):
+		return
+	var sx := t.basis.x.length()
+	var sy := t.basis.y.length()
+	var sz := t.basis.z.length()
+	if sx < 7.0 or sz < 7.0 or sy < 3.0:
+		return
+	var ax := t.basis.x / sx
+	var az := t.basis.z / sz
+	var top := t.origin + Vector3.UP * sy
+	var th := 0.35
+	var ph := 1.1 if style != 0 else 1.6
+	var pc := color.lerp(Color(0.85, 0.84, 0.8), 0.25)
+	var c := _chunk(t.origin)
+	var sd := rng.randf()
+	for sgn in [-1.0, 1.0]:
+		c.b.append([Transform3D(Basis(ax * sx, Vector3.UP * ph, az * th), top + az * (sz * 0.5 - th * 0.5) * sgn), pc, Color(0.601, sd, 0.0, 0.0)])
+		c.b.append([Transform3D(Basis(ax * th, Vector3.UP * ph, az * (sz - th * 2.0)), top + ax * (sx * 0.5 - th * 0.5) * sgn), pc, Color(0.601, sd, 0.0, 0.0)])
+	# air-conditioning units (not on the tallest towers: nobody sees them)
+	if sy < 70.0:
+		var n := clampi(int(sx * sz / 220.0), 1, 6)
+		for i in n:
+			var px := rng.randf_range(-0.5, 0.5) * (sx - 4.0)
+			var pz := rng.randf_range(-0.5, 0.5) * (sz - 4.0)
+			var yaw := atan2(ax.x, ax.z) + (PI * 0.5 if rng.randf() < 0.5 else 0.0)
+			add_prop("aircon", top + ax * px + az * pz, yaw, rng.randf_range(0.9, 1.3))
 
 
 func add_roof(t: Transform3D, color := Color(0.55, 0.3, 0.22)) -> void:
@@ -668,10 +693,10 @@ func _flush_chunks() -> void:
 				mm.set_instance_transform(i, list[i])
 			var mmi := MultiMeshInstance3D.new()
 			mmi.multimesh = mm
-			mmi.visibility_range_end = 700.0 if not pk.begins_with("palm") else 1200.0
+			mmi.visibility_range_end = 700.0 if not pk.begins_with("palm") else 1000.0
 			if pk in ["traffic_light", "sign_stop", "cone"]:
 				mmi.visibility_range_end = 450.0
-			if pk in ["grass", "flower", "bin", "bench", "rock", "bush2"]:
+			if pk in ["bin", "bench", "hydrant", "planter", "barrier", "bush2", "aircon", "utility_box"]:
 				mmi.visibility_range_end = 250.0
 				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			add_child(mmi)
@@ -997,7 +1022,7 @@ func _build_street_props() -> void:
 					continue
 				if k % 2 == 0:
 					add_prop("streetlight", sp, atan2(side.x * sgn, side.z * sgn), 1.0, 0.25)
-					streetlights.append(sp + Vector3.UP * 7.0)
+					streetlights.append(sp + Vector3.UP * 4.3)
 				elif district in ["ocean_beach", "downtown", "brickell", "vice_beach_n"] or (e.kind == "avenue" and rng.randf() < 0.7):
 					add_prop(["palm_tall", "palm_detail", "palm_pm"][rng.randi() % 3], sp, rng.randf() * TAU, rng.randf_range(0.85, 1.15), 0.35)
 				elif district in ["little_cuba", "west_vice", "north_vice"] and rng.randf() < 0.4:
@@ -1006,6 +1031,12 @@ func _build_street_props() -> void:
 					add_prop("bench", sp + fd * 4.0, atan2(side.x * sgn, side.z * sgn) + PI, 1.0)
 				elif rng.randf() < 0.06:
 					add_prop("bin", sp + fd * 3.0, rng.randf() * TAU, 1.0)
+				elif rng.randf() < 0.07:
+					add_prop("hydrant", sp - fd * 3.0, rng.randf() * TAU, 1.0)
+				elif rng.randf() < 0.03:
+					add_prop("utility_box", sp + side * sgn * 1.2 - fd * 6.0, atan2(side.x * sgn, side.z * sgn), 1.0, 0.4)
+				elif district in ["ocean_beach", "downtown", "brickell"] and rng.randf() < 0.1:
+					add_prop("planter", sp + fd * 5.0, rng.randf() * TAU, rng.randf_range(0.9, 1.1))
 			t += 22.0
 			k += 1
 	# Ocean Drive beach promenade palms (east of x=1030 road)
