@@ -122,8 +122,9 @@ static func mesh_aabb(root: Node3D) -> AABB:
 
 
 ## Instance a model, recolor it and scale it so its longest horizontal side equals `length`
-## (or its height equals `height` when given). The result sits on y=0, centred on x/z.
-static func make(path: String, length := 0.0, overrides := {}, height := 0.0) -> Node3D:
+## (or its height equals `height` when given). The result sits on y=0 (or keeps the model's own
+## y = 0, e.g. a ship's waterline, with keep_y), centred on x/z.
+static func make(path: String, length := 0.0, overrides := {}, height := 0.0, keep_y := false) -> Node3D:
 	var ps: PackedScene = load(path)
 	if ps == null:
 		return null
@@ -141,5 +142,5 @@ static func make(path: String, length := 0.0, overrides := {}, height := 0.0) ->
 		k = length / maxf(maxf(a.size.x, a.size.z), 0.001)
 	inst.scale *= k
 	var c := a.get_center() * k
-	inst.position = inst.position * k + Vector3(-c.x, -a.position.y * k, -c.z)
+	inst.position = inst.position * k + Vector3(-c.x, 0.0 if keep_y else -a.position.y * k, -c.z)
 	return holder

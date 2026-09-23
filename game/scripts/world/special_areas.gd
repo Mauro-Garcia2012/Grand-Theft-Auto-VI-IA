@@ -28,12 +28,6 @@ func _y() -> float:
 	return CityMap.LAND + 0.02
 
 
-# Quaternius airliner parts: .010 fuselage & wings, .011 cabin windows, .013 tail & engines, .026 belly stripe
-const _PLANE_LIVERY := [
-	{"material.010": Color(0.95, 0.95, 0.97), "material.011": Color(0.1, 0.12, 0.15), "material.013": Color(0.1, 0.6, 0.68), "material.026": Color(0.95, 0.45, 0.62)},
-	{"material.010": Color(0.95, 0.95, 0.97), "material.011": Color(0.1, 0.12, 0.15), "material.013": Color(0.9, 0.3, 0.55), "material.026": Color(0.3, 0.3, 0.35)},
-	{"material.010": Color(0.95, 0.95, 0.97), "material.011": Color(0.1, 0.12, 0.15), "material.013": Color(0.12, 0.22, 0.55), "material.026": Color(0.8, 0.15, 0.2)},
-]
 
 
 var _plane_spots: Array = []
@@ -183,14 +177,14 @@ func _port() -> void:
 	# warehouses
 	for i in 3:
 		wb.add_building(Vector3(610.0, y, 690.0 + i * 55.0), Vector3(50.0, 12.0, 40.0), Color(0.55, 0.57, 0.6), 7, rng.randf())
-	# cruise ships moored east of the port (Quaternius "CruiseShip", bow = +Z)
-	for s in 2:
-		var sz := 600.0 + s * 160.0
-		var ship := _model("res://assets/q/ships/CruiseShip.fbx", Vector3(750.0, -9.0, sz), s * PI, 150.0,
-			{"texture": Color(0.95, 0.95, 0.97)})
-		if ship:
-			var a := ModelUtil.mesh_aabb(ship.get_child(0))
-			_collider(Vector3(750.0, -9.0, sz), s * PI, Vector3(a.size.x * 0.9, a.size.y * 0.55, a.size.z * 0.92))
+	# a cruise ferry and a bulk carrier moored along the east quay (waterline at the models' y = 0)
+	for ship in [["ferry.glb", Vector3(752.0, 0.0, 640.0), 203.0], ["cargo.glb", Vector3(748.0, 0.0, 835.0), 140.0]]:
+		var m := ModelUtil.make("res://assets/vehicles/boats_real/" + ship[0], ship[2], {}, 0.0, true)
+		if m:
+			wb.add_child(m)
+			m.position = ship[1]
+			var a := ModelUtil.mesh_aabb(m.get_child(0))
+			_collider(Vector3(ship[1].x, -8.0, ship[1].z), 0.0, Vector3(a.size.x * 0.9, a.size.y * 0.6, a.size.z * 0.95))
 	wb.city.landmarks.append({"name": "Puerto de Vice City", "pos": Vector3(560, 1, 700), "kind": "port"})
 
 
@@ -241,8 +235,10 @@ func _airport() -> void:
 	# airliners at the terminal gates (nose = -X in the model), one waiting on runway 09
 	for i in 5:
 		var gp := Vector3(-1460.0 + i * 55.0, _y(), -648.0)
-		if _model("res://assets/q/planes/Commercial_Airplane.fbx", gp, -PI * 0.5, 38.0, _PLANE_LIVERY[i % _PLANE_LIVERY.size()]):
-			_collider(gp, 0.0, Vector3(4.5, 5.0, 27.0))
+		# nose towards the terminal (-Z): the A320 model's nose is +X, the E190's +Z
+		var a320 := i % 2 == 0
+		if _model("res://assets/aircraft/" + ("a320.glb" if a320 else "e190.glb"), gp, PI * 0.5 if a320 else PI, 37.6 if a320 else 36.2):
+			_collider(gp, 0.0, Vector3(4.5, 5.0, 36.0))
 	# flyable aircraft: an airliner waiting on runway 09, jets and light aircraft at the hangars.
 	# They are spawned once the world's collision is in place.
 	_plane_spots = [["airliner", Vector3(-1720, _y() + 0.3, -1100), -PI * 0.5]]
@@ -341,11 +337,15 @@ func _sailboats() -> void:
 	var tries := 0
 	while n < 14 and tries < 400:
 		tries += 1
-		var p := Vector3(rng.randf_range(420, 800), -0.35, rng.randf_range(-1300, 1000))
+		var p := Vector3(rng.randf_range(420, 800), 0.0, rng.randf_range(-1300, 1000))
 		if city.land_sdf(p.x, p.z) > -14.0:
 			continue
 		var big := rng.randf() < 0.15
-		_model("res://assets/q/ships/Sail_ship.fbx" if big else "res://assets/q/ships/BoatWSail.fbx", p, rng.randf() * TAU, 22.0 if big else 10.0)
+		var m := ModelUtil.make("res://assets/vehicles/boats_real/" + ("yacht.glb" if big else "sail.glb"), 16.6 if big else 10.2, {}, 0.0, true)
+		if m:
+			wb.add_child(m)
+			m.position = Vector3(p.x, 0.0, p.z)
+			m.rotation.y = rng.randf() * TAU
 		n += 1
 
 

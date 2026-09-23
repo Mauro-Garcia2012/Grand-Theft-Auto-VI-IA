@@ -170,7 +170,7 @@ func _dispatch() -> void:
 	if sp.is_empty():
 		return
 	var swat := stars >= 4 and randf() < 0.5
-	var id: String = "van" if swat else ["q_cop", "q_cop", "q_cop_suv", "police", "nb_police"].pick_random()
+	var id: String = "p_postvan" if swat else "p_police"
 	var v := pop.spawn_traffic_car(id, sp.pos, sp.yaw, sp.a, sp.b, "police")
 	var drv: Humanoid = v.get_meta("driver")
 	drv.team = "police"

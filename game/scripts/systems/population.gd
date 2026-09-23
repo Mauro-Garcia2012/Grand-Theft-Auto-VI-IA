@@ -278,7 +278,7 @@ func _spawn_traffic() -> void:
 		return
 	var id := VehicleDB.random_traffic(rng)
 	if rng.randf() < 0.06:
-		id = "police" if rng.randf() < 0.6 else "nb_police"
+		id = "p_police"
 	var v := spawn_traffic_car(id, sp.pos, sp.yaw, sp.a, sp.b)
 	if v and v.def.get("kind", "") == "police":
 		v.get_meta("driver").team = "police"
@@ -377,8 +377,8 @@ func _spawn_parked() -> void:
 	var right := d.cross(Vector3.UP).normalized()
 	var pos: Vector3 = sp.pos + right * (e.width * 0.5 - 1.8 - e.width * 0.25)
 	var id := VehicleDB.random_traffic(rng)
-	if id == "motorcycle" and rng.randf() < 0.5:
-		id = "sedan"
+	if VehicleDB.get_def(id).get("length", 5.0) > 6.5:
+		id = "p_sedan"    # no buses or trucks parked on the kerb
 	var v = VehicleDB.spawn(id, pos, sp.yaw)
 	parked.append(v)
 
@@ -403,7 +403,7 @@ func _spawn_boats() -> void:
 				taken = true
 		if taken:
 			continue
-		var id: String = ["speedboat", "speedboat2", "dinghy", "fishing", "speedboat", "yacht"][rng.randi() % 6]
+		var id: String = ["cruiser", "rescue", "cruiser", "sailboat", "yacht"][rng.randi() % 5]
 		var boat = VehicleDB.spawn(id, t.origin + Vector3.UP * 0.5, t.basis.get_euler().y)
 		boats.append(boat)
 		return

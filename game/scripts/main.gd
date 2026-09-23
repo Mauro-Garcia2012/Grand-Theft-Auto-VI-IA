@@ -142,8 +142,9 @@ func _warm_up() -> void:
 	for p in CharacterModel.BODY_SCENES.values() + CharacterModel.HAIR_SCENES.values():
 		CharacterModel.load_scene(p)
 	# instantiate one car of the multi-car set to cache its prototypes
-	var tmp := VehicleDB.spawn("nb_daily", Vector3(0, -500, 0), 0.0)
-	tmp.queue_free()
+	for id in ["p_sedan", "p_police"]:
+		var tmp := VehicleDB.spawn(id, Vector3(0, -500, 0), 0.0)
+		tmp.queue_free()
 	var o := CharacterModel.get_outfits("male") + CharacterModel.get_outfits("female")
 	for e in o:
 		ResourceLoader.load_threaded_request("res://assets/characters/outfits/" + e.file)
@@ -204,9 +205,8 @@ func _spawn_protagonists() -> void:
 	lucia.add_child(buddy)
 	lucia.brain = buddy
 	# a car waiting for them on Ocean Drive
-	VehicleDB.spawn("nb_convertible", start + Vector3(-7.5, 0.8, 6), 0.0, Color(0.95, 0.35, 0.6))
-	VehicleDB.spawn("motorcycle", start + Vector3(-7.5, 0.8, -4), 0.0)
-	VehicleDB.spawn("b_m8", start + Vector3(-7.5, 0.8, 16), 0.0, Color(0.05, 0.05, 0.06))
+	VehicleDB.spawn("b_m8", start + Vector3(-7.5, 0.8, 6), 0.0, Color(0.05, 0.05, 0.06))
+	VehicleDB.spawn("b_porsche", start + Vector3(-7.5, 0.8, -4), 0.0)
 
 
 func _set_active(i: int, instant := false) -> void:

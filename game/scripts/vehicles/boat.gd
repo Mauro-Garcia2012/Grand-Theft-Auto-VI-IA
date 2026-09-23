@@ -51,7 +51,12 @@ func _ready() -> void:
 	var k: float = float(def.length) / maxf(aabb.size.z, 0.01)
 	model_root.scale = Vector3.ONE * k
 	var c := aabb.get_center() * k
-	model_root.position = -Vector3(c.x, aabb.position.y * k + aabb.size.y * k * 0.15, c.z)
+	var waterline: bool = def.get("waterline", false)
+	if waterline:
+		# the model's own y = 0 is its waterline
+		model_root.position = -Vector3(c.x, 0.0, c.z)
+	else:
+		model_root.position = -Vector3(c.x, aabb.position.y * k + aabb.size.y * k * 0.15, c.z)
 	body_size = aabb.size * k
 	var cs := CollisionShape3D.new()
 	var box := BoxShape3D.new()
@@ -63,8 +68,9 @@ func _ready() -> void:
 	center_of_mass = Vector3(0, -body_size.y * 0.2, 0)
 	var hx := body_size.x * 0.4
 	var hz := body_size.z * 0.42
-	_floats = [Vector3(-hx, -body_size.y * 0.1, -hz), Vector3(hx, -body_size.y * 0.1, -hz), Vector3(-hx, -body_size.y * 0.1, hz),
-		Vector3(hx, -body_size.y * 0.1, hz), Vector3(0, -body_size.y * 0.1, 0)]
+	# float points sit ~0.45 m under the water at rest, which puts the origin on the surface
+	var fy := -0.45 if waterline else -body_size.y * 0.1
+	_floats = [Vector3(-hx, fy, -hz), Vector3(hx, fy, -hz), Vector3(-hx, fy, hz), Vector3(hx, fy, hz), Vector3(0, fy, 0)]
 	_seat_offsets = [Transform3D(Basis(), Vector3(-0.3, body_size.y * 0.15, body_size.z * 0.1)), Transform3D(Basis(), Vector3(0.4, body_size.y * 0.15, body_size.z * 0.1)),
 		Transform3D(Basis(), Vector3(-0.4, body_size.y * 0.15, body_size.z * 0.3)), Transform3D(Basis(), Vector3(0.4, body_size.y * 0.15, body_size.z * 0.3))]
 	_engine_snd = AudioStreamPlayer3D.new()

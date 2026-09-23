@@ -120,10 +120,20 @@ func _build_model() -> void:
 	if def.has("recolor") or def.get("white", false):
 		ModelUtil.recolor(inst, def.get("recolor", {}))
 	# collect wheels & compute bounds (in model_root space, unscaled)
+	# a wheel is any node named "wheel..." (a mesh, or a group of meshes such as rim + tyre + disc)
 	var wheel_nodes: Array = []
-	for n in inst.find_children("*", "MeshInstance3D", true, false):
+	for n in inst.find_children("*", "Node3D", true, false):
 		var nm := String(n.name).to_lower()
-		if nm.contains("wheel") and not nm.contains("steer") and not nm.contains("spare"):
+		if not nm.contains("wheel") or nm.contains("steer") or nm.contains("spare"):
+			continue
+		if not (n is MeshInstance3D) and n.find_children("*", "MeshInstance3D", true, false).is_empty():
+			continue
+		var nested := false
+		for wn in wheel_nodes:
+			if (wn as Node).is_ancestor_of(n):
+				nested = true
+				break
+		if not nested:
 			wheel_nodes.append(n)
 	for extra in def.get("hide", []):
 		var hn := inst.find_child(extra, true, false)
@@ -146,7 +156,12 @@ func _build_model() -> void:
 	var body_aabb := AABB()
 	var first := true
 	for mi in inst.find_children("*", "MeshInstance3D", true, false) + ([inst] if inst is MeshInstance3D else []):
-		if mi in wheel_nodes:
+		var in_wheel := false
+		for wn in wheel_nodes:
+			if wn == mi or (wn as Node).is_ancestor_of(mi):
+				in_wheel = true
+				break
+		if in_wheel:
 			continue
 		var nm := String(mi.name).to_lower()
 		if nm.begins_with("lights") or nm.begins_with("axle"):
@@ -221,8 +236,8 @@ func _build_model() -> void:
 				m.set_surface_override_material(s, hm)
 	# Wheels: wrap in pivots for steer/spin
 	for wn in wheel_nodes:
-		var w: MeshInstance3D = wn
-		var waabb: AABB = _rel(w, model_root) * w.get_aabb()
+		var w: Node3D = wn
+		var waabb := _node_aabb(w, model_root)
 		var center := waabb.get_center()
 		var radius := maxf(waabb.size.y, waabb.size.z) * 0.5 * k
 		var pivot := Node3D.new()
@@ -290,6 +305,20 @@ func _build_model() -> void:
 		]
 		var ex := body_size.x * 0.5 + 0.6
 		_exit_offsets = [Vector3(-ex, 0.2, sz - 0.3), Vector3(ex, 0.2, sz - 0.3), Vector3(-ex, 0.2, sz + 0.7), Vector3(ex, 0.2, sz + 0.7)]
+
+
+## Bounds of a node and all meshes below it, in `root` space.
+func _node_aabb(n: Node3D, root: Node) -> AABB:
+	var list: Array = n.find_children("*", "MeshInstance3D", true, false)
+	if n is MeshInstance3D:
+		list.append(n)
+	var out := AABB()
+	var first := true
+	for mi: MeshInstance3D in list:
+		var a: AABB = _rel(mi, root) * mi.get_aabb()
+		out = a if first else out.merge(a)
+		first = false
+	return out
 
 
 func _rel(n: Node, root: Node) -> Transform3D:

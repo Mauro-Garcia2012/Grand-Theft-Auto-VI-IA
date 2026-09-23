@@ -31,21 +31,27 @@ static func apply(code: String) -> void:
 		"POLICIA5", "WANTED":
 			Game.wanted.set_level(5)
 		"SUPERCOCHE", "SUPERCAR":
-			_spawn("raceFuture")
+			_spawn("b_mclaren")
 		"DEPORTIVO":
-			_spawn("sedanSports")
-		"MOTO", "BIKE":
-			_spawn("motorcycle")
-		"TANQUE", "TANK", "RHINO":
-			_spawn("q_tank")
+			_spawn("b_m5")
+		"TAXI":
+			_spawn("p_taxi")
+		"AMBULANCIA":
+			_spawn("p_ambulance")
+		"BOMBEROS":
+			_spawn("p_firetruck")
+		"MCLAREN":
+			_spawn("b_mclaren")
 		"CAMION":
-			_spawn("garbageTruck")
+			_spawn("p_garbage")
 		"AUTOBUS", "BUS":
-			_spawn("q_bus")
+			_spawn("p_bus")
 		"AVIONETA", "PLANE":
 			_spawn("cessna")
 		"JET":
 			_spawn("jet")
+		"CAZA", "RAFALE":
+			_spawn("fighter")
 		"JUMBO", "AVION":
 			# airliners need a runway: go to the threshold of the southern runway
 			if p.vehicle:
@@ -53,12 +59,12 @@ static func apply(code: String) -> void:
 			var a: Node3D = VehicleDB.spawn("airliner", Vector3(-1740, CityMap.LAND + 0.3, -300), -PI * 0.5)
 			p.global_position = Vector3(-1740, CityMap.LAND + 1.0, -280)
 			p.enter_vehicle(a, 0)
-		"INFERNUS":
-			_spawn("q_infernus")
+		"INFERNUS", "FERRARI":
+			_spawn("b_ferrari")
 		"PATRULLA", "COPCAR":
-			_spawn("q_cop")
-		"DRAGSTER":
-			_spawn("nb_dragster")
+			_spawn("p_police")
+		"DRAGSTER", "PORSCHE":
+			_spawn("b_porsche")
 		"LANCHA", "BOAT":
 			var pos := p.global_position
 			# find water nearby
@@ -75,7 +81,7 @@ static func apply(code: String) -> void:
 			if best == Vector3.ZERO:
 				ok = false
 			else:
-				VehicleDB.spawn("speedboat", Vector3(best.x, 0.5, best.z), 0.0)
+				VehicleDB.spawn("cruiser", Vector3(best.x, 0.5, best.z), 0.0)
 				Game.msg("Lancha disponible en el agua cercana")
 		"TORMENTA", "STORM":
 			Game.sky.set_weather("storm")
