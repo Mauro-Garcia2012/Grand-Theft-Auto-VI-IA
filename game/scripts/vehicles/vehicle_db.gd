@@ -1,7 +1,7 @@
 class_name VehicleDB
 extends RefCounted
 ## Vehicle catalogue. Models: Kenney "Car Kit" (CC0), Kenney "Racing Kit" motorcycle (CC0),
-## Neill Bogie low-poly cars set (CC-BY 4.0), Kenney "Watercraft Pack" (CC0),
+## Neill Bogie low-poly cars set (three-js-cars-3, MIT), Kenney "Watercraft Pack" (CC0),
 ## Quaternius "Realistic Car Pack" / "Ultimate Vehicles" / "Tanks" (CC0).
 
 const NB := "res://assets/vehicles/lowpoly_cars_set.glb"

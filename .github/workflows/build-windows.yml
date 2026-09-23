@@ -1,0 +1,43 @@
+name: Build Windows exe
+
+# Manual build of the Windows version (Actions tab -> "Build Windows exe" -> Run workflow).
+on:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot and export templates
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          wget -q "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          wget -q "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          dest="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$dest"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_export_templates.tpz" -d templates
+          mv templates/templates/* "$dest/"
+
+      - name: Import assets
+        run: ./godot --headless --path game --import
+
+      - name: Smoke test
+        run: timeout 300 ./godot --headless --path game -- --test=smoke | tee smoke.log && grep -q "OK smoke test finished" smoke.log
+
+      - name: Export Windows build
+        run: |
+          mkdir -p builds/ViceCity
+          ./godot --headless --path game --export-release "Windows Desktop" ../builds/ViceCity/ViceCity.exe
+          ls -la builds/ViceCity
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ViceCity-Windows-x64
+          path: builds/ViceCity

@@ -62,6 +62,8 @@ func _process(delta: float) -> void:
 			_shots2()
 		"spawnperf":
 			_spawnperf()
+		"readme":
+			_readme()
 		"traffic":
 			_traffic()
 		"chase":
@@ -557,4 +559,48 @@ func _spawnperf() -> void:
 				print("[spawnperf] round %d %s %.1f ms" % [round, id, dt])
 			v.queue_free()
 		await get_tree().process_frame
+	get_tree().quit()
+
+
+## Promotional views for the README: brand cars on Ocean Drive, a vehicle line-up, airport, port.
+func _readme() -> void:
+	if step != 0 or t < 7.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 17.6
+	Game.population.set_physics_process(false)
+	Game.population.clear_all()
+	Game.hud.visible = false
+	# brand cars parked along Ocean Drive (road at x=1030, heading north = -Z)
+	var ids := ["b_m8", "b_m5", "b_challenger", "b_roadster"]
+	var paints := [Color(0.05, 0.05, 0.06), Color(0.75, 0.08, 0.1), Color(0.9, 0.9, 0.92), Color(0.1, 0.55, 0.7)]
+	for i in ids.size():
+		VehicleDB.spawn(ids[i], Vector3(1024.0 + (i % 2) * 3.4, 1.4, 520.0 - i * 7.5), 0.0, paints[i])
+	Game.player.global_position = Vector3(1040, 1.2, 470)
+	await _wait(3.0)
+	_place_cam(Vector3(1036, 2.6, 500), Vector3(1025.5, 0.9, 506))
+	await _wait(0.5)
+	await _shot("brand_cars")
+	# line-up of the other vehicles on the beach
+	var base := Vector3(1075, 1.2, 600)
+	var line := ["q_cop", "q_infernus", "q_taxi", "q_cavalcade", "q_bus", "q_ambulance", "q_tank", "nb_convertible"]
+	for i in line.size():
+		var v = VehicleDB.spawn(line[i], base + Vector3((i % 4) * 9.0, 0.5, (i / 4) * 14.0), PI * 0.15)
+		if line[i] in ["q_cop", "q_ambulance"]:
+			v.siren_on = true
+	await _wait(3.0)
+	_place_cam(base + Vector3(14, 8, 34), base + Vector3(14, 0, 8))
+	await _wait(0.5)
+	await _shot("vehicles")
+	Game.sky.time_of_day = 16.5
+	Game.player.global_position = Vector3(-1350, 1.5, -560)
+	await _wait(2.0)
+	_place_cam(Vector3(-1290, 30, -560), Vector3(-1380, 3, -650))
+	await _wait(0.5)
+	await _shot("airport")
+	Game.player.global_position = Vector3(640, 1.5, 700)
+	await _wait(2.0)
+	_place_cam(Vector3(660, 45, 450), Vector3(750, 8, 660))
+	await _wait(0.5)
+	await _shot("port")
 	get_tree().quit()
