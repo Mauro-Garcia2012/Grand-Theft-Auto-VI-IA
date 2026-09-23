@@ -1,0 +1,303 @@
+class_name SpecialAreas
+extends Node
+## Beach, port, airport, swamp, keys, mansions, marinas and neon signs.
+
+var wb: WorldBuilder
+var rng := RandomNumberGenerator.new()
+var docks: Array = []            # boat spawn transforms
+var parking_spots: Array = []    # car spawn transforms (parked)
+const UMB_COLORS := [Color(0.95, 0.3, 0.4), Color(0.2, 0.7, 0.8), Color(1.0, 0.8, 0.2), Color(0.95, 0.95, 0.95), Color(0.5, 0.3, 0.8)]
+
+
+func build() -> void:
+	rng.seed = 777
+	_make_umbrella_meshes()
+	_beach()
+	_port()
+	_airport()
+	_swamp()
+	_keys()
+	_mansions(Rect2(535, 150, 140, 150), 5)
+	_mansions(Rect2(885, 1070, 170, 120), 4)
+	_marinas()
+	_neon()
+	Game.world.set_meta("docks", docks)
+
+
+func _y() -> float:
+	return CityMap.LAND + 0.02
+
+
+func _make_umbrella_meshes() -> void:
+	for i in UMB_COLORS.size():
+		var am := ArrayMesh.new()
+		var pole := CylinderMesh.new()
+		pole.top_radius = 0.03
+		pole.bottom_radius = 0.03
+		pole.height = 2.3
+		var canopy := CylinderMesh.new()
+		canopy.top_radius = 0.02
+		canopy.bottom_radius = 1.4
+		canopy.height = 0.5
+		canopy.radial_segments = 10
+		var m1 := StandardMaterial3D.new()
+		m1.albedo_color = Color(0.9, 0.9, 0.9)
+		var m2 := StandardMaterial3D.new()
+		m2.albedo_color = UMB_COLORS[i]
+		m2.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_append(am, pole, Transform3D(Basis(), Vector3(0, 1.15, 0)), m1)
+		_append(am, canopy, Transform3D(Basis(), Vector3(0, 2.3, 0)), m2)
+		wb.prop_meshes["umbrella%d" % i] = am
+		# towel
+		var towel := ArrayMesh.new()
+		var bx := BoxMesh.new()
+		bx.size = Vector3(0.9, 0.02, 1.8)
+		var m3 := StandardMaterial3D.new()
+		m3.albedo_color = UMB_COLORS[(i + 2) % UMB_COLORS.size()]
+		_append(towel, bx, Transform3D(Basis(), Vector3(0, 0.01, 0)), m3)
+		wb.prop_meshes["towel%d" % i] = towel
+	# lounger
+	var lounger := ArrayMesh.new()
+	var lb := BoxMesh.new()
+	lb.size = Vector3(0.7, 0.08, 1.9)
+	var lm := StandardMaterial3D.new()
+	lm.albedo_color = Color(0.95, 0.95, 0.92)
+	_append(lounger, lb, Transform3D(Basis(), Vector3(0, 0.35, 0)), lm)
+	var back := BoxMesh.new()
+	back.size = Vector3(0.7, 0.08, 0.7)
+	_append(lounger, back, Transform3D(Basis(Vector3.RIGHT, 0.8), Vector3(0, 0.55, -0.9)), lm)
+	wb.prop_meshes["lounger"] = lounger
+
+
+func _append(am: ArrayMesh, prim: PrimitiveMesh, t: Transform3D, mat: Material) -> void:
+	var arr := prim.get_mesh_arrays()
+	var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+	var n: PackedVector3Array = arr[Mesh.ARRAY_NORMAL]
+	for i in v.size():
+		v[i] = t * v[i]
+		n[i] = (t.basis * n[i]).normalized()
+	arr[Mesh.ARRAY_VERTEX] = v
+	arr[Mesh.ARRAY_NORMAL] = n
+	arr[Mesh.ARRAY_TANGENT] = null
+	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	am.surface_set_material(am.get_surface_count() - 1, mat)
+
+
+func _beach() -> void:
+	var city := wb.city
+	var z := -1420.0
+	var next_tower := -1380.0
+	while z < 980.0:
+		# sand x range: from the promenade to the water
+		var x_water := 1150.0
+		while city.height_at(x_water, z) < 0.25 and x_water > 1045.0:
+			x_water -= 4.0
+		# umbrella clusters
+		if rng.randf() < 0.75:
+			for k in rng.randi_range(1, 4):
+				var x := rng.randf_range(1062.0, x_water - 12.0)
+				var zz := z + rng.randf_range(-6.0, 6.0)
+				var y := wb.height_grid(x, zz)
+				var ci := rng.randi() % UMB_COLORS.size()
+				wb.add_prop("umbrella%d" % ci, Vector3(x, y, zz), rng.randf() * TAU, 1.0)
+				wb.add_prop("towel%d" % ci, Vector3(x + 1.2, y, zz + 0.5), rng.randf_range(-0.3, 0.3), 1.0)
+				if rng.randf() < 0.5:
+					wb.add_prop("lounger", Vector3(x - 1.3, y, zz), PI * 0.5 + rng.randf_range(-0.2, 0.2), 1.0)
+		# lifeguard tower every ~160m (pastel huts on stilts, Miami style)
+		if z >= next_tower:
+			next_tower += 160.0
+			var tx := x_water - 25.0
+			var ty := wb.height_grid(tx, z)
+			var col: Color = WorldBuilder.PASTELS[rng.randi() % WorldBuilder.PASTELS.size()]
+			for sx in [-1.2, 1.2]:
+				for sz in [-1.2, 1.2]:
+					wb.add_box(Transform3D(Basis().scaled(Vector3(0.25, 2.2, 0.25)), Vector3(tx + sx, ty, z + sz)), Color(0.95, 0.95, 0.95), 6, 0.0, false)
+			wb.add_box(Transform3D(Basis().scaled(Vector3(3.4, 0.25, 4.2)), Vector3(tx, ty + 2.2, z)), Color(0.95, 0.95, 0.95), 6, 0.0, true)
+			wb.add_box(Transform3D(Basis().scaled(Vector3(3.0, 2.4, 3.0)), Vector3(tx, ty + 2.45, z)), col, 1, rng.randf())
+			wb.add_roof(Transform3D(Basis().scaled(Vector3(3.6, 0.8, 3.6)), Vector3(tx, ty + 4.85, z)), col.darkened(0.2))
+		z += rng.randf_range(12.0, 22.0)
+	# promenade / boardwalk along Ocean Drive beach side
+	wb.add_box(Transform3D(Basis().scaled(Vector3(6.0, 0.3, 800.0)), Vector3(1047.0, CityMap.LAND - 0.12, 590.0)), Color(0.75, 0.62, 0.45), 6, 0.0, true)
+
+
+func _port() -> void:
+	var y := _y()
+	var cols := [Color(0.75, 0.2, 0.15), Color(0.15, 0.35, 0.6), Color(0.2, 0.55, 0.3), Color(0.85, 0.6, 0.1), Color(0.5, 0.5, 0.55), Color(0.9, 0.9, 0.9)]
+	# container yard
+	var x := 440.0
+	while x < 545.0:
+		var z := 660.0
+		while z < 850.0:
+			var stack := rng.randi_range(1, 4)
+			for s in stack:
+				wb.add_box(Transform3D(Basis().scaled(Vector3(2.5, 2.6, 12.0)), Vector3(x, y + s * 2.6, z)), cols[rng.randi() % cols.size()], 8, rng.randf(), s == 0)
+			z += 13.0
+		x += 3.0 if rng.randf() < 0.8 else 8.0
+	# gantry cranes at the east quay
+	for i in 4:
+		var cz := 580.0 + i * 70.0
+		var cx := 695.0
+		var red := Color(0.8, 0.15, 0.12)
+		for lz in [-6.0, 6.0]:
+			for lx in [-8.0, 8.0]:
+				wb.add_box(Transform3D(Basis().scaled(Vector3(1.2, 32.0, 1.2)), Vector3(cx + lx, y, cz + lz)), red, 6, 0.0, true)
+		wb.add_box(Transform3D(Basis().scaled(Vector3(60.0, 3.0, 14.0)), Vector3(cx + 14.0, y + 32.0, cz)), red, 6, 0.0, false)
+		wb.add_box(Transform3D(Basis().scaled(Vector3(6.0, 4.0, 5.0)), Vector3(cx, y + 26.0, cz)), Color(0.95, 0.95, 0.9), 6, 0.0, false)
+	# warehouses
+	for i in 3:
+		wb.add_building(Vector3(610.0, y, 690.0 + i * 55.0), Vector3(50.0, 12.0, 40.0), Color(0.55, 0.57, 0.6), 7, rng.randf())
+	# cruise ships moored east of the port (in water)
+	for s in 2:
+		var sz := 600.0 + s * 160.0
+		var sx := 750.0
+		wb.add_box(Transform3D(Basis().scaled(Vector3(30.0, 14.0, 140.0)), Vector3(sx, -6.0, sz)), Color(0.95, 0.95, 0.97), 4, 0.55)
+		wb.add_box(Transform3D(Basis().scaled(Vector3(26.0, 12.0, 110.0)), Vector3(sx, 8.0, sz + 5.0)), Color(0.95, 0.95, 0.97), 4, 0.55)
+		wb.add_box(Transform3D(Basis().scaled(Vector3(20.0, 8.0, 70.0)), Vector3(sx, 20.0, sz + 8.0)), Color(0.93, 0.93, 0.96), 4, 0.95)
+		wb.add_box(Transform3D(Basis().scaled(Vector3(8.0, 9.0, 12.0)), Vector3(sx, 28.0, sz + 20.0)), Color(0.9, 0.2, 0.5), 6, 0.0)
+	wb.city.landmarks.append({"name": "Puerto de Vice City", "pos": Vector3(560, 1, 700), "kind": "port"})
+
+
+func _airport() -> void:
+	var y := CityMap.LAND + 0.05
+	# runways (dark strips with markings via road shader surface)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for rw in [[Vector3(-1780, y, -1100), Vector3(-1020, y, -1100), 60.0], [Vector3(-1780, y, -300), Vector3(-1020, y, -300), 60.0], [Vector3(-1100, y, -1450), Vector3(-1100, y, -350), 25.0]]:
+		var a: Vector3 = rw[0]
+		var b: Vector3 = rw[1]
+		var w: float = rw[2]
+		var fd := (b - a).normalized()
+		var side := Vector3(-fd.z, 0, fd.x)
+		var L := a.distance_to(b)
+		var q := [a - side * w * 0.5, a + side * w * 0.5, b + side * w * 0.5, b - side * w * 0.5]
+		var uvs := [Vector2(0, 0), Vector2(1, 0), Vector2(1, L), Vector2(0, L)]
+		for idx in WorldBuilder.quad_order(q, Vector3.UP):
+			st.set_color(Color(0, 0, 0))
+			st.set_normal(Vector3.UP)
+			st.set_uv(uvs[idx])
+			st.set_uv2(Vector2(L, 4.0))
+			st.add_vertex(q[idx])
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	mi.material_override = wb.road_mat
+	wb.add_child(mi)
+	# terminal (long glass building), control tower, hangars
+	wb.add_building(Vector3(-1350, _y(), -700), Vector3(260, 18, 60), Color(0.8, 0.82, 0.85), 0, 0.5)
+	wb.add_building(Vector3(-1350, _y() + 18, -700), Vector3(240, 6, 40), Color(0.9, 0.9, 0.92), 4, 0.5)
+	wb.add_building(Vector3(-1200, _y(), -520), Vector3(10, 45, 10), Color(0.85, 0.85, 0.85), 4, 0.5)
+	wb.add_building(Vector3(-1200, _y() + 45, -520), Vector3(16, 7, 16), Color(0.2, 0.3, 0.35), 0, 0.5)
+	for i in 5:
+		wb.add_building(Vector3(-1700 + i * 90, _y(), -520), Vector3(70, 20, 50), Color(0.6, 0.62, 0.64), 7, rng.randf())
+	wb.city.landmarks.append({"name": "Aeropuerto", "pos": Vector3(-1350, 1, -700), "kind": "airport"})
+
+
+func _swamp() -> void:
+	var city := wb.city
+	for i in 1400:
+		var x := rng.randf_range(-1840, -910)
+		var z := rng.randf_range(110, 1140)
+		var h := wb.height_grid(x, z)
+		if h < 0.15:
+			continue
+		var k: String = ["tree_oak", "tree_default", "bush", "grass", "grass", "palm_short", "rock"][rng.randi() % 7]
+		wb.add_prop(k, Vector3(x, h, z), rng.randf() * TAU, rng.randf_range(0.7, 1.3), 0.3 if k.begins_with("tree") else 0.0)
+	# stilt shacks
+	for i in 6:
+		var p := Vector3(rng.randf_range(-1700, -1000), 0.0, rng.randf_range(300, 1000))
+		p.y = maxf(wb.height_grid(p.x, p.z), 0.0)
+		wb.add_building(p + Vector3.UP * 1.5, Vector3(8, 4, 6), Color(0.55, 0.42, 0.3), 5, 0.1)
+		wb.add_roof(Transform3D(Basis().scaled(Vector3(9, 2, 7)), p + Vector3.UP * 5.5), Color(0.35, 0.3, 0.25))
+		docks.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), p + Vector3(8, 0.3, 0)))
+	city.landmarks.append({"name": "Grassrivers", "pos": Vector3(-1400, 1, 700), "kind": "swamp"})
+
+
+func _keys() -> void:
+	var city := wb.city
+	for l in city.lands:
+		if not l.has("circle"):
+			continue
+		var c: Vector3 = l.circle
+		var n := int(c.z / 12.0)
+		for i in n:
+			var a := rng.randf() * TAU
+			var r := rng.randf_range(0.1, 0.75) * c.z
+			var p := Vector3(c.x + cos(a) * r, 0, c.y + sin(a) * r)
+			p.y = wb.height_grid(p.x, p.z)
+			if p.y < 0.6:
+				continue
+			if city.road_height_at(p.x, p.z) > -INF:
+				continue
+			if rng.randf() < 0.35:
+				var col: Color = WorldBuilder.PASTELS[rng.randi() % WorldBuilder.PASTELS.size()]
+				wb.add_building(p, Vector3(10, 4.5, 9), col, 5, rng.randf())
+				wb.add_roof(Transform3D(Basis().scaled(Vector3(11, 2, 10)), p + Vector3.UP * 4.5), Color(0.9, 0.9, 0.9))
+			else:
+				wb.add_prop(["palm_tall", "palm_bend", "palm_detail", "palm_short"][rng.randi() % 4], p, rng.randf() * TAU, rng.randf_range(0.8, 1.2), 0.35)
+		# beach docks
+		docks.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(c.x + c.z * 0.95, 0.3, c.y)))
+	# motel on key 3 (Jason & Lucia's hideout)
+	var mp: Vector3 = city.spawn_points["keys_motel"]
+	wb.add_building(mp + Vector3(20, 0, 0), Vector3(12, 7, 40), Color(0.55, 0.85, 0.8), 1, 0.9)
+	wb.add_building(mp + Vector3(0, 0, 26), Vector3(30, 7, 12), Color(0.55, 0.85, 0.8), 1, 0.9)
+	wb.neon_signs.append({"pos": mp + Vector3(13.8, 5.5, 0), "face": Vector3(-1, 0, 0), "text": "MOTEL LEONIDA", "hue": 0.9})
+
+
+func _mansions(r: Rect2, n: int) -> void:
+	for i in n:
+		var p := Vector3(rng.randf_range(r.position.x + 20, r.end.x - 20), CityMap.LAND, rng.randf_range(r.position.y + 20, r.end.y - 20))
+		if wb.city.road_height_at(p.x, p.z) > -INF:
+			p.x += 25.0
+		var col = Color(0.97, 0.96, 0.92) if rng.randf() < 0.7 else WorldBuilder.PASTELS[rng.randi() % WorldBuilder.PASTELS.size()]
+		wb.add_building(p, Vector3(22, 7, 16), col, 4, 0.55)
+		wb.add_building(p + Vector3(4, 7, 0), Vector3(14, 5, 12), col, 4, 0.55)
+		# pool
+		var pool := MeshInstance3D.new()
+		var pm := BoxMesh.new()
+		pm.size = Vector3(10, 0.1, 5)
+		pool.mesh = pm
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.2, 0.75, 0.9)
+		mat.roughness = 0.05
+		mat.emission_enabled = true
+		mat.emission = Color(0.1, 0.5, 0.7)
+		mat.emission_energy_multiplier = 0.4
+		pool.material_override = mat
+		pool.position = p + Vector3(0, 0.1, 13)
+		wb.add_child(pool)
+		for k in 3:
+			wb.add_prop(["palm_tall", "palm_detail", "palm_bend"][k], p + Vector3(rng.randf_range(-14, 14), 0, rng.randf_range(9, 18)), rng.randf() * TAU, 1.0, 0.35)
+
+
+func _marinas() -> void:
+	# wooden piers on the bay side of the mainland (x=360) and of Vice Beach (x=820)
+	var pier_col := Color(0.55, 0.42, 0.3)
+	for z in [700.0, 800.0, 900.0, -450.0, -1000.0]:
+		wb.add_box(Transform3D(Basis().scaled(Vector3(40.0, 0.4, 4.0)), Vector3(380.0, 0.8, z)), pier_col, 6, 0.0, true)
+		for k in 3:
+			docks.append(Transform3D(Basis(Vector3.UP, PI * 0.5), Vector3(372.0 + k * 11.0, 0.3, z + 7.0)))
+	for z in [-300.0, 250.0, -1100.0]:
+		wb.add_box(Transform3D(Basis().scaled(Vector3(40.0, 0.4, 4.0)), Vector3(800.0, 0.8, z)), pier_col, 6, 0.0, true)
+		for k in 2:
+			docks.append(Transform3D(Basis(Vector3.UP, -PI * 0.5), Vector3(790.0 - k * 11.0, 0.3, z + 7.0)))
+
+
+func _neon() -> void:
+	for s in wb.neon_signs:
+		var l := Label3D.new()
+		l.text = s.text
+		l.font_size = 96
+		l.pixel_size = 0.018
+		l.outline_size = 18
+		var hue: float = fposmod(s.hue, 1.0)
+		l.modulate = Color.from_hsv(hue, 0.6, 1.0) * 1.6
+		l.outline_modulate = Color.from_hsv(hue, 0.9, 0.6)
+		l.shaded = false
+		l.double_sided = false
+		l.no_depth_test = false
+		l.render_priority = 1
+		wb.add_child(l)
+		l.global_position = s.pos
+		var f: Vector3 = s.face
+		l.look_at(s.pos - f, Vector3.UP)
+		l.visibility_range_end = 450.0
+		l.add_to_group("neon")

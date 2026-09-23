@@ -1,0 +1,9 @@
+# Godot
+game/.godot/
+game/export/
+*.tmp
+# builds are attached as zip only
+builds/*.exe
+builds/*.pck
+__pycache__/
+game/tools/py/labels_*.png

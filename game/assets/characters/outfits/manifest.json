@@ -1,0 +1,526 @@
+{
+ "male": [
+  {
+   "file": "male_hawaiian0_s0.jpg",
+   "outfit": "hawaiian0",
+   "skin": 0
+  },
+  {
+   "file": "male_hawaiian0_s2.jpg",
+   "outfit": "hawaiian0",
+   "skin": 2
+  },
+  {
+   "file": "male_hawaiian0_s4.jpg",
+   "outfit": "hawaiian0",
+   "skin": 4
+  },
+  {
+   "file": "male_hawaiian1_s1.jpg",
+   "outfit": "hawaiian1",
+   "skin": 1
+  },
+  {
+   "file": "male_hawaiian1_s2.jpg",
+   "outfit": "hawaiian1",
+   "skin": 2
+  },
+  {
+   "file": "male_hawaiian1_s3.jpg",
+   "outfit": "hawaiian1",
+   "skin": 3
+  },
+  {
+   "file": "male_hawaiian2_s0.jpg",
+   "outfit": "hawaiian2",
+   "skin": 0
+  },
+  {
+   "file": "male_hawaiian2_s2.jpg",
+   "outfit": "hawaiian2",
+   "skin": 2
+  },
+  {
+   "file": "male_hawaiian2_s4.jpg",
+   "outfit": "hawaiian2",
+   "skin": 4
+  },
+  {
+   "file": "male_business_s1.jpg",
+   "outfit": "business",
+   "skin": 1
+  },
+  {
+   "file": "male_business_s2.jpg",
+   "outfit": "business",
+   "skin": 2
+  },
+  {
+   "file": "male_business_s3.jpg",
+   "outfit": "business",
+   "skin": 3
+  },
+  {
+   "file": "male_suit_white_s0.jpg",
+   "outfit": "suit_white",
+   "skin": 0
+  },
+  {
+   "file": "male_suit_white_s2.jpg",
+   "outfit": "suit_white",
+   "skin": 2
+  },
+  {
+   "file": "male_suit_white_s4.jpg",
+   "outfit": "suit_white",
+   "skin": 4
+  },
+  {
+   "file": "male_tank_jeans_s1.jpg",
+   "outfit": "tank_jeans",
+   "skin": 1
+  },
+  {
+   "file": "male_tank_jeans_s2.jpg",
+   "outfit": "tank_jeans",
+   "skin": 2
+  },
+  {
+   "file": "male_tank_jeans_s3.jpg",
+   "outfit": "tank_jeans",
+   "skin": 3
+  },
+  {
+   "file": "male_tee_red_s0.jpg",
+   "outfit": "tee_red",
+   "skin": 0
+  },
+  {
+   "file": "male_tee_red_s2.jpg",
+   "outfit": "tee_red",
+   "skin": 2
+  },
+  {
+   "file": "male_tee_red_s4.jpg",
+   "outfit": "tee_red",
+   "skin": 4
+  },
+  {
+   "file": "male_tee_stripes_s1.jpg",
+   "outfit": "tee_stripes",
+   "skin": 1
+  },
+  {
+   "file": "male_tee_stripes_s2.jpg",
+   "outfit": "tee_stripes",
+   "skin": 2
+  },
+  {
+   "file": "male_tee_stripes_s3.jpg",
+   "outfit": "tee_stripes",
+   "skin": 3
+  },
+  {
+   "file": "male_jogger_s0.jpg",
+   "outfit": "jogger",
+   "skin": 0
+  },
+  {
+   "file": "male_jogger_s2.jpg",
+   "outfit": "jogger",
+   "skin": 2
+  },
+  {
+   "file": "male_jogger_s4.jpg",
+   "outfit": "jogger",
+   "skin": 4
+  },
+  {
+   "file": "male_camo_s1.jpg",
+   "outfit": "camo",
+   "skin": 1
+  },
+  {
+   "file": "male_camo_s2.jpg",
+   "outfit": "camo",
+   "skin": 2
+  },
+  {
+   "file": "male_camo_s3.jpg",
+   "outfit": "camo",
+   "skin": 3
+  },
+  {
+   "file": "male_gang_purple_s0.jpg",
+   "outfit": "gang_purple",
+   "skin": 0
+  },
+  {
+   "file": "male_gang_purple_s2.jpg",
+   "outfit": "gang_purple",
+   "skin": 2
+  },
+  {
+   "file": "male_gang_purple_s4.jpg",
+   "outfit": "gang_purple",
+   "skin": 4
+  },
+  {
+   "file": "male_gang_green_s1.jpg",
+   "outfit": "gang_green",
+   "skin": 1
+  },
+  {
+   "file": "male_gang_green_s2.jpg",
+   "outfit": "gang_green",
+   "skin": 2
+  },
+  {
+   "file": "male_gang_green_s3.jpg",
+   "outfit": "gang_green",
+   "skin": 3
+  },
+  {
+   "file": "male_police_s0.jpg",
+   "outfit": "police",
+   "skin": 0
+  },
+  {
+   "file": "male_police_s2.jpg",
+   "outfit": "police",
+   "skin": 2
+  },
+  {
+   "file": "male_police_s4.jpg",
+   "outfit": "police",
+   "skin": 4
+  },
+  {
+   "file": "male_swat_s1.jpg",
+   "outfit": "swat",
+   "skin": 1
+  },
+  {
+   "file": "male_swat_s2.jpg",
+   "outfit": "swat",
+   "skin": 2
+  },
+  {
+   "file": "male_swat_s3.jpg",
+   "outfit": "swat",
+   "skin": 3
+  },
+  {
+   "file": "male_medic_s0.jpg",
+   "outfit": "medic",
+   "skin": 0
+  },
+  {
+   "file": "male_medic_s2.jpg",
+   "outfit": "medic",
+   "skin": 2
+  },
+  {
+   "file": "male_medic_s4.jpg",
+   "outfit": "medic",
+   "skin": 4
+  },
+  {
+   "file": "male_beach_trunks_s1.jpg",
+   "outfit": "beach_trunks",
+   "skin": 1
+  },
+  {
+   "file": "male_beach_trunks_s2.jpg",
+   "outfit": "beach_trunks",
+   "skin": 2
+  },
+  {
+   "file": "male_beach_trunks_s3.jpg",
+   "outfit": "beach_trunks",
+   "skin": 3
+  },
+  {
+   "file": "male_beach_trunks2_s0.jpg",
+   "outfit": "beach_trunks2",
+   "skin": 0
+  },
+  {
+   "file": "male_beach_trunks2_s2.jpg",
+   "outfit": "beach_trunks2",
+   "skin": 2
+  },
+  {
+   "file": "male_beach_trunks2_s4.jpg",
+   "outfit": "beach_trunks2",
+   "skin": 4
+  },
+  {
+   "file": "male_jason_s2.jpg",
+   "outfit": "jason",
+   "skin": 2
+  }
+ ],
+ "female": [
+  {
+   "file": "female_hawaiian0_s0.jpg",
+   "outfit": "hawaiian0",
+   "skin": 0
+  },
+  {
+   "file": "female_hawaiian0_s2.jpg",
+   "outfit": "hawaiian0",
+   "skin": 2
+  },
+  {
+   "file": "female_hawaiian0_s4.jpg",
+   "outfit": "hawaiian0",
+   "skin": 4
+  },
+  {
+   "file": "female_hawaiian1_s1.jpg",
+   "outfit": "hawaiian1",
+   "skin": 1
+  },
+  {
+   "file": "female_hawaiian1_s2.jpg",
+   "outfit": "hawaiian1",
+   "skin": 2
+  },
+  {
+   "file": "female_hawaiian1_s3.jpg",
+   "outfit": "hawaiian1",
+   "skin": 3
+  },
+  {
+   "file": "female_hawaiian2_s0.jpg",
+   "outfit": "hawaiian2",
+   "skin": 0
+  },
+  {
+   "file": "female_hawaiian2_s2.jpg",
+   "outfit": "hawaiian2",
+   "skin": 2
+  },
+  {
+   "file": "female_hawaiian2_s4.jpg",
+   "outfit": "hawaiian2",
+   "skin": 4
+  },
+  {
+   "file": "female_business_s1.jpg",
+   "outfit": "business",
+   "skin": 1
+  },
+  {
+   "file": "female_business_s2.jpg",
+   "outfit": "business",
+   "skin": 2
+  },
+  {
+   "file": "female_business_s3.jpg",
+   "outfit": "business",
+   "skin": 3
+  },
+  {
+   "file": "female_suit_white_s0.jpg",
+   "outfit": "suit_white",
+   "skin": 0
+  },
+  {
+   "file": "female_suit_white_s2.jpg",
+   "outfit": "suit_white",
+   "skin": 2
+  },
+  {
+   "file": "female_suit_white_s4.jpg",
+   "outfit": "suit_white",
+   "skin": 4
+  },
+  {
+   "file": "female_tank_jeans_s1.jpg",
+   "outfit": "tank_jeans",
+   "skin": 1
+  },
+  {
+   "file": "female_tank_jeans_s2.jpg",
+   "outfit": "tank_jeans",
+   "skin": 2
+  },
+  {
+   "file": "female_tank_jeans_s3.jpg",
+   "outfit": "tank_jeans",
+   "skin": 3
+  },
+  {
+   "file": "female_tee_red_s0.jpg",
+   "outfit": "tee_red",
+   "skin": 0
+  },
+  {
+   "file": "female_tee_red_s2.jpg",
+   "outfit": "tee_red",
+   "skin": 2
+  },
+  {
+   "file": "female_tee_red_s4.jpg",
+   "outfit": "tee_red",
+   "skin": 4
+  },
+  {
+   "file": "female_tee_stripes_s1.jpg",
+   "outfit": "tee_stripes",
+   "skin": 1
+  },
+  {
+   "file": "female_tee_stripes_s2.jpg",
+   "outfit": "tee_stripes",
+   "skin": 2
+  },
+  {
+   "file": "female_tee_stripes_s3.jpg",
+   "outfit": "tee_stripes",
+   "skin": 3
+  },
+  {
+   "file": "female_jogger_s0.jpg",
+   "outfit": "jogger",
+   "skin": 0
+  },
+  {
+   "file": "female_jogger_s2.jpg",
+   "outfit": "jogger",
+   "skin": 2
+  },
+  {
+   "file": "female_jogger_s4.jpg",
+   "outfit": "jogger",
+   "skin": 4
+  },
+  {
+   "file": "female_camo_s1.jpg",
+   "outfit": "camo",
+   "skin": 1
+  },
+  {
+   "file": "female_camo_s2.jpg",
+   "outfit": "camo",
+   "skin": 2
+  },
+  {
+   "file": "female_camo_s3.jpg",
+   "outfit": "camo",
+   "skin": 3
+  },
+  {
+   "file": "female_gang_purple_s0.jpg",
+   "outfit": "gang_purple",
+   "skin": 0
+  },
+  {
+   "file": "female_gang_purple_s2.jpg",
+   "outfit": "gang_purple",
+   "skin": 2
+  },
+  {
+   "file": "female_gang_purple_s4.jpg",
+   "outfit": "gang_purple",
+   "skin": 4
+  },
+  {
+   "file": "female_gang_green_s1.jpg",
+   "outfit": "gang_green",
+   "skin": 1
+  },
+  {
+   "file": "female_gang_green_s2.jpg",
+   "outfit": "gang_green",
+   "skin": 2
+  },
+  {
+   "file": "female_gang_green_s3.jpg",
+   "outfit": "gang_green",
+   "skin": 3
+  },
+  {
+   "file": "female_police_s0.jpg",
+   "outfit": "police",
+   "skin": 0
+  },
+  {
+   "file": "female_police_s2.jpg",
+   "outfit": "police",
+   "skin": 2
+  },
+  {
+   "file": "female_police_s4.jpg",
+   "outfit": "police",
+   "skin": 4
+  },
+  {
+   "file": "female_swat_s1.jpg",
+   "outfit": "swat",
+   "skin": 1
+  },
+  {
+   "file": "female_swat_s2.jpg",
+   "outfit": "swat",
+   "skin": 2
+  },
+  {
+   "file": "female_swat_s3.jpg",
+   "outfit": "swat",
+   "skin": 3
+  },
+  {
+   "file": "female_medic_s0.jpg",
+   "outfit": "medic",
+   "skin": 0
+  },
+  {
+   "file": "female_medic_s2.jpg",
+   "outfit": "medic",
+   "skin": 2
+  },
+  {
+   "file": "female_medic_s4.jpg",
+   "outfit": "medic",
+   "skin": 4
+  },
+  {
+   "file": "female_bikini_pink_s1.jpg",
+   "outfit": "bikini_pink",
+   "skin": 1
+  },
+  {
+   "file": "female_bikini_pink_s2.jpg",
+   "outfit": "bikini_pink",
+   "skin": 2
+  },
+  {
+   "file": "female_bikini_pink_s3.jpg",
+   "outfit": "bikini_pink",
+   "skin": 3
+  },
+  {
+   "file": "female_bikini_teal_s0.jpg",
+   "outfit": "bikini_teal",
+   "skin": 0
+  },
+  {
+   "file": "female_bikini_teal_s2.jpg",
+   "outfit": "bikini_teal",
+   "skin": 2
+  },
+  {
+   "file": "female_bikini_teal_s4.jpg",
+   "outfit": "bikini_teal",
+   "skin": 4
+  },
+  {
+   "file": "female_lucia_s2.jpg",
+   "outfit": "lucia",
+   "skin": 2
+  }
+ ]
+}
