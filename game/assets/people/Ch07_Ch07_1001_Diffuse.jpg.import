@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cgia7x7iyqep"
-path="res://.godot/imported/Ch07_Ch07_1001_Diffuse.jpg-ac0fb09ad8b6e4280706103067ee187a.ctex"
+path.s3tc="res://.godot/imported/Ch07_Ch07_1001_Diffuse.jpg-ac0fb09ad8b6e4280706103067ee187a.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "267db8aa92c782e2f3aadf35ab4843a7"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/people/Ch07_Ch07_1001_Diffuse.jpg"
-dest_files=["res://.godot/imported/Ch07_Ch07_1001_Diffuse.jpg-ac0fb09ad8b6e4280706103067ee187a.ctex"]
+dest_files=["res://.godot/imported/Ch07_Ch07_1001_Diffuse.jpg-ac0fb09ad8b6e4280706103067ee187a.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

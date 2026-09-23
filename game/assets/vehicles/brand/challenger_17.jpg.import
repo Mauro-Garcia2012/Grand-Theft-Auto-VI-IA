@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d3j74w21tax20"
-path="res://.godot/imported/challenger_17.jpg-546e5d1fea3affd085a9e9e495a8f848.ctex"
+path.s3tc="res://.godot/imported/challenger_17.jpg-546e5d1fea3affd085a9e9e495a8f848.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "eac5bfdc21be1ed135ad6e334522557b"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/challenger_17.jpg"
-dest_files=["res://.godot/imported/challenger_17.jpg-546e5d1fea3affd085a9e9e495a8f848.ctex"]
+dest_files=["res://.godot/imported/challenger_17.jpg-546e5d1fea3affd085a9e9e495a8f848.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0

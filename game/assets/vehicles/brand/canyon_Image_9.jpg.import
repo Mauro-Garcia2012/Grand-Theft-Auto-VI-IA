@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ck322qxqsaqho"
-path="res://.godot/imported/canyon_Image_9.jpg-a444e058e17428ecc4abe90df5b5956e.ctex"
+path.s3tc="res://.godot/imported/canyon_Image_9.jpg-a444e058e17428ecc4abe90df5b5956e.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f9aaf4ac68f77f7c0d35b040ba859fc1"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/canyon_Image_9.jpg"
-dest_files=["res://.godot/imported/canyon_Image_9.jpg-a444e058e17428ecc4abe90df5b5956e.ctex"]
+dest_files=["res://.godot/imported/canyon_Image_9.jpg-a444e058e17428ecc4abe90df5b5956e.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0

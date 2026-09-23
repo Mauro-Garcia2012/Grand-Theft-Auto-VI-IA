@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b1ht6bqclmqil"
-path="res://.godot/imported/mclaren_Image_4.webp-6eb7dbff18f5f5431364a8a9974d23fc.ctex"
+path.s3tc="res://.godot/imported/mclaren_Image_4.webp-6eb7dbff18f5f5431364a8a9974d23fc.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7428d119a3c30c1ae0d1d14d0cbd44eb"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/mclaren_Image_4.webp"
-dest_files=["res://.godot/imported/mclaren_Image_4.webp-6eb7dbff18f5f5431364a8a9974d23fc.ctex"]
+dest_files=["res://.godot/imported/mclaren_Image_4.webp-6eb7dbff18f5f5431364a8a9974d23fc.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0

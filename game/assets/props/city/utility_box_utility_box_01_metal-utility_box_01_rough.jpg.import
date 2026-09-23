@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://clp8nhhcg3djo"
-path="res://.godot/imported/utility_box_utility_box_01_metal-utility_box_01_rough.jpg-9babd7a5b970cafc9f64f9b2c27801af.ctex"
+path.s3tc="res://.godot/imported/utility_box_utility_box_01_metal-utility_box_01_rough.jpg-9babd7a5b970cafc9f64f9b2c27801af.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f4845fa70a2938216e14bd6e7bab7f63"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/utility_box_utility_box_01_metal-utility_box_01_rough.jpg"
-dest_files=["res://.godot/imported/utility_box_utility_box_01_metal-utility_box_01_rough.jpg-9babd7a5b970cafc9f64f9b2c27801af.ctex"]
+dest_files=["res://.godot/imported/utility_box_utility_box_01_metal-utility_box_01_rough.jpg-9babd7a5b970cafc9f64f9b2c27801af.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

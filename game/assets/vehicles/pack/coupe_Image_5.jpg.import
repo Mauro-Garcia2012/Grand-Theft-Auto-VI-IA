@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bfymdytvsbsou"
-path="res://.godot/imported/coupe_Image_5.jpg-6957c2817e3608063983bbdd05b31896.ctex"
+path.s3tc="res://.godot/imported/coupe_Image_5.jpg-6957c2817e3608063983bbdd05b31896.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a87f2f377412b9c260c479979e6e1f89"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/coupe_Image_5.jpg"
-dest_files=["res://.godot/imported/coupe_Image_5.jpg-6957c2817e3608063983bbdd05b31896.ctex"]
+dest_files=["res://.godot/imported/coupe_Image_5.jpg-6957c2817e3608063983bbdd05b31896.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0

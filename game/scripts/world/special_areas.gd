@@ -237,9 +237,7 @@ func _airport() -> void:
 	for i in 5:
 		wb.add_building(Vector3(-1700 + i * 90, _y(), -520), Vector3(70, 20, 50), Color(0.6, 0.62, 0.64), 7, rng.randf())
 	# concrete apron in front of the terminal and hangars, with taxiways to both runways
-	var apron := StandardMaterial3D.new()
-	apron.albedo_color = Color(0.46, 0.47, 0.48)
-	apron.roughness = 0.9
+	var apron := WorldBuilder.pbr_material("cwall", 0.08, Color(0.72, 0.72, 0.7))
 	for r in [Rect2(-1760, -675, 580, 225), Rect2(-1395, -450, 30, 125), Rect2(-1395, -1075, 30, 345)]:
 		var am := PlaneMesh.new()
 		am.size = r.size

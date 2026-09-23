@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://2ofxps1blgvk"
-path="res://.godot/imported/yacht_tex_15.jpg-4e51fc22956d4531208ac570c6fd58d3.ctex"
+path.s3tc="res://.godot/imported/yacht_tex_15.jpg-4e51fc22956d4531208ac570c6fd58d3.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "86617a7c0fea90a466ba6f4fedb7ea1e"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/boats_real/yacht_tex_15.jpg"
-dest_files=["res://.godot/imported/yacht_tex_15.jpg-4e51fc22956d4531208ac570c6fd58d3.ctex"]
+dest_files=["res://.godot/imported/yacht_tex_15.jpg-4e51fc22956d4531208ac570c6fd58d3.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0

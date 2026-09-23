@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://i3ytnteboaue"
-path="res://.godot/imported/bmw_Image_7.webp-13b8f49d222fe0fbd5df77d540664bc3.ctex"
+path.s3tc="res://.godot/imported/bmw_Image_7.webp-13b8f49d222fe0fbd5df77d540664bc3.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d731709593570b9f6d4e83f7b41d10db"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/bmw_Image_7.webp"
-dest_files=["res://.godot/imported/bmw_Image_7.webp-13b8f49d222fe0fbd5df77d540664bc3.ctex"]
+dest_files=["res://.godot/imported/bmw_Image_7.webp-13b8f49d222fe0fbd5df77d540664bc3.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0

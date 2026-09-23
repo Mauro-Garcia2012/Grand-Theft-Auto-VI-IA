@@ -68,6 +68,8 @@ func _process(delta: float) -> void:
 			_fly()
 		"flyshots":
 			_flyshots()
+		"bshot":
+			_bshot()
 		"traffic":
 			_traffic()
 		"chase":
@@ -514,6 +516,25 @@ func _pview() -> void:
 		await _wait(0.3)
 		await _shot("pview_" + e[2])
 		m.visible = false
+	get_tree().quit()
+
+
+## Quick close-ups of facades (shader checks). Optional env BSHOT_T = hour.
+func _bshot() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	Game.sky.time_of_day = float(OS.get_environment("BSHOT_T")) if OS.get_environment("BSHOT_T") != "" else 11.0
+	Game.hud.visible = false
+	_place_cam(Vector3(1045, 2.0, 700), Vector3(1010, 6, 690))
+	await _wait(1.0)
+	await _shot("facade_deco")
+	_place_cam(Vector3(-470, 2.0, 60), Vector3(-500, 5, 20))
+	await _wait(1.0)
+	await _shot("facade_cuba")
+	_place_cam(Vector3(40, 4, 380), Vector3(80, 40, 120))
+	await _wait(1.0)
+	await _shot("facade_towers")
 	get_tree().quit()
 
 

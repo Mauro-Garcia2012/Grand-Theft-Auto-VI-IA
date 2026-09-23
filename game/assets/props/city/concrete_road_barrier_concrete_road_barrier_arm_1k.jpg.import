@@ -2,10 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8ry0mafgsyx4"
-path="res://.godot/imported/concrete_road_barrier_concrete_road_barrier_arm_1k.jpg-8c3d315cdad6213c3488826e6a7940ff.ctex"
+uid="uid://dousah5vxfqgw"
+path.s3tc="res://.godot/imported/concrete_road_barrier_concrete_road_barrier_arm_1k.jpg-8c3d315cdad6213c3488826e6a7940ff.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9ada2b65aede0f01f174f8d4e9d840c2"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/concrete_road_barrier_concrete_road_barrier_arm_1k.jpg"
-dest_files=["res://.godot/imported/concrete_road_barrier_concrete_road_barrier_arm_1k.jpg-8c3d315cdad6213c3488826e6a7940ff.ctex"]
+dest_files=["res://.godot/imported/concrete_road_barrier_concrete_road_barrier_arm_1k.jpg-8c3d315cdad6213c3488826e6a7940ff.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://batd1vk6r6hsq"
-path="res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.ctex"
+path.s3tc="res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d2f4293a353c13b2e16820cecc7c7142"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/traffic_signal_galvanized-metal-texture-seamless-hr.jpg"
-dest_files=["res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.ctex"]
+dest_files=["res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

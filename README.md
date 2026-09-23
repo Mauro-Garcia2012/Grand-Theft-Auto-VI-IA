@@ -12,9 +12,15 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 
 ## Descargar y jugar
 
-1. Descarga [`builds/ViceCity-Windows-x64.zip`](builds/ViceCity-Windows-x64.zip).
-2. Descomprime la carpeta completa (`ViceCity.exe` y `ViceCity.pck` tienen que estar juntos).
-3. Ejecuta `ViceCity.exe` (Windows 10/11 de 64 bits, GPU con Vulkan o DirectX 12).
+El juego pesa unos 200 MB comprimido, así que va dividido en 3 partes (GitHub no admite archivos
+de más de 100 MB):
+
+1. Descarga las tres partes de [`builds/`](builds): `ViceCity-Windows-x64.zip.001`, `.002` y `.003`,
+   y también `UNIR_PARTES.bat`, todo en la misma carpeta.
+2. Haz doble clic en `UNIR_PARTES.bat` (o abre la parte `.001` con 7-Zip/WinRAR): se crea
+   `ViceCity-Windows-x64.zip`.
+3. Descomprime la carpeta completa (`ViceCity.exe` y `ViceCity.pck` tienen que estar juntos) y
+   ejecuta `ViceCity.exe` (Windows 10/11 de 64 bits, GPU con Vulkan o DirectX 12).
    Si SmartScreen avisa: *Más información → Ejecutar de todas formas*.
 
 ## Qué incluye
@@ -102,10 +108,11 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 
 | | |
 |---|---|
-| ![Playa de Ocean Beach](docs/screenshots/beach.jpg) | ![Downtown](docs/screenshots/downtown_skyline.jpg) |
-| ![Noche](docs/screenshots/ocean_drive_night.jpg) | ![Downtown de noche](docs/screenshots/downtown_night.jpg) |
-| ![Coches](docs/screenshots/brand_cars.jpg) | ![Vehículos](docs/screenshots/vehicles.jpg) |
-| ![Aeropuerto](docs/screenshots/airport.jpg) | ![Puerto](docs/screenshots/port.jpg) |
+| ![Playa de Ocean Beach](docs/screenshots/beach.jpg) | ![Ocean Drive](docs/screenshots/ocean_drive_street.jpg) |
+| ![Downtown](docs/screenshots/downtown_skyline.jpg) | ![Downtown de noche](docs/screenshots/downtown_night.jpg) |
+| ![Ocean Drive de noche](docs/screenshots/ocean_drive_night.jpg) | ![Coches](docs/screenshots/brand_cars.jpg) |
+| ![Vehículos](docs/screenshots/vehicles.jpg) | ![Aeropuerto](docs/screenshots/airport.jpg) |
+| ![Puerto](docs/screenshots/port.jpg) | |
 
 ## Compilar desde el código
 

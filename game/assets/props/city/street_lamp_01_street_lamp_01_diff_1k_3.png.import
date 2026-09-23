@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c30i3pfj5600r"
-path="res://.godot/imported/street_lamp_01_street_lamp_01_diff_1k_3.png-5baf3730f60c3d02b676b7a0be9755c1.ctex"
+path.s3tc="res://.godot/imported/street_lamp_01_street_lamp_01_diff_1k_3.png-5baf3730f60c3d02b676b7a0be9755c1.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c6dfe27258e72ea394b99c9a0b891f14"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/street_lamp_01_street_lamp_01_diff_1k_3.png"
-dest_files=["res://.godot/imported/street_lamp_01_street_lamp_01_diff_1k_3.png-5baf3730f60c3d02b676b7a0be9755c1.ctex"]
+dest_files=["res://.godot/imported/street_lamp_01_street_lamp_01_diff_1k_3.png-5baf3730f60c3d02b676b7a0be9755c1.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

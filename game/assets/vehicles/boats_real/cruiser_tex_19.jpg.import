@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://h13ob1bq2imy"
-path="res://.godot/imported/cruiser_tex_19.jpg-8e61beead99b3ffb3d8bfe5544ce9520.ctex"
+path.s3tc="res://.godot/imported/cruiser_tex_19.jpg-8e61beead99b3ffb3d8bfe5544ce9520.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "640b728c36bf735d8ceb76a6d2226684"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/boats_real/cruiser_tex_19.jpg"
-dest_files=["res://.godot/imported/cruiser_tex_19.jpg-8e61beead99b3ffb3d8bfe5544ce9520.ctex"]
+dest_files=["res://.godot/imported/cruiser_tex_19.jpg-8e61beead99b3ffb3d8bfe5544ce9520.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dp6kce14khpli"
-path="res://.godot/imported/Ch12_Ch12_1001_Specular.jpg-4dfd8f0d5dd3c0c8d3ad7168d7defacd.ctex"
+path.s3tc="res://.godot/imported/Ch12_Ch12_1001_Specular.jpg-4dfd8f0d5dd3c0c8d3ad7168d7defacd.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "59c87be47641a5d4c26e8044029a3e9e"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/people/Ch12_Ch12_1001_Specular.jpg"
-dest_files=["res://.godot/imported/Ch12_Ch12_1001_Specular.jpg-4dfd8f0d5dd3c0c8d3ad7168d7defacd.ctex"]
+dest_files=["res://.godot/imported/Ch12_Ch12_1001_Specular.jpg-4dfd8f0d5dd3c0c8d3ad7168d7defacd.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

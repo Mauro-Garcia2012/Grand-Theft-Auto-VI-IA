@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://h4674cx0pke"
-path="res://.godot/imported/a320_A320-NWA.jpg-650d9268fd171e99b00310a870f80ce9.ctex"
+path.s3tc="res://.godot/imported/a320_A320-NWA.jpg-650d9268fd171e99b00310a870f80ce9.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7a9df51c9ed729e47d9a48f2d47768a1"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/aircraft/a320_A320-NWA.jpg"
-dest_files=["res://.godot/imported/a320_A320-NWA.jpg-650d9268fd171e99b00310a870f80ce9.ctex"]
+dest_files=["res://.godot/imported/a320_A320-NWA.jpg-650d9268fd171e99b00310a870f80ce9.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0

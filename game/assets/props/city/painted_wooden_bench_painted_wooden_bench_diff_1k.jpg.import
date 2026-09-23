@@ -2,10 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bt5v44csxfkh8"
-path="res://.godot/imported/painted_wooden_bench_painted_wooden_bench_diff_1k.jpg-cc1d7deb5025ae971d3c069874fccd7d.ctex"
+uid="uid://cvdyr1s6agibv"
+path.s3tc="res://.godot/imported/painted_wooden_bench_painted_wooden_bench_diff_1k.jpg-cc1d7deb5025ae971d3c069874fccd7d.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "fe75def8ee7e2a7a9fe862b98a02b984"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/painted_wooden_bench_painted_wooden_bench_diff_1k.jpg"
-dest_files=["res://.godot/imported/painted_wooden_bench_painted_wooden_bench_diff_1k.jpg-cc1d7deb5025ae971d3c069874fccd7d.ctex"]
+dest_files=["res://.godot/imported/painted_wooden_bench_painted_wooden_bench_diff_1k.jpg-cc1d7deb5025ae971d3c069874fccd7d.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

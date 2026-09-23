@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cbnpdu6rwww45"
-path="res://.godot/imported/ferrari599_24.jpg-ec09714934ec1ac6b4d7192079af7301.ctex"
+path.s3tc="res://.godot/imported/ferrari599_24.jpg-ec09714934ec1ac6b4d7192079af7301.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "af77058c363f40bc84a4207998a7b4dd"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/ferrari599_24.jpg"
-dest_files=["res://.godot/imported/ferrari599_24.jpg-ec09714934ec1ac6b4d7192079af7301.ctex"]
+dest_files=["res://.godot/imported/ferrari599_24.jpg-ec09714934ec1ac6b4d7192079af7301.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +40,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=1024
+detect_3d/compress_to=0
