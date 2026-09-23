@@ -184,16 +184,8 @@ func _change_clothes(p: Humanoid) -> void:
 		Game.msg("No tienes suficiente dinero")
 		return
 	Game.money -= 150
-	var list := CharacterModel.get_outfits(p.gender)
-	var cur := p.model.outfit_file
-	var tries := 0
-	var pick: String = cur
-	while pick == cur and tries < 20:
-		var o: Dictionary = list[randi() % list.size()]
-		if not o.outfit in ["police", "swat", "medic"] and int(o.skin) == 2:
-			pick = o.file
-		tries += 1
-	p.model.set_outfit(pick)
+	# new hairstyle colour (the protagonists keep their own clothes)
+	p.model.set_outfit(p.model.outfit_file, CharacterModel.HAIR_COLORS.pick_random(), true)
 	Game.msg("Nuevo look. ¡Estás increíble!", 2.0)
 	Sfx.play("pickup")
 	if Game.get_wanted() > 0 and not Game.wanted.seen:

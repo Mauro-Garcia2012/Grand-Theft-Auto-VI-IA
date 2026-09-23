@@ -139,15 +139,12 @@ func _warm_up() -> void:
 	# weapon models (first NPC with a gun would otherwise hitch while the pack loads)
 	for w in ["pistol", "smg"]:
 		WeaponDB.make_model(w).free()
-	for p in CharacterModel.BODY_SCENES.values() + CharacterModel.HAIR_SCENES.values():
-		CharacterModel.load_scene(p)
+	for id in CharacterModel.MODELS:
+		CharacterModel.load_scene(CharacterModel.MODELS[id].src)
 	# instantiate one car of the multi-car set to cache its prototypes
 	for id in ["p_sedan", "p_police"]:
 		var tmp := VehicleDB.spawn(id, Vector3(0, -500, 0), 0.0)
 		tmp.queue_free()
-	var o := CharacterModel.get_outfits("male") + CharacterModel.get_outfits("female")
-	for e in o:
-		ResourceLoader.load_threaded_request("res://assets/characters/outfits/" + e.file)
 
 
 func _progress(v: float, text: String) -> void:
@@ -166,7 +163,7 @@ func _spawn_protagonists() -> void:
 	jason.is_player = true
 	jason.team = "player"
 	add_child(jason)
-	jason.setup("male", "male_jason_s2.jpg", "buzzed", true, Color(0.2, 0.16, 0.13))
+	jason.setup("male", "ch12", "", false, Color(1, 1, 1))
 	jason.add_to_group("humanoids")
 	jason.global_position = start
 	jason.max_health = 200.0
@@ -181,7 +178,7 @@ func _spawn_protagonists() -> void:
 	lucia.display_name = "Lucía"
 	lucia.team = "player"
 	add_child(lucia)
-	lucia.setup("female", "female_lucia_s2.jpg", "long", false, Color(0.12, 0.09, 0.08))
+	lucia.setup("female", "ch07", "", false, Color(1, 1, 1))
 	lucia.add_to_group("humanoids")
 	lucia.global_position = start + Vector3(1.5, 0, 1.0)
 	lucia.max_health = 200.0

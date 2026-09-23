@@ -99,7 +99,7 @@ func setup(p_gender: String, outfit := "", hair := "", beard := false, hair_colo
 	model.build(gender, outfit, hair, hair_color, beard)
 	_weapon_pivot = Node3D.new()
 	_weapon_pivot.name = "WeaponPivot"
-	_weapon_attach = model.attach_to_bone(_weapon_pivot, "hand_r")
+	_weapon_attach = model.attach_to_bone(_weapon_pivot, "RightHand")
 	_update_weapon_model()
 
 

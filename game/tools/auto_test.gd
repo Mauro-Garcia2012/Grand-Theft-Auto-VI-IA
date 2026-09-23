@@ -214,7 +214,7 @@ func _drive() -> void:
 	var p := Game.player
 	if step == 0 and t > 1.5:
 		step = 1
-		var v: Vehicle = VehicleDB.spawn("sedanSports", p.global_position + Vector3(0, 1, -6), 0.0)
+		var v: Vehicle = VehicleDB.spawn("p_sport", p.global_position + Vector3(0, 1, -6), 0.0)
 		await _wait(0.2)
 		p.enter_vehicle(v, 0)
 	elif step == 1 and t > 2.5:
@@ -285,15 +285,22 @@ func _gallery() -> void:
 	var p := Game.player
 	Game.sky.time_of_day = 16.5
 	Game.population.set_physics_process(false)
+	Game.population.clear_all()
 	var base := Vector3(1060, 1.2, 400)
-	var ids := ["sedan", "sedanSports", "police", "taxi", "nb_convertible", "nb_charger", "suvLuxury", "raceFuture", "nb_pickup", "ambulance", "garbageTruck", "motorcycle"]
+	# every body model, idle / walking, close up
+	var c0 := base + Vector3(-20, 0, 14)
+	var ids := CharacterModel.MODELS.keys()
 	for i in ids.size():
-		var v = VehicleDB.spawn(ids[i], base + Vector3((i % 4) * 7.0, 0.5, (i / 4) * 9.0), PI * 0.25)
-		v.freeze = false
-	await _wait(2.5)
-	_place_cam(base + Vector3(10, 7, 30), base + Vector3(10, 0, 8))
-	await _wait(1.0)
-	await _shot("gallery_cars")
+		var h = Game.population.spawn_ped(c0 + Vector3(i * 1.3, 0.3, 0), CharacterModel.MODELS[ids[i]].gender, "")
+		h.model.set_outfit(ids[i], Color(1, 1, 1), true)
+		h.brain.set_physics_process(false)
+		h.set_physics_process(false)
+		h.rotation.y = PI + (0.4 if i % 2 else -0.3)
+		h.model.play(["Idle", "Walk", "Idle_Talking", "Idle_FoldArms"][i % 4])
+	await _wait(1.5)
+	_place_cam(c0 + Vector3(3.2, 1.5, 4.2), c0 + Vector3(3.2, 1.0, 0))
+	await _wait(0.5)
+	await _shot("gallery_people")
 	# characters with weapons
 	var c := base + Vector3(-20, 0, 0)
 	var weaps := ["pistol", "smg", "rifle", "shotgun", "sniper", "rpg"]
@@ -308,8 +315,17 @@ func _gallery() -> void:
 	_place_cam(c + Vector3(4, 1.8, 6), c + Vector3(4, 1.1, 0))
 	await _wait(0.5)
 	await _shot("gallery_weapons")
-	# player driving the convertible
-	var car = VehicleDB.spawn("nb_convertible", base + Vector3(0, 0.6, -30), 0.0, Color(0.95, 0.35, 0.6))
+	# cars
+	var cars := ["p_sedan", "p_sport", "p_police", "p_taxi", "b_m5", "b_challenger", "p_suv", "b_mclaren", "p_pickup", "p_ambulance", "p_garbage", "b_porsche"]
+	for i in cars.size():
+		var v = VehicleDB.spawn(cars[i], base + Vector3((i % 4) * 7.0, 0.5, (i / 4) * 9.0), PI * 0.25)
+		v.freeze = false
+	await _wait(2.5)
+	_place_cam(base + Vector3(10, 7, 30), base + Vector3(10, 0, 8))
+	await _wait(1.0)
+	await _shot("gallery_cars")
+	# player driving
+	var car = VehicleDB.spawn("b_m8", base + Vector3(0, 0.6, -30), 0.0)
 	await _wait(0.5)
 	p.enter_vehicle(car, 0)
 	for o in Game.protagonists:
@@ -320,11 +336,11 @@ func _gallery() -> void:
 	await _wait(0.5)
 	await _shot("gallery_driving")
 	# boats
-	var b = VehicleDB.spawn("speedboat", Vector3(1250, 0.5, 400), 0.0)
-	VehicleDB.spawn("yacht", Vector3(1270, 0.5, 430), 0.5)
-	VehicleDB.spawn("dinghy", Vector3(1235, 0.5, 420), 1.0)
+	var b = VehicleDB.spawn("cruiser", Vector3(1250, 0.5, 400), 0.0)
+	VehicleDB.spawn("yacht", Vector3(1275, 0.5, 440), 0.5)
+	VehicleDB.spawn("sailboat", Vector3(1230, 0.5, 425), 1.0)
 	await _wait(3.0)
-	_place_cam(b.global_position + Vector3(-18, 8, 20), b.global_position)
+	_place_cam(b.global_position + Vector3(-22, 9, 26), b.global_position)
 	await _wait(0.5)
 	await _shot("gallery_boats")
 	print("[test] OK gallery finished")
@@ -375,7 +391,7 @@ func _chase() -> void:
 	var p := Game.player
 	if not _chase_started and t > 2.0:
 		_chase_started = true
-		var v: Vehicle = VehicleDB.spawn("sedanSports", Vector3(950, 1.8, 300), PI)
+		var v: Vehicle = VehicleDB.spawn("p_sport", Vector3(950, 1.8, 300), PI)
 		await _wait(0.3)
 		p.enter_vehicle(v, 0)
 		Game.wanted.set_level(3)
