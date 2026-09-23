@@ -36,6 +36,14 @@ const _PLANE_LIVERY := [
 ]
 
 
+var _plane_spots: Array = []
+
+
+func _spawn_planes() -> void:
+	for sp in _plane_spots:
+		VehicleDB.spawn(sp[0], sp[1], sp[2])
+
+
 ## Static decoration model (ModelUtil.make) placed at `pos` (base) with a yaw.
 func _model(path: String, pos: Vector3, yaw: float, length: float, overrides := {}) -> Node3D:
 	var m := ModelUtil.make(path, length, overrides)
@@ -235,17 +243,17 @@ func _airport() -> void:
 		var gp := Vector3(-1460.0 + i * 55.0, _y(), -648.0)
 		if _model("res://assets/q/planes/Commercial_Airplane.fbx", gp, -PI * 0.5, 38.0, _PLANE_LIVERY[i % _PLANE_LIVERY.size()]):
 			_collider(gp, 0.0, Vector3(4.5, 5.0, 27.0))
-	_model("res://assets/q/planes/Commercial_Airplane.fbx", Vector3(-1720, _y(), -1100), PI, 38.0, _PLANE_LIVERY[2])
-	_collider(Vector3(-1720, _y(), -1100), PI * 0.5, Vector3(4.5, 5.0, 27.0))
-	# business jets (nose -Z) and light aircraft (nose +Z) in front of the hangars
+	# flyable aircraft: an airliner waiting on runway 09, jets and light aircraft at the hangars.
+	# They are spawned once the world's collision is in place.
+	_plane_spots = [["airliner", Vector3(-1720, _y() + 0.3, -1100), -PI * 0.5]]
 	for i in 5:
-		var hp := Vector3(-1700.0 + i * 90.0, _y(), -468.0)
+		var hp := Vector3(-1700.0 + i * 90.0, _y() + 0.3, -462.0)
 		if i % 2 == 0:
-			_model("res://assets/q/planes/Private_plane.fbx", hp, PI, 17.0, {"body": Color(0.95, 0.95, 0.97), "material": Color(0.12, 0.2, 0.45)})
-			_collider(hp, 0.0, Vector3(2.8, 3.0, 12.0))
+			_plane_spots.append(["jet", hp, PI])
 		else:
-			_model("res://assets/q/planes/SmallPlane.fbx", hp + Vector3(-12, 0, 0), 0.0, 9.0, {"body": Color(0.95, 0.95, 0.95), "bottom": Color(0.8, 0.15, 0.2), "material": Color(0.15, 0.15, 0.16)})
-			_model("res://assets/q/planes/SmallPlane.fbx", hp + Vector3(12, 0, 4), 0.3, 9.0, {"body": Color(0.95, 0.9, 0.5), "bottom": Color(0.15, 0.3, 0.7), "material": Color(0.15, 0.15, 0.16)})
+			_plane_spots.append(["cessna", hp + Vector3(-12, 0, 0), PI])
+			_plane_spots.append(["cessna", hp + Vector3(12, 0, 4), PI + 0.3])
+	Game.world.get_tree().create_timer(1.0).timeout.connect(_spawn_planes)
 	wb.city.landmarks.append({"name": "Aeropuerto", "pos": Vector3(-1350, 1, -700), "kind": "airport"})
 
 

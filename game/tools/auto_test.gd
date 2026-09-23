@@ -64,6 +64,10 @@ func _process(delta: float) -> void:
 			_spawnperf()
 		"readme":
 			_readme()
+		"fly":
+			_fly()
+		"flyshots":
+			_flyshots()
 		"traffic":
 			_traffic()
 		"chase":
@@ -603,4 +607,96 @@ func _readme() -> void:
 	_place_cam(Vector3(660, 45, 450), Vector3(750, 8, 660))
 	await _wait(0.5)
 	await _shot("port")
+	get_tree().quit()
+
+
+## Flight test (headless): take off from runway 09, climb, turn left, level off, bail out.
+## FLY_ID selects the aircraft (cessna, jet, airliner).
+var _plane: Node
+var _fly_log := 0.0
+func _fly() -> void:
+	var p := Game.player
+	if _plane == null:
+		if t < 2.0:
+			return
+		Game.population.set_physics_process(false)
+		Game.population.clear_all()
+		var id := OS.get_environment("FLY_ID")
+		if id == "":
+			id = "cessna"
+		_plane = VehicleDB.spawn(id, Vector3(-1760, CityMap.LAND + 0.3, -300), -PI * 0.5)
+		p.global_position = Vector3(-1760, CityMap.LAND + 1.0, -290)
+		await get_tree().physics_frame
+		p.enter_vehicle(_plane, 0)
+		_fly_log = t
+		return
+	var v: Aircraft = _plane
+	var ft := t - 2.0
+	var east := Vector3(1, 0, 0)
+	var north := Vector3(0, 0, -1)
+	if p.vehicle == v:
+		v.throttle = 1.0
+		if v.forward_speed < v._v_stall * 1.05 and not v.airborne:
+			v.aim_dir = east
+		elif ft < 30.0:
+			v.aim_dir = (east + Vector3.UP * 0.3).normalized()
+		elif ft < 45.0:
+			v.aim_dir = (north + Vector3.UP * 0.05).normalized()
+		else:
+			v.aim_dir = north
+			v.throttle = 0.0
+		if ft > 55.0 and v.airborne:
+			p.exit_vehicle(true)
+			p.parachute_in = 1.0
+			print("[fly] bail out at alt %.0f" % v.altitude)
+	if t - _fly_log >= 1.0:
+		_fly_log = t
+		var gb := v.global_basis
+		var pitch := rad_to_deg(asin(clampf(-gb.z.y, -1, 1)))
+		var bank := rad_to_deg(asin(clampf(gb.x.y, -1, 1)))
+		var hdg := rad_to_deg(atan2(-gb.z.x, gb.z.z))
+		print("[fly] t=%.0f spd=%.0f km/h alt=%.0f pow=%.2f pitch=%.0f bank=%.0f hdg=%.0f air=%s stall=%s hp=%.0f | player y=%.1f vy=%.1f chute=%s" % [
+			ft, v.speed_kmh, v.altitude, v.power, pitch, bank, hdg, v.airborne, v.stalled, v.health,
+			p.global_position.y, p.velocity.y, p._chute != null])
+	if ft > 55.0 and p.vehicle == null and p.is_on_floor() and ft > 58.0:
+		print("[fly] landed by parachute, player hp=%.0f dead=%s" % [p.health, p.dead])
+		get_tree().quit()
+	if ft > 140.0:
+		print("[fly] timeout")
+		get_tree().quit()
+
+
+func _flyshots() -> void:
+	if step != 0 or t < 7.0:
+		return
+	step = 1
+	var p := Game.player
+	Game.sky.time_of_day = 17.8
+	Game.hud.visible = true
+	# parked aircraft at the hangars
+	p.global_position = Vector3(-1560, 1.5, -430)
+	await _wait(2.0)
+	_place_cam(Vector3(-1530, 9, -415), Vector3(-1600, 2, -470))
+	await _wait(0.5)
+	await _shot("hangars")
+	# in flight over Ocean Beach, chase camera
+	var v: Aircraft = VehicleDB.spawn("cessna", Vector3(1000, 160, 900), 0.0)
+	await get_tree().physics_frame
+	v.linear_velocity = Vector3(0, 0, -50)
+	p.enter_vehicle(v, 0)
+	v.power = 0.8
+	var rig: CameraRig = Game.camera_rig
+	rig.set_physics_process(true)
+	rig.target = p
+	rig.yaw = 0.0
+	rig.pitch = -0.25
+	await _wait(3.0)
+	await _shot("flying_cessna")
+	# bail out: parachute over the beach
+	p.exit_vehicle(true)
+	p.parachute_in = 0.3
+	await _wait(2.5)
+	rig.yaw = 0.8
+	await _wait(0.5)
+	await _shot("parachute")
 	get_tree().quit()

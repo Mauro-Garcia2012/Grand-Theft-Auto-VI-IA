@@ -77,7 +77,8 @@ func _physics_process(delta: float) -> void:
 		focus = v.global_position + Vector3.UP * (1.3 + vlen * 0.12)
 		# auto align behind the car when driving and the mouse is idle
 		var spd: float = v.linear_velocity.length()
-		if _idle_mouse > 1.2 and spd > 4.0 and not target.aiming:
+		var flying: bool = v is Aircraft and v.airborne
+		if _idle_mouse > 1.2 and spd > 4.0 and not target.aiming and not flying:
 			var vy: float = v.global_rotation.y
 			var fwd_s: float = v.linear_velocity.dot(-v.global_basis.z)
 			if fwd_s < -2.0:
@@ -109,6 +110,11 @@ func _physics_process(delta: float) -> void:
 			want_shoulder = 0.0
 		if target.swimming:
 			focus.y = maxf(focus.y, Game.city.water_level + 0.8)
+		if target._chute != null:
+			# under the parachute: pull back so the canopy is in view
+			want_dist = 9.0
+			want_shoulder = 0.0
+			focus.y += 2.2
 	_dist = lerpf(_dist, want_dist, clampf(delta * 8.0, 0.0, 1.0))
 	_shoulder = lerpf(_shoulder, want_shoulder, clampf(delta * 8.0, 0.0, 1.0))
 	_fov = lerpf(_fov, want_fov, clampf(delta * 10.0, 0.0, 1.0))

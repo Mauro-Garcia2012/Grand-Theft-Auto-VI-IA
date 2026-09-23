@@ -80,6 +80,20 @@ const BOATS := {
 	"tug": {"name": "Remolcador", "src": "res://assets/vehicles/boats/watercraftPack_023.gltf", "length": 12.0, "mass": 12000, "accel": 3.0, "top": 14},
 }
 
+# Flyable aircraft (Quaternius airplane pack, CC0). length = longest horizontal side (usually the
+# wingspan); cruise/top in m/s; accel = full-power thrust per kg.
+const PLANES := {
+	"cessna": {"name": "Avioneta Mallard 172", "src": Q + "planes/SmallPlane.fbx", "front": "+z", "length": 9.5, "mass": 1100,
+		"cruise": 52.0, "top": 68.0, "accel": 3.6, "pitch_rate": 1.0, "prop": "Cube_001", "wing_y": 0.55, "health": 1200.0,
+		"recolor": {"body": Color(0.95, 0.95, 0.95), "bottom": Color(0.85, 0.2, 0.35), "material": Color(0.15, 0.15, 0.16)}},
+	"jet": {"name": "Jet privado Luxor", "src": Q + "planes/Private_plane.fbx", "front": "-z", "length": 17.0, "mass": 7000,
+		"cruise": 88.0, "top": 125.0, "accel": 4.6, "pitch_rate": 0.8, "jet": true, "wing_y": 0.2, "health": 1800.0,
+		"recolor": {"body": Color(0.95, 0.95, 0.97), "material": Color(0.12, 0.2, 0.45)}},
+	"airliner": {"name": "Airbus Vice Airways", "src": Q + "planes/Commercial_Airplane.fbx", "front": "-x", "length": 38.0, "mass": 60000,
+		"cruise": 92.0, "top": 145.0, "accel": 3.1, "pitch_rate": 0.55, "jet": true, "wing_y": 0.12, "health": 5000.0, "max_bank": 0.6,
+		"recolor": {"material.010": Color(0.95, 0.95, 0.97), "material.011": Color(0.1, 0.12, 0.15), "material.013": Color(0.1, 0.6, 0.68), "material.026": Color(0.95, 0.45, 0.62)}},
+}
+
 const PAINTS := [
 	Color(0.95, 0.95, 0.95), Color(0.08, 0.08, 0.09), Color(0.6, 0.62, 0.65), Color(0.75, 0.1, 0.12),
 	Color(0.1, 0.55, 0.6), Color(0.95, 0.4, 0.65), Color(0.95, 0.75, 0.1), Color(0.12, 0.25, 0.6),
@@ -103,6 +117,8 @@ static var _weights_total := 0
 static func get_def(id: String) -> Dictionary:
 	if CARS.has(id):
 		return CARS[id]
+	if PLANES.has(id):
+		return PLANES[id]
 	return BOATS.get(id, {})
 
 
@@ -128,6 +144,8 @@ static func spawn(id: String, pos: Vector3, yaw := 0.0, paint := Color(-1, 0, 0)
 	var v: Node3D
 	if BOATS.has(id):
 		v = Boat.new()
+	elif PLANES.has(id):
+		v = Aircraft.new()
 	else:
 		v = Vehicle.new()
 	v.def_id = id

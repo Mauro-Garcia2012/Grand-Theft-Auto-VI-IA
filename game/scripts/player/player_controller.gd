@@ -187,6 +187,14 @@ func _drive(delta: float, input: Vector2) -> void:
 	if h.seat != 0:
 		h.move_dir = Vector3.ZERO
 		return
+	if v is Aircraft:
+		# W/S power, A/D roll (nose wheel on the ground); the plane flies towards where the camera looks
+		v.throttle = -input.y
+		v.steer_input = -input.x
+		v.handbrake = Input.is_action_pressed("handbrake")
+		v.aim_dir = Basis.from_euler(Vector3(rig.pitch + 0.2, rig.yaw, 0.0)) * Vector3.FORWARD
+		h.aiming = false
+		return
 	if v is Vehicle or v is Boat:
 		v.throttle = -input.y
 		v.steer_input = -input.x
@@ -222,6 +230,12 @@ func _toggle_vehicle() -> void:
 		var v = h.vehicle
 		if v is Vehicle and v.global_basis.y.y < 0.3:
 			v.flip_if_needed()
+			return
+		if v is Aircraft and v.airborne:
+			# jump out: the parachute opens after a moment
+			h.exit_vehicle(true)
+			h.parachute_in = 1.0
+			Game.msg("¡Paracaídas! Se abrirá enseguida · WASD para planear", 3.0)
 			return
 		if v.linear_velocity.length() > 12.0:
 			# bail out at speed

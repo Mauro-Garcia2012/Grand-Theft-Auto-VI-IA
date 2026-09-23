@@ -11,9 +11,12 @@ CONTROLES
   En coche: W/S acelerar/frenar, A/D girar, Espacio freno de mano, H claxon,
             Q sirena, L luces, N radio, V cámara
   En el tanque (truco TANQUE): la torreta sigue a la cámara, clic izq. dispara el cañón
+  En avión: W/S potencia, el avión vuela hacia donde mira la cámara, A/D alabeo,
+            Espacio frenos, F saltar en paracaídas (WASD para planear)
+  Aviones en el aeropuerto (hangares y pista), o con los trucos AVIONETA, JET y JUMBO
   ESC pausa | F5 guardar | F9 cargar | T trucos
 
 TRUCOS (pulsa T y escribe)
   DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS,
-  DEPORTIVO, MOTO, TANQUE, AUTOBUS, PATRULLA, DRAGSTER, LANCHA, TORMENTA, LLUVIA, SOL,
-  NOCHE, MEDIODIA, ATARDECER, RAPIDO, CAOS, TELEPORT
+  DEPORTIVO, MOTO, TANQUE, AUTOBUS, PATRULLA, DRAGSTER, AVIONETA, JET, JUMBO, LANCHA,
+  TORMENTA, LLUVIA, SOL, NOCHE, MEDIODIA, ATARDECER, RAPIDO, CAOS, TELEPORT

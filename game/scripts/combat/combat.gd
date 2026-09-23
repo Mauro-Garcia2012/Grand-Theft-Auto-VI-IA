@@ -44,7 +44,7 @@ static func fire_bullet(from: Vector3, dir: Vector3, max_range: float, damage: f
 		var dmg := damage * clampf(1.2 - dist / max_range, 0.35, 1.0)
 		if col is Humanoid:
 			col.take_damage(dmg, shooter, end, dir, "bullet")
-		elif col is Vehicle or col is Boat:
+		elif col is Vehicle or col is Boat or col is Aircraft:
 			col.take_damage(dmg * 0.6, shooter, end)
 			Game.effects.impact(end, hit.normal, "metal")
 		else:

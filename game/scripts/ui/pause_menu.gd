@@ -80,10 +80,14 @@ EN VEHÍCULO
   H  Claxon     Q  Sirena (policía/ambulancia)     L  Luces     N  Emisora de radio     V  Cámara
   Clic der. + izq.  Disparar desde el coche (pistola / subfusil)      F  Salir (en marcha: saltar)
 
+EN AVIÓN
+  W / S  Potencia     Ratón  El avión vuela hacia donde mira la cámara     A / D  Alabeo
+  Espacio  Frenos en tierra     F  Saltar en paracaídas (WASD para planear)
+
 GENERAL
   M  Mapa (clic para marcar destino GPS)     ESC / P  Pausa     F5  Guardar     F9  Cargar     T  Trucos
-TRUCOS: DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS, MOTO, TANQUE, AUTOBUS, LANCHA,
-        PATRULLA, TORMENTA, SOL, NOCHE, MEDIODIA, RAPIDO, CAOS, TELEPORT"""
+TRUCOS: DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS, MOTO, TANQUE, AUTOBUS,
+        AVIONETA, JET, JUMBO, LANCHA, PATRULLA, TORMENTA, SOL, NOCHE, MEDIODIA, RAPIDO, CAOS, TELEPORT"""
 	_tabs.add_child(help)
 	# GAME
 	var game := VBoxContainer.new()

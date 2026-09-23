@@ -44,6 +44,9 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 - Coches detallados de marcas reales: **BMW M5 CS, BMW M8, Dodge Challenger R/T y Tesla
   Roadster**.
 - Tanque **Rhino** con torreta que sigue a la cámara y cañón.
+- **Aviones pilotables**: avioneta, jet privado y avión de pasajeros, con despegue, sustentación
+  y entrada en pérdida, aterrizaje con tren, choques y amerizajes. El avión vuela hacia donde
+  miras con la cámara. Salta en pleno vuelo con **paracaídas** (Lucía te sigue).
 - Física con suspensión, derrapes con freno de mano, daños (humo → fuego → explosión),
   gasolina, radio (VICE FM y RADIO LEONIDA), faros, claxon, robo de coches con conductor.
 - Tráfico con IA que sigue los carriles, **para en los semáforos en rojo**, esquiva y huye.
@@ -79,11 +82,15 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 | Freno de mano / claxon | Espacio / H | A / R3 |
 | Sirena / luces / radio / cámara | Q / L / N / V | — / — / — / Cruceta ↑ |
 | Tanque: torreta y cañón | Ratón / Clic izq. | Cámara / RT |
+| Avión: potencia / dirección / alabeo | W-S / ratón / A-D | Stick izq. / cámara |
+| Avión: frenos / saltar en paracaídas | Espacio / F | A / Y |
+| Paracaídas: planear | WASD | Stick izq. |
 | Guardar / cargar | F5 / F9 | — |
 | Trucos | T | — |
 
 **Trucos:** `DINERO`, `ARMAS`, `VIDA`, `DIOS`, `MUNICION`, `SINPOLICIA`, `POLICIA5`,
 `SUPERCOCHE`, `INFERNUS`, `DEPORTIVO`, `MOTO`, `TANQUE`, `AUTOBUS`, `PATRULLA`, `DRAGSTER`,
+`AVIONETA`, `JET`, `JUMBO` (te sube a un avión de pasajeros en la pista),
 `LANCHA`, `TORMENTA`, `LLUVIA`, `SOL`, `NOCHE`, `MEDIODIA`, `ATARDECER`, `RAPIDO`, `CAOS`,
 `TELEPORT`.
 
@@ -104,7 +111,7 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
    godot --headless --path game --export-release "Windows Desktop" ../builds/ViceCity/ViceCity.exe
    ```
 3. Pruebas automáticas (sin ventana): `godot --headless --path game -- --test=smoke`
-   (también `traffic`, `chase`, `combat`, `perf`).
+   (también `traffic`, `chase`, `combat`, `fly`, `perf`).
 
 Estructura: `game/scripts/world` (mapa, generación de la ciudad, zonas especiales, semáforos),
 `actors`, `vehicles`, `combat`, `ai`, `player`, `systems` (población, policía, tiendas, radio,

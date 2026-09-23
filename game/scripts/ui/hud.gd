@@ -161,7 +161,7 @@ void fragment() {
 	_veh_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	add_child(_veh_label)
 	_speed_label = _lbl("", 30, Color(1, 1, 1), font_black, 6)
-	UI.place(_speed_label, Control.PRESET_BOTTOM_RIGHT, Vector2(-330, -70), Vector2(300, 40))
+	UI.place(_speed_label, Control.PRESET_BOTTOM_RIGHT, Vector2(-470, -70), Vector2(440, 40))
 	_speed_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	add_child(_speed_label)
 	_fuel_bar = _bar(Color(1, 0.7, 0.2))
@@ -317,6 +317,10 @@ func _process(delta: float) -> void:
 		_speed_label.visible = true
 		_fuel_bar.visible = true
 		_speed_label.text = "%d km/h" % int(v.speed_kmh)
+		if v is Aircraft:
+			_speed_label.text = "%d km/h · %d m · %d%%" % [int(v.speed_kmh), int(v.altitude), int(v.power * 100.0)]
+			if v.stalled:
+				_speed_label.text = "¡PÉRDIDA! " + _speed_label.text
 		_fuel_bar.value = v.fuel * 100.0
 		if v.fuel < 0.15:
 			_fuel_bar.modulate = Color(1, 0.3, 0.3) if fmod(Time.get_ticks_msec() / 300.0, 2.0) < 1.0 else Color.WHITE

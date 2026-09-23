@@ -42,6 +42,17 @@ static func apply(code: String) -> void:
 			_spawn("garbageTruck")
 		"AUTOBUS", "BUS":
 			_spawn("q_bus")
+		"AVIONETA", "PLANE":
+			_spawn("cessna")
+		"JET":
+			_spawn("jet")
+		"JUMBO", "AVION":
+			# airliners need a runway: go to the threshold of the southern runway
+			if p.vehicle:
+				p.exit_vehicle()
+			var a: Node3D = VehicleDB.spawn("airliner", Vector3(-1740, CityMap.LAND + 0.3, -300), -PI * 0.5)
+			p.global_position = Vector3(-1740, CityMap.LAND + 1.0, -280)
+			p.enter_vehicle(a, 0)
 		"INFERNUS":
 			_spawn("q_infernus")
 		"PATRULLA", "COPCAR":
@@ -112,5 +123,10 @@ static func apply(code: String) -> void:
 static func _spawn(id: String) -> void:
 	var p := Game.player
 	var fwd := -p.global_basis.z
+	if VehicleDB.PLANES.has(id):
+		# planes appear in front of the player, facing the same way (clear of the wings)
+		var d: float = float(VehicleDB.PLANES[id].length) * 0.8 + 4.0
+		VehicleDB.spawn(id, p.global_position + fwd * d + Vector3.UP * 0.5, p.global_rotation.y)
+		return
 	var pos := p.global_position + fwd * 6.0 + Vector3.UP * 1.0
 	VehicleDB.spawn(id, pos, p.global_rotation.y + PI * 0.5)

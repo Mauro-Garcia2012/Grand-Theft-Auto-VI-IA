@@ -54,6 +54,8 @@ var _enter_target: Node = null
 var _enter_seat := 0
 var air_time := 0.0
 var fall_start_y := 0.0
+var parachute_in := 0.0          # >0: seconds until the parachute opens (after bailing out of a plane)
+var _chute: Node3D
 var last_attacker: Node = null
 var death_time := 0.0
 var stamina := 100.0
@@ -616,6 +618,19 @@ func _physics_ground(delta: float) -> void:
 		velocity.y -= GRAVITY * delta
 		if velocity.y > 0.0:
 			fall_start_y = maxf(fall_start_y, global_position.y)
+		if parachute_in > 0.0:
+			parachute_in -= delta
+			if parachute_in <= 0.0:
+				_open_chute()
+		if _chute:
+			# gliding under the canopy: slow descent, WASD steers
+			velocity.y = maxf(velocity.y, -4.5)
+			var glide := move_dir.limit_length(1.0) * 7.0
+			velocity.x = move_toward(velocity.x, glide.x, delta * 6.0)
+			velocity.z = move_toward(velocity.z, glide.z, delta * 6.0)
+			fall_start_y = global_position.y
+	if _chute and (is_on_floor() or swimming or dead):
+		_close_chute()
 	want_jump = false
 	move_and_slide()
 	# push rigid bodies / get hit by cars handled by vehicle
@@ -746,3 +761,53 @@ func _update_weapon_pivot() -> void:
 		_weapon_pivot.position = Vector3.ZERO
 
 
+
+
+# --------------------------------------------------------------- parachute
+func _open_chute() -> void:
+	if _chute or dead or is_on_floor():
+		return
+	_chute = Node3D.new()
+	_chute.name = "Parachute"
+	var canopy := MeshInstance3D.new()
+	var sm := SphereMesh.new()
+	sm.radius = 3.2
+	sm.height = 1.8
+	sm.is_hemisphere = true
+	sm.radial_segments = 16
+	sm.rings = 4
+	canopy.mesh = sm
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = [Color(0.95, 0.35, 0.6), Color(0.1, 0.65, 0.75), Color(0.98, 0.7, 0.15)][Game.rng.randi() % 3]
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	canopy.material_override = mat
+	canopy.position = Vector3(0, 5.2, 0)
+	canopy.scale = Vector3(1.0, 0.6, 0.75)
+	_chute.add_child(canopy)
+	var cord_mat := StandardMaterial3D.new()
+	cord_mat.albedo_color = Color(0.9, 0.9, 0.9)
+	for sx in [-1.0, 1.0]:
+		for sz in [-1.0, 1.0]:
+			var cord := MeshInstance3D.new()
+			var cm := CylinderMesh.new()
+			cm.top_radius = 0.015
+			cm.bottom_radius = 0.015
+			cm.height = 4.0
+			cord.mesh = cm
+			cord.material_override = cord_mat
+			var top := Vector3(sx * 2.4, 5.2, sz * 1.7)
+			var bottom := Vector3(sx * 0.2, 1.5, sz * 0.1)
+			cord.position = (top + bottom) * 0.5
+			var dirv := (top - bottom).normalized()
+			cord.basis = Basis(Quaternion(Vector3.UP, dirv))
+			_chute.add_child(cord)
+	add_child(_chute)
+	velocity.y = maxf(velocity.y, -8.0)
+	Sfx.play_at("swing", global_position, 0.0, 0.5)
+
+
+func _close_chute() -> void:
+	if _chute:
+		_chute.queue_free()
+		_chute = null
+	parachute_in = 0.0

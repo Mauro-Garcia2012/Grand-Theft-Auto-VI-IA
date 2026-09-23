@@ -48,7 +48,10 @@ func _physics_process(delta: float) -> void:
 				_run_to(p.vehicle.global_position, true)
 				return
 	elif h.vehicle != null:
-		h.exit_vehicle()
+		var bail: bool = h.vehicle is Aircraft and h.vehicle.airborne
+		h.exit_vehicle(bail)
+		if bail:
+			h.parachute_in = 1.3     # follow the player out of the plane
 		_enter_cd = 1.0
 		return
 	if h.vehicle != null:
@@ -71,7 +74,11 @@ func _physics_process(delta: float) -> void:
 	# follow
 	var dist := h.global_position.distance_to(p.global_position)
 	if dist > 80.0:
-		# teleport behind the player if too far (keeps the duo together)
+		# teleport behind the player if too far (keeps the duo together), never into the air
+		var player_in_air: bool = (p.vehicle == null and not p.is_on_floor()) or (p.vehicle is Aircraft and p.vehicle.airborne)
+		if player_in_air:
+			h.move_dir = Vector3.ZERO
+			return
 		var behind := p.global_position + p.global_basis.z * 3.0
 		h.global_position = behind + Vector3.UP * 0.5
 		h.velocity = Vector3.ZERO
