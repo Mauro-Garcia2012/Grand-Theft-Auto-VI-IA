@@ -55,6 +55,9 @@ func _ready() -> void:
 	var hud := HUD.new()
 	hud.name = "HUD"
 	hud_layer.add_child(hud)
+	var feed := SocialFeed.new()
+	feed.name = "SocialFeed"
+	hud_layer.add_child(feed)
 	var wheel := WeaponWheel.new()
 	wheel.name = "WeaponWheel"
 	hud_layer.add_child(wheel)

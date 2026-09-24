@@ -88,6 +88,8 @@ func _process(delta: float) -> void:
 			_weapons()
 		"planes":
 			_planes()
+		"gtahud":
+			_gtahud()
 		"traffic":
 			_traffic()
 		"chase":
@@ -1141,6 +1143,26 @@ func _planes() -> void:
 		if not is_instance_valid(c) or c.destroyed:
 			break
 	print("[air] cessna without pilot: alt %.0f -> %.0f destroyed=%s" % [a0, c.altitude if is_instance_valid(c) else -1.0, c.destroyed if is_instance_valid(c) else true])
+	get_tree().quit()
+
+
+## GTA V style HUD: rectangular radar with police blips, then the pause map with the legend.
+func _gtahud() -> void:
+	if step != 0 or t < 4.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 17.0
+	Game.god_mode = true
+	Game.wanted.set_level(3)
+	Game.wanted.dispatch_t = 0.0
+	await _wait(3.0)
+	await _shot("gtahud_radar")
+	var menu = get_tree().root.find_children("*", "PauseMenu", true, false)[0]
+	menu.toggle(true)
+	await _wait(0.3)
+	menu._map.zoom = 0.3
+	await _wait(0.3)
+	await _shot("gtahud_map")
 	get_tree().quit()
 
 

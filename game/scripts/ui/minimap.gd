@@ -1,6 +1,7 @@
 class_name Minimap
 extends Control
-## Rotating circular radar with roads, blips, search area and GPS route.
+## GTA V style radar: a rotating rectangle with the player low in it (more road ahead), roads,
+## blips clamped to the edge, police search area and GPS route.
 
 var tex: Texture2D
 var zoom := 1.4
@@ -60,8 +61,32 @@ func yaw() -> float:
 	return Game.camera_rig.yaw if Game.camera_rig else 0.0
 
 
+## Where the player sits in the radar (lower than the middle, like GTA V).
+func center() -> Vector2:
+	return Vector2(size.x * 0.5, size.y * 0.62)
+
+
+func inside(s: Vector2, margin := 4.0) -> bool:
+	return s.x > margin and s.y > margin and s.x < size.x - margin and s.y < size.y - margin
+
+
+## Pushes a point outside the radar onto its border (along the line from the player).
+func clamp_edge(s: Vector2, margin := 10.0) -> Vector2:
+	var c := center()
+	var d := s - c
+	if d.length() < 0.01:
+		return s
+	var tx := INF
+	var ty := INF
+	if absf(d.x) > 0.001:
+		tx = ((size.x - margin - c.x) if d.x > 0.0 else (margin - c.x)) / d.x
+	if absf(d.y) > 0.001:
+		ty = ((size.y - margin - c.y) if d.y > 0.0 else (margin - c.y)) / d.y
+	return c + d * minf(1.0, minf(tx, ty))
+
+
 func to_screen(world: Vector3) -> Vector2:
-	var c := size * 0.5
+	var c := center()
 	var pp := MapImage.world_to_px(Game.player_pos())
 	var wp := MapImage.world_to_px(world)
 	return c + (wp - pp).rotated(yaw()) * zoom
@@ -72,7 +97,7 @@ class _Mask extends Control:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		draw_circle(size * 0.5, size.x * 0.5, Color.WHITE)
+		draw_rect(Rect2(Vector2.ZERO, size), Color.WHITE)
 
 
 class _Content extends Control:
@@ -83,10 +108,10 @@ class _Content extends Control:
 
 	func _draw() -> void:
 		if mm.tex == null or Game.player == null:
-			draw_circle(size * 0.5, size.x * 0.5, Color(0.2, 0.3, 0.4))
+			draw_rect(Rect2(Vector2.ZERO, size), Color(0.2, 0.3, 0.4))
 			return
-		var c := size * 0.5
-		draw_circle(c, size.x * 0.5, Color(0.2, 0.38, 0.52))
+		var c := mm.center()
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0.2, 0.38, 0.52))
 		var pp := MapImage.world_to_px(Game.player_pos())
 		draw_set_transform(c, mm.yaw(), Vector2(mm.zoom, mm.zoom))
 		draw_texture(mm.tex, -pp)
@@ -116,8 +141,17 @@ class _Content extends Control:
 				col = Color(1, 0.15, 0.15)
 			if col.a > 0.0:
 				var s := mm.to_screen(h.global_position)
-				if s.distance_to(c) < c.x - 4.0:
+				if mm.inside(s):
 					draw_circle(s, 4.5, col)
+		# police cars and helicopters as bigger blips while wanted
+		if Game.wanted and Game.get_wanted() > 0:
+			var flash := fmod(Time.get_ticks_msec() / 250.0, 2.0) < 1.0
+			for u in Game.wanted.units + Game.wanted.helis:
+				if u != null and is_instance_valid(u) and not u.destroyed:
+					var s := mm.to_screen(u.global_position)
+					if mm.inside(s):
+						draw_circle(s, 6.5, Color(0, 0, 0, 0.7))
+						draw_circle(s, 5.0, Color(1, 0.2, 0.2) if flash else Color(0.3, 0.5, 1))
 
 
 class _Overlay extends Control:
@@ -127,13 +161,13 @@ class _Overlay extends Control:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		var c := size * 0.5
+		var c := mm.center()
 		var r := size.x * 0.5
-		draw_arc(c, r, 0, TAU, 64, Color(0, 0, 0, 0.8), 5.0)
-		draw_arc(c, r - 3, 0, TAU, 64, Color(1, 1, 1, 0.25), 1.5)
-		# north marker
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.85), false, 4.0)
+		draw_rect(Rect2(Vector2(3, 3), size - Vector2(6, 6)), Color(1, 1, 1, 0.18), false, 1.5)
+		# north marker on the border
 		var n := Vector2(0, -1).rotated(mm.yaw())
-		var np := c + n * (r - 10.0)
+		var np := mm.clamp_edge(c + n * 1000.0, 12.0)
 		draw_circle(np, 9.0, Color(0.1, 0.1, 0.1, 0.9))
 		draw_string(get_theme_default_font(), np + Vector2(-5, 5), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
 		# locations (clamped to the edge)
@@ -144,9 +178,9 @@ class _Overlay extends Control:
 				var d := s.distance_to(c)
 				if d > r * 2.2:
 					continue
-				if d > r - 10.0:
+				if not mm.inside(s, 10.0):
 					if p.kind in ["safe", "gun", "hospital"]:
-						s = c + (s - c).normalized() * (r - 10.0)
+						s = mm.clamp_edge(s)
 					else:
 						continue
 				var b: Array = Locations.BLIP.get(p.kind, ["•", Color.WHITE])
@@ -155,8 +189,8 @@ class _Overlay extends Control:
 		# waypoint
 		if Game.has_meta("waypoint"):
 			var s := mm.to_screen(Game.get_meta("waypoint"))
-			if s.distance_to(c) > r - 8.0:
-				s = c + (s - c).normalized() * (r - 8.0)
+			if not mm.inside(s, 8.0):
+				s = mm.clamp_edge(s, 8.0)
 			draw_circle(s, 7.0, Color(0.8, 0.4, 1.0))
 		# player arrow
 		var heading := Game.player.global_rotation.y

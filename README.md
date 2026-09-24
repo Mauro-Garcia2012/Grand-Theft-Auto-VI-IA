@@ -124,9 +124,14 @@ Los dos archivos los compila y publica GitHub Actions automáticamente en cada c
   detrás del cristal con dianas que se balancean y puntúan (disparar allí no es delito).
 - Tiendas: gasolineras, tiendas de ropa, badulaques que se pueden atracar, Pinta
   Rápido (reparar, repintar y perder a la policía), hospitales, casas seguras para guardar.
-- HUD al estilo GTA: minimapa giratorio con GPS, vida, blindaje, estrellas, dinero, arma,
-  hora, nombres de zona y vehículo. Menú de pausa con mapa completo (clic para marcar destino),
-  estadísticas, ajustes y controles.
+- HUD al estilo GTA V: **radar rectangular** que gira con la cámara (con más carretera por
+  delante), barras de vida y blindaje debajo, patrullas y helicópteros parpadeando cuando te
+  buscan, GPS, estrellas, dinero, arma, hora, zona y vehículo. Mapa de pausa con las regiones de
+  Leonida (Vice City, Vice Beach, Grassrivers, Cayos de Leonida), los barrios al acercar el zoom,
+  **leyenda** de iconos y la policía en el mapa; clic para marcar destino.
+- **Redes sociales al estilo GTA VI (ViceFeed)**: cuando la lías (persecución de 3 estrellas,
+  el ejército, un avión derribado, un atraco, una racha de muertes, un coche volado) aparece un
+  post viral sobre ello con el barrio donde estás y los «me gusta» subiendo.
 - Guardar/cargar partida (F5/F9) y trucos.
 
 ## Controles

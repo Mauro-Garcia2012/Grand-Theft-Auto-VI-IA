@@ -280,6 +280,9 @@ func _on_cheat(text: String) -> void:
 
 
 class MapView extends Control:
+	## Regions of the state of Leonida covered by the map (GTA VI).
+	const REGIONS := [["VICE CITY", Vector3(-250, 0, -420)], ["GRASSRIVERS", Vector3(-1380, 0, 640)],
+		["CAYOS DE LEONIDA", Vector3(-650, 0, 2050)], ["VICE BEACH", Vector3(990, 0, -900)], ["AEROPUERTO", Vector3(-1380, 0, -1000)]]
 	var zoom := 0.45
 	var offset := Vector2.ZERO
 	var _drag := false
@@ -326,11 +329,16 @@ class MapView extends Control:
 		draw_texture(MapImage.texture, Vector2.ZERO)
 		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 		var font := get_theme_default_font()
-		# district names
-		for d in Game.city.districts:
-			var r: Rect2 = d.rect
-			var p := c + (MapImage.world_to_px(Vector3(r.get_center().x, 0, r.get_center().y)) - offset) * zoom
-			draw_string(font, p - Vector2(80, 0), d.name.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, 160, 14, Color(1, 1, 1, 0.75))
+		# the big regions of Leonida (GTA VI) when zoomed out, district names when zoomed in
+		if zoom < 0.6:
+			for reg in REGIONS:
+				var p := c + (MapImage.world_to_px(reg[1]) - offset) * zoom
+				_label(font, p, reg[0], 26, Color(1, 1, 1, 0.85))
+		else:
+			for d in Game.city.districts:
+				var r: Rect2 = d.rect
+				var p := c + (MapImage.world_to_px(Vector3(r.get_center().x, 0, r.get_center().y)) - offset) * zoom
+				_label(font, p, d.name.to_upper(), 16, Color(1, 1, 1, 0.75))
 		# locations
 		var loc = Game.get_meta("locations") if Game.has_meta("locations") else null
 		if loc:
@@ -348,4 +356,40 @@ class MapView extends Control:
 		var fwd := Vector2(0, -1).rotated(-Game.player.global_rotation.y)
 		var right := Vector2(-fwd.y, fwd.x)
 		draw_colored_polygon(PackedVector2Array([pp + fwd * 14, pp - fwd * 9 + right * 9, pp - fwd * 9 - right * 9]), Color.WHITE)
+		# police and army units while wanted
+		if Game.wanted and Game.get_wanted() > 0:
+			for u in Game.wanted.units + Game.wanted.helis:
+				if u != null and is_instance_valid(u) and not u.destroyed:
+					var up := c + (MapImage.world_to_px(u.global_position) - offset) * zoom
+					draw_circle(up, 7, Color(0, 0, 0, 0.8))
+					draw_circle(up, 5, Color(1, 0.25, 0.25))
+		_legend(font)
 		draw_string(font, Vector2(16, size.y - 20), "Rueda: zoom · Clic der. arrastrar: mover · Clic izq.: marcar destino GPS · M: cerrar", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.8))
+
+	## GTA V style legend on the right.
+	func _legend(font: Font) -> void:
+		var items := [["gun", "Armería"], ["store", "Tienda 24h (se puede atracar)"], ["gas", "Gasolinera"], ["clothes", "Tienda de ropa"],
+			["spray", "Pinta Rápido"], ["hospital", "Hospital"], ["police", "Comisaría"], ["safe", "Casa segura (guardar)"]]
+		var w := 290.0
+		var h := 40.0 + items.size() * 30.0 + 60.0
+		var x0 := size.x - w - 16.0
+		var y0 := 16.0
+		draw_rect(Rect2(x0, y0, w, h), Color(0, 0, 0, 0.72))
+		draw_string(font, Vector2(x0 + 14, y0 + 28), "LEYENDA", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(1, 0.55, 0.8))
+		var y := y0 + 58.0
+		for it in items:
+			var b: Array = Locations.BLIP.get(it[0], ["•", Color.WHITE])
+			draw_circle(Vector2(x0 + 26, y - 6), 11, Color(0.12, 0.12, 0.14))
+			draw_string(font, Vector2(x0 + 19, y + 1), b[0], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, b[1])
+			draw_string(font, Vector2(x0 + 46, y), it[1], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.9))
+			y += 30.0
+		draw_circle(Vector2(x0 + 26, y - 6), 7, Color(0.8, 0.4, 1))
+		draw_string(font, Vector2(x0 + 46, y), "Destino GPS", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.9))
+		y += 30.0
+		draw_circle(Vector2(x0 + 26, y - 6), 5, Color(1, 0.25, 0.25))
+		draw_string(font, Vector2(x0 + 46, y), "Policía / ejército", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.9))
+
+	func _label(font: Font, p: Vector2, text: String, fs: int, col: Color) -> void:
+		var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		draw_string_outline(font, p - Vector2(tw * 0.5, 0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 5, Color(0, 0, 0, 0.6))
+		draw_string(font, p - Vector2(tw * 0.5, 0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)

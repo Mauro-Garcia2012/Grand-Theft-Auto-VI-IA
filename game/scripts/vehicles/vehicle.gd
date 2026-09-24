@@ -523,6 +523,7 @@ func explode(attacker: Node = null) -> void:
 	destroyed_sig.emit(self)
 	if attacker == Game.player:
 		Game.report_crime(global_position, 1.5, "explosion")
+		SocialFeed.event("explosion")
 
 
 func repair() -> void:

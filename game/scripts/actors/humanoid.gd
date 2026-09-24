@@ -414,6 +414,8 @@ func die(killer: Node = null, kind := "", dir := Vector3.ZERO) -> void:
 			Pickups.spawn_weapon(global_position + Vector3(0.5, 0.3, 0), current_weapon_id(), maxi(8, total_ammo()))
 		if killer != null and killer == Game.player:
 			Game.stats.kills += 1
+			if Game.has_meta("social_feed"):
+				Game.get_meta("social_feed").on_player_kill()
 			if team == "police":
 				Game.stats.cops_killed += 1
 				Game.report_crime(global_position, 3.0, "cop_killed")

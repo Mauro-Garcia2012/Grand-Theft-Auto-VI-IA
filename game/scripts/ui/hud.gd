@@ -114,16 +114,17 @@ void fragment() {
 	add_child(_crosshair)
 	# minimap
 	minimap = Minimap.new()
-	UI.place(minimap, Control.PRESET_BOTTOM_LEFT, Vector2(28, -300), Vector2(250, 250))
+	# GTA V layout: rectangular radar with the health (green) and armour (blue) bars under it
+	UI.place(minimap, Control.PRESET_BOTTOM_LEFT, Vector2(28, -268), Vector2(340, 210))
 	add_child(minimap)
 	_hp_bar = _bar(Color(0.3, 0.8, 0.35))
-	UI.place(_hp_bar, Control.PRESET_BOTTOM_LEFT, Vector2(28, -42), Vector2(123, 10))
+	UI.place(_hp_bar, Control.PRESET_BOTTOM_LEFT, Vector2(28, -52), Vector2(200, 9))
 	add_child(_hp_bar)
 	_ar_bar = _bar(Color(0.3, 0.6, 1.0))
-	UI.place(_ar_bar, Control.PRESET_BOTTOM_LEFT, Vector2(155, -42), Vector2(123, 10))
+	UI.place(_ar_bar, Control.PRESET_BOTTOM_LEFT, Vector2(232, -52), Vector2(136, 9))
 	add_child(_ar_bar)
 	_char_label = _lbl("JASON", 16, Color(1, 1, 1, 0.9), font_black, 5)
-	UI.place(_char_label, Control.PRESET_BOTTOM_LEFT, Vector2(30, -30), Vector2(250, 24))
+	UI.place(_char_label, Control.PRESET_BOTTOM_LEFT, Vector2(30, -38), Vector2(250, 24))
 	add_child(_char_label)
 	# top-right cluster
 	var tr := VBoxContainer.new()

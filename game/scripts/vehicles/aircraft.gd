@@ -223,6 +223,8 @@ func explode(attacker: Node = null) -> void:
 			o.exit_vehicle(true)
 			o.take_damage(400.0, attacker, o.global_position, Vector3.UP, "explosion")
 	Combat.explosion(global_position + Vector3.UP * _gear_h, 10.0 + body_size.x * 0.3, 220.0, attacker)
+	if attacker == Game.player:
+		SocialFeed.event("shootdown_heli" if self is Helicopter and def_id == "police_heli" else "plane")
 	if airborne or altitude > 5.0:
 		# blown apart in the air: burning debris and the wreck spinning down
 		_debris(attacker)
