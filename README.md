@@ -55,6 +55,8 @@ de más de 100 MB):
 - Coches de marcas reales: **BMW M5 CS, BMW M8, BMW M3 GTR, Dodge Challenger R/T, Tesla
   Roadster, Ferrari 599, Porsche 911 GT3 R, McLaren F1, Chevrolet Camaro y GMC Canyon**, además
   de un monster truck y un Fórmula 1 (Mercedes W14).
+- **Helicópteros pilotables** (Eurocopter EC135 y Bell 407 de la VCPD) con vuelo estacionario
+  automático, en el aeropuerto y en helipuertos de las azoteas de Downtown.
 - **Aviones pilotables**: Cessna 172, Cessna Citation, Airbus A320 y caza Rafale, con despegue, sustentación
   y entrada en pérdida, aterrizaje con tren, choques y amerizajes. El avión vuela hacia donde
   miras con la cámara. Salta en pleno vuelo con **paracaídas** (Lucía te sigue).
@@ -94,6 +96,8 @@ de más de 100 MB):
 | Sirena / luces / radio / cámara | Q / L / N / V | — / — / — / Cruceta ↑ |
 | Avión: potencia / dirección / alabeo | W-S / ratón / A-D | Stick izq. / cámara |
 | Avión: frenos / saltar en paracaídas | Espacio / F | A / Y |
+| Helicóptero: subir / bajar | Espacio / C | A / L3 |
+| Helicóptero: avanzar, lateral, rumbo | W-S / A-D / ratón | Stick izq. / cámara |
 | Paracaídas: planear | WASD | Stick izq. |
 | Guardar / cargar | F5 / F9 | — |
 | Trucos | T | — |
@@ -102,6 +106,7 @@ de más de 100 MB):
 `SUPERCOCHE` (McLaren F1), `INFERNUS` (Ferrari), `DEPORTIVO` (BMW M5), `DRAGSTER` (Porsche),
 `MCLAREN`, `MONSTRUO` (monster truck), `F1` (Fórmula 1), `PATRULLA`, `TAXI`, `AMBULANCIA`, `BOMBEROS`, `CAMION`, `AUTOBUS`,
 `AVIONETA`, `JET`, `CAZA`, `JUMBO` (te sube a un avión de pasajeros en la pista),
+`HELICOPTERO`, `HELIPOLICIA`,
 `LANCHA`, `TORMENTA`, `LLUVIA`, `SOL`, `NOCHE`, `MEDIODIA`, `ATARDECER`, `RAPIDO`, `CAOS`,
 `TELEPORT`.
 

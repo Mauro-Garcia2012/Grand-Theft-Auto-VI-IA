@@ -187,6 +187,14 @@ func _drive(delta: float, input: Vector2) -> void:
 	if h.seat != 0:
 		h.move_dir = Vector3.ZERO
 		return
+	if v is Helicopter:
+		# W/S forward/back, A/D strafe, Space/C climb/descend; the nose follows the camera
+		v.throttle = -input.y
+		v.steer_input = -input.x
+		v.lift_input = (1.0 if Input.is_action_pressed("jump") else 0.0) - (1.0 if Input.is_action_pressed("crouch") else 0.0)
+		v.aim_dir = Basis(Vector3.UP, rig.yaw) * Vector3.FORWARD
+		h.aiming = false
+		return
 	if v is Aircraft:
 		# W/S power, A/D roll (nose wheel on the ground); the plane flies towards where the camera looks
 		v.throttle = -input.y

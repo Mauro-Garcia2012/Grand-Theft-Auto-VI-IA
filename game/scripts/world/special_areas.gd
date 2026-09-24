@@ -36,6 +36,29 @@ var _plane_spots: Array = []
 func _spawn_planes() -> void:
 	for sp in _plane_spots:
 		VehicleDB.spawn(sp[0], sp[1], sp[2])
+	_rooftop_helipads()
+
+
+## Helicopters on the roofs of a few downtown towers (GTA-style helipads).
+func _rooftop_helipads() -> void:
+	var n := 0
+	for b: AABB in wb.building_boxes:
+		if n >= 3:
+			break
+		var c := b.get_center()
+		var d = wb.city.district_at(c.x, c.z)
+		if d not in ["downtown", "brickell"] or b.size.y < 60.0 or b.size.y > 140.0 or b.size.x < 24.0 or b.size.z < 24.0:
+			continue
+		var top := Vector3(c.x, b.position.y + b.size.y + 0.4, c.z)
+		# the roof has to be free (no crown/setback built on top of it)
+		var q := PhysicsRayQueryParameters3D.create(top + Vector3.UP * 30.0, top - Vector3.UP * 2.0, Game.LAYER_WORLD)
+		var hit := Game.world.get_world_3d().direct_space_state.intersect_ray(q)
+		if hit.is_empty() or absf(hit.position.y - (top.y - 0.4)) > 0.3:
+			continue
+		VehicleDB.spawn("police_heli" if n == 0 else "heli", Vector3(top.x, hit.position.y + 0.4, top.z), rng.randf() * TAU)
+		wb.city.landmarks.append({"name": "Helipuerto", "pos": top, "kind": "helipad"})
+		n += 1
+	print("Helipads: %d" % n)
 
 
 ## Static decoration model (ModelUtil.make) placed at `pos` (base) with a yaw.
@@ -264,6 +287,9 @@ func _airport() -> void:
 		else:
 			_plane_spots.append(["cessna", hp + Vector3(-12, 0, 0), PI])
 			_plane_spots.append(["cessna", hp + Vector3(12, 0, 4), PI + 0.3])
+	# helicopters on the apron next to the hangars
+	_plane_spots.append(["heli", Vector3(-1250.0, _y() + 0.4, -470.0), PI])
+	_plane_spots.append(["police_heli", Vector3(-1225.0, _y() + 0.4, -470.0), PI])
 	Game.world.get_tree().create_timer(1.0).timeout.connect(_spawn_planes)
 	wb.city.landmarks.append({"name": "Aeropuerto", "pos": Vector3(-1350, 1, -700), "kind": "airport"})
 

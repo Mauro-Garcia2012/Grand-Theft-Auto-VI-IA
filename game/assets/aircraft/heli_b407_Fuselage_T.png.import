@@ -2,24 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deuy1w0d5sitq"
-path.s3tc="res://.godot/imported/b407_Fuselage_Tail_T.png-bc7f7af8621be7c433c58fc7bf842547.s3tc.ctex"
+uid="uid://bawp6v8dal5fj"
+path="res://.godot/imported/heli_b407_Fuselage_T.png-e5e20ead3bed719350c08c0abd58d329.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 generator_parameters={
-"md5": "bbf8e67781ea38ea76400362eb956052"
+"md5": "ebeb2dec05dc5141eb541983dad988c2"
 }
 
 [deps]
 
-source_file="res://assets/aircraft/b407_Fuselage_Tail_T.png"
-dest_files=["res://.godot/imported/b407_Fuselage_Tail_T.png-bc7f7af8621be7c433c58fc7bf842547.s3tc.ctex"]
+source_file="res://assets/aircraft/heli_b407_Fuselage_T.png"
+dest_files=["res://.godot/imported/heli_b407_Fuselage_T.png-e5e20ead3bed719350c08c0abd58d329.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,5 +39,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=1024
-detect_3d/compress_to=0
+process/size_limit=0
+detect_3d/compress_to=1

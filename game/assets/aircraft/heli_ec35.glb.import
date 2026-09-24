@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://yvx6bvkmvvto"
-path="res://.godot/imported/ec35.glb-68ad972131572902c6c5da95d12589f4.scn"
+uid="uid://byrd7olxjqagi"
+path="res://.godot/imported/heli_ec35.glb-6bbe11e1670560363217de2f712d7e1e.scn"
 
 [deps]
 
-source_file="res://assets/aircraft/ec35.glb"
-dest_files=["res://.godot/imported/ec35.glb-68ad972131572902c6c5da95d12589f4.scn"]
+source_file="res://assets/aircraft/heli_ec35.glb"
+dest_files=["res://.godot/imported/heli_ec35.glb-6bbe11e1670560363217de2f712d7e1e.scn"]
 
 [params]
 

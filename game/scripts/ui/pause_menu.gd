@@ -84,11 +84,13 @@ EN VEHÍCULO
 EN AVIÓN
   W / S  Potencia     Ratón  El avión vuela hacia donde mira la cámara     A / D  Alabeo
   Espacio  Frenos en tierra     F  Saltar en paracaídas (WASD para planear)
+HELICÓPTERO
+  Espacio / C  Subir / bajar     W/S  Adelante / atrás     A/D  Lateral     Ratón  Rumbo (vuelo estacionario automático)
 
 GENERAL
   M  Mapa (clic para marcar destino GPS)     ESC / P  Pausa     F5  Guardar     F9  Cargar     T  Trucos
 TRUCOS: DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS, DEPORTIVO, DRAGSTER, MONSTRUO, F1,
-        PATRULLA, TAXI, AMBULANCIA, BOMBEROS, CAMION, AUTOBUS, AVIONETA, JET, CAZA, JUMBO, LANCHA,
+        PATRULLA, TAXI, AMBULANCIA, BOMBEROS, CAMION, AUTOBUS, AVIONETA, JET, CAZA, JUMBO, HELICOPTERO, HELIPOLICIA, LANCHA,
         TORMENTA, SOL, NOCHE, MEDIODIA, RAPIDO, CAOS, TELEPORT"""
 	_tabs.add_child(help)
 	# GAME

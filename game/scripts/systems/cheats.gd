@@ -42,6 +42,10 @@ static func apply(code: String) -> void:
 			_spawn("p_firetruck")
 		"MCLAREN":
 			_spawn("b_mclaren")
+		"HELICOPTERO", "HELI":
+			_spawn("heli")
+		"HELIPOLICIA":
+			_spawn("police_heli")
 		"MONSTRUO", "MONSTER":
 			_spawn("b_monster")
 		"FORMULA1", "F1":
@@ -137,6 +141,9 @@ static func _spawn(id: String) -> void:
 		# planes appear in front of the player, facing the same way (clear of the wings)
 		var d: float = float(VehicleDB.PLANES[id].length) * 0.8 + 4.0
 		VehicleDB.spawn(id, p.global_position + fwd * d + Vector3.UP * 0.5, p.global_rotation.y)
+		return
+	if VehicleDB.HELIS.has(id):
+		VehicleDB.spawn(id, p.global_position + fwd * 10.0 + Vector3.UP * 0.5, p.global_rotation.y)
 		return
 	var pos := p.global_position + fwd * 6.0 + Vector3.UP * 1.0
 	VehicleDB.spawn(id, pos, p.global_rotation.y + PI * 0.5)

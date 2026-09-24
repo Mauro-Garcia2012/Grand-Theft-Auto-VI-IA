@@ -12,13 +12,15 @@ CONTROLES
             Q sirena, L luces, N radio, V cámara
   En avión: W/S potencia, el avión vuela hacia donde mira la cámara, A/D alabeo,
             Espacio frenos, F saltar en paracaídas (WASD para planear)
+  En helicóptero: Espacio subir, C bajar, W/S adelante/atrás, A/D lateral, el rumbo sigue
+            a la cámara (se queda quieto en el aire si no tocas nada)
   Aviones en el aeropuerto (hangares y pista), o con los trucos AVIONETA, JET y JUMBO
   ESC pausa | F5 guardar | F9 cargar | T trucos
 
 TRUCOS (pulsa T y escribe)
   DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS,
   DEPORTIVO, DRAGSTER, MCLAREN, MONSTRUO, F1, PATRULLA, TAXI, AMBULANCIA, BOMBEROS, CAMION, AUTOBUS,
-  AVIONETA, JET, CAZA, JUMBO, LANCHA, TORMENTA, LLUVIA, SOL, NOCHE, MEDIODIA, ATARDECER,
+  AVIONETA, JET, CAZA, JUMBO, HELICOPTERO, HELIPOLICIA, LANCHA, TORMENTA, LLUVIA, SOL, NOCHE, MEDIODIA, ATARDECER,
   RAPIDO, CAOS, TELEPORT
 
 AJUSTES (ESC -> Ajustes): sombras, SSAO y reflejos (SSR) se pueden desactivar si va lento.

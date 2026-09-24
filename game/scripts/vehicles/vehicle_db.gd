@@ -71,6 +71,13 @@ const PLANES := {
 		"cruise": 140.0, "top": 260.0, "accel": 9.0, "pitch_rate": 1.4, "jet": true, "wing_y": 0.2, "health": 2500.0, "max_bank": 1.3},
 }
 
+# Helicopters (FlightGear models via FlightAirMap-3dmodels; main rotor split out in Blender).
+# length = the model's own longest side (keeps it at real size); top speed in m/s.
+const HELIS := {
+	"heli": {"name": "Eurocopter EC135", "src": A + "heli_ec35.glb", "front": "+z", "length": 11.84, "mass": 2900, "top": 62.0, "health": 1300.0},
+	"police_heli": {"name": "Bell 407 VCPD", "src": A + "heli_b407.glb", "front": "+z", "length": 13.05, "mass": 2700, "top": 64.0, "health": 1500.0},
+}
+
 const PAINTS := [
 	Color(0.95, 0.95, 0.95), Color(0.08, 0.08, 0.09), Color(0.6, 0.62, 0.65), Color(0.75, 0.1, 0.12),
 	Color(0.1, 0.55, 0.6), Color(0.95, 0.4, 0.65), Color(0.95, 0.75, 0.1), Color(0.12, 0.25, 0.6),
@@ -95,6 +102,8 @@ static func get_def(id: String) -> Dictionary:
 		return CARS[id]
 	if PLANES.has(id):
 		return PLANES[id]
+	if HELIS.has(id):
+		return HELIS[id]
 	return BOATS.get(id, {})
 
 
@@ -122,6 +131,8 @@ static func spawn(id: String, pos: Vector3, yaw := 0.0, paint := Color(-1, 0, 0)
 		v = Boat.new()
 	elif PLANES.has(id):
 		v = Aircraft.new()
+	elif HELIS.has(id):
+		v = Helicopter.new()
 	else:
 		v = Vehicle.new()
 	v.def_id = id

@@ -70,6 +70,8 @@ func _process(delta: float) -> void:
 			_flyshots()
 		"bshot":
 			_bshot()
+		"heli":
+			_heli()
 		"traffic":
 			_traffic()
 		"chase":
@@ -517,6 +519,64 @@ func _pview() -> void:
 		await _shot("pview_" + e[2])
 		m.visible = false
 	get_tree().quit()
+
+
+var _heli_v: Node = null
+var _heli_log := 0.0
+## Helicopter: spool up, climb, fly north, turn east, hover, descend and land.
+func _heli() -> void:
+	var p := Game.player
+	if _heli_v == null:
+		if t < 2.0:
+			return
+		Game.population.set_physics_process(false)
+		Game.population.clear_all()
+		var id := OS.get_environment("FLY_ID") if OS.get_environment("FLY_ID") != "" else "heli"
+		_heli_v = VehicleDB.spawn(id, Vector3(-1500, CityMap.LAND + 0.4, -470), 0.0)
+		p.global_position = Vector3(-1497, CityMap.LAND + 1.0, -470)
+		await get_tree().physics_frame
+		p.enter_vehicle(_heli_v, 0)
+		return
+	var v: Helicopter = _heli_v
+	var ft := t - 2.0
+	v.throttle = 0.0
+	v.steer_input = 0.0
+	v.lift_input = 0.0
+	v.aim_dir = Vector3(0, 0, -1)
+	if ft < 5.0:
+		pass
+	elif ft < 11.0:
+		v.lift_input = 1.0
+	elif ft < 21.0:
+		v.throttle = 1.0
+	elif ft < 27.0:
+		v.aim_dir = Vector3(1, 0, 0)
+		v.throttle = 0.6
+	elif ft < 33.0:
+		v.aim_dir = Vector3(1, 0, 0)
+	elif ft < 48.0:
+		v.aim_dir = Vector3(1, 0, 0)
+		v.lift_input = -1.0
+	else:
+		print("[heli] done hp=%.0f destroyed=%s" % [v.health, v.destroyed])
+		if OS.get_environment("HELI_SHOTS") != "":
+			return
+		get_tree().quit()
+		return
+	if OS.get_environment("HELI_SHOTS") != "" and (int(ft) == 15 or int(ft) == 24) and step != int(ft):
+		step = int(ft)
+		Game.hud.visible = false
+		var c: Vector3 = v.global_position + Vector3(0, 2, 0)
+		_place_cam(c + v.global_basis * Vector3(9, 3, 12), c)
+		await _shot("heli_%d" % int(ft))
+		Game.camera_rig.set_physics_process(true)
+		if ft > 23:
+			get_tree().quit()
+	if t - _heli_log >= 1.0:
+		_heli_log = t
+		var gb := v.global_basis
+		print("[heli] t=%.0f rpm=%.2f spd=%.0f km/h alt=%.1f y=%.1f pitch=%.0f bank=%.0f hdg=%.0f air=%s hp=%.0f" % [ft, v.rotor_rpm, v.speed_kmh, v.altitude, v.global_position.y,
+			rad_to_deg(asin(clampf(-gb.z.y, -1, 1))), rad_to_deg(asin(clampf(gb.x.y, -1, 1))), rad_to_deg(atan2(-gb.z.x, -gb.z.z)), v.airborne, v.health])
 
 
 ## Quick close-ups of facades (shader checks). Optional env BSHOT_T = hour.

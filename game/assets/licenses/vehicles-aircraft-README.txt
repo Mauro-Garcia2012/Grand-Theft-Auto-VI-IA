@@ -18,6 +18,7 @@ brand-cars-README.txt (github.com/Vivekkk-1/3D-Models, Boost Software License 1.
 
 Aircraft (assets/aircraft):
   - A320, E190, Citation II (C550), PC-12, SR22, Bell 407, EC135: FlightAirMap-3dmodels
+    (helicopters: main rotor split into its own node with Blender so it can spin),
     (https://github.com/Ysurac/FlightAirMap-3dmodels), derived from FlightGear aircraft
     (FGMEMBERS, GPL) and fr24-3d-models.
   - Cessna 172: "Plane" by osmosikum, CC BY 4.0 (via github.com/vinny-palumbo/FlightSim).
