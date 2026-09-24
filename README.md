@@ -32,7 +32,7 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 
 **Android**
 1. Abre este repositorio en el móvil y pulsa el botón verde: se descarga `ViceCity-Android.apk`
-   (unos 300 MB).
+   (unos 200 MB; mejor con Wi-Fi).
 2. Ábrelo e instálalo. La primera vez Android pide permiso para *instalar apps desconocidas*
    desde el navegador o el gestor de archivos: actívalo. Si Play Protect avisa, pulsa
    *Instalar de todas formas* (es una app hecha para uso privado, sin publicar en Google Play).
@@ -42,6 +42,11 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
    para correr), arrastra a la derecha para mover la cámara y usa los botones (disparar, apuntar,
    saltar, coche, usar...). También funciona con mando Bluetooth. En *Pausa → Ajustes* puedes
    bajar la resolución 3D o quitar sombras si va lento.
+5. Si Android dice *«la aplicación no se ha instalado porque parece que el paquete no es
+   válido»*, casi siempre es que la descarga llegó cortada o dañada: borra el APK, descárgalo
+   otra vez y comprueba en el gestor de archivos que ocupa **exactamente** lo que indica la página
+   de [Releases](https://github.com/Mauro-Garcia2012/Grand-Theft-Auto-VI-IA/releases/latest)
+   (también está su SHA-256).
 
 Los dos archivos los compila y publica GitHub Actions automáticamente en cada cambio del juego
 ([workflow](.github/workflows/build-windows.yml)); también está en la página de

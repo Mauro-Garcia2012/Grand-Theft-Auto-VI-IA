@@ -95,10 +95,21 @@ jobs:
           done
           # every build gets a higher version code so Android installs it over the previous one
           sed -i "s/^version\/code=.*/version\/code=${GITHUB_RUN_NUMBER}/; s/^version\/name=.*/version\/name=\"1.${GITHUB_RUN_NUMBER}\"/" game/export_presets.cfg
-          ./godot --headless --path game --export-release "Android" "../builds/$APK_NAME" 2>&1 | tee apk.log
-          test -s "builds/$APK_NAME"
-          ls -la "builds/$APK_NAME"
-          unzip -l "builds/$APK_NAME" | tail -3
+          ./godot --headless --path game --export-release "Android" ../builds/godot-export.apk 2>&1 | tee apk.log
+          test -s builds/godot-export.apk
+          # deflate textures/scenes (~350 -> ~200 MB), then align and sign again with the SDK tools
+          bt="$sdk/build-tools/$(ls "$sdk/build-tools" | sort -V | tail -1)"
+          python3 android/compress_apk.py builds/godot-export.apk builds/unsigned.apk
+          "$bt/zipalign" -f -p 4 builds/unsigned.apk builds/aligned.apk
+          "$bt/apksigner" sign --ks android/vicecity.keystore --ks-key-alias vicecity \
+            --ks-pass pass:vicecity-leonida --key-pass pass:vicecity-leonida \
+            --min-sdk-version 24 --out "builds/$APK_NAME" builds/aligned.apk
+          # the same checks Android does before installing
+          "$bt/zipalign" -c -p 4 "builds/$APK_NAME"
+          "$bt/apksigner" verify --verbose --print-certs "builds/$APK_NAME"
+          "$bt/aapt2" dump badging "builds/$APK_NAME" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label|native-code|launchable-activity)"
+          stat -c "%s bytes" "builds/$APK_NAME"
+          sha256sum "builds/$APK_NAME" | tee builds/apk.sha256
 
       - name: Publish the downloads (release "descarga")
         env:
@@ -109,7 +120,9 @@ jobs:
           apk_note="El APK de Android no se pudo generar en esta compilación."
           if [ -s "builds/$APK_NAME" ]; then
             files+=("builds/$APK_NAME")
-            apk_note="Android: descarga **${APK_NAME}** en el móvil e instálalo (permite instalar apps de origen desconocido). Controles táctiles incluidos."
+            apk_size=$(stat -c %s "builds/$APK_NAME")
+            apk_sha=$(cut -d' ' -f1 builds/apk.sha256)
+            apk_note="Android: descarga **${APK_NAME}** en el móvil e instálalo (permite instalar apps de origen desconocido). Controles táctiles incluidos. Si Android dice que el paquete no es válido, la descarga llegó incompleta o dañada: el archivo correcto ocupa exactamente ${apk_size} bytes (SHA-256 ${apk_sha})."
           fi
           notes="Windows: descarga un solo archivo, **${ZIP_NAME}**, descomprímelo y ejecuta ViceCity/ViceCity.exe (Windows 10/11 64 bits).
           ${apk_note}
