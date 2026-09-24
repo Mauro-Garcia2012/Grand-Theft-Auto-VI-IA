@@ -45,6 +45,8 @@ const CARS := {
 	"b_porsche": {"name": "Porsche 911 GT3 R", "src": B + "porsche.glb", "front": "-z", "length": 4.6, "mass": 1250, "accel": 15.0, "top": 82, "grip": 1.5, "paint": false, "kind": "super"},
 	"b_mclaren": {"name": "McLaren F1", "src": B + "mclaren.glb", "front": "-z", "length": 4.29, "mass": 1140, "accel": 16.0, "top": 86, "grip": 1.45, "paint": false, "kind": "super"},
 	"b_ferrari": {"name": "Ferrari 599 GTB", "src": B + "ferrari599.glb", "front": "+z", "length": 4.66, "mass": 1600, "accel": 15.0, "top": 84, "grip": 1.4, "paint": false, "kind": "super"},
+	"b_monster": {"name": "Monster Truck", "src": B + "monster.glb", "front": "-z", "length": 5.2, "mass": 3200, "accel": 9.5, "top": 50, "grip": 1.15, "paint": false, "kind": "civil"},
+	"b_f1": {"name": "Mercedes-AMG F1 W14", "src": B + "w14.glb", "front": "-z", "length": 5.63, "mass": 800, "accel": 21.0, "top": 95, "grip": 1.9, "paint": false, "kind": "super"},
 }
 
 # Boats (Motorpool boat set, waterline at the model's y = 0, bow towards -Z)

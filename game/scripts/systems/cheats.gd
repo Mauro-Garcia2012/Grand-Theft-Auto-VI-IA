@@ -42,6 +42,10 @@ static func apply(code: String) -> void:
 			_spawn("p_firetruck")
 		"MCLAREN":
 			_spawn("b_mclaren")
+		"MONSTRUO", "MONSTER":
+			_spawn("b_monster")
+		"FORMULA1", "F1":
+			_spawn("b_f1")
 		"CAMION":
 			_spawn("p_garbage")
 		"AUTOBUS", "BUS":

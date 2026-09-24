@@ -53,7 +53,8 @@ de más de 100 MB):
   autobuses, autobús escolar, ambulancias, bomberos, patrullas de la VCPD con sirenas y luces,
   yates, lanchas, veleros y remolcador.
 - Coches de marcas reales: **BMW M5 CS, BMW M8, BMW M3 GTR, Dodge Challenger R/T, Tesla
-  Roadster, Ferrari 599, Porsche 911 GT3 R, McLaren F1, Chevrolet Camaro y GMC Canyon**.
+  Roadster, Ferrari 599, Porsche 911 GT3 R, McLaren F1, Chevrolet Camaro y GMC Canyon**, además
+  de un monster truck y un Fórmula 1 (Mercedes W14).
 - **Aviones pilotables**: Cessna 172, Cessna Citation, Airbus A320 y caza Rafale, con despegue, sustentación
   y entrada en pérdida, aterrizaje con tren, choques y amerizajes. El avión vuela hacia donde
   miras con la cámara. Salta en pleno vuelo con **paracaídas** (Lucía te sigue).
@@ -99,7 +100,7 @@ de más de 100 MB):
 
 **Trucos:** `DINERO`, `ARMAS`, `VIDA`, `DIOS`, `MUNICION`, `SINPOLICIA`, `POLICIA5`,
 `SUPERCOCHE` (McLaren F1), `INFERNUS` (Ferrari), `DEPORTIVO` (BMW M5), `DRAGSTER` (Porsche),
-`MCLAREN`, `PATRULLA`, `TAXI`, `AMBULANCIA`, `BOMBEROS`, `CAMION`, `AUTOBUS`,
+`MCLAREN`, `MONSTRUO` (monster truck), `F1` (Fórmula 1), `PATRULLA`, `TAXI`, `AMBULANCIA`, `BOMBEROS`, `CAMION`, `AUTOBUS`,
 `AVIONETA`, `JET`, `CAZA`, `JUMBO` (te sube a un avión de pasajeros en la pista),
 `LANCHA`, `TORMENTA`, `LLUVIA`, `SOL`, `NOCHE`, `MEDIODIA`, `ATARDECER`, `RAPIDO`, `CAOS`,
 `TELEPORT`.

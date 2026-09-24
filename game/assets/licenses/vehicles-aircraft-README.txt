@@ -3,7 +3,8 @@ Realistic vehicles, boats and aircraft
 Private, non-commercial fan project. Trademarks and designs belong to their owners.
 
 Cars, service vehicles and boats (assets/vehicles/pack, assets/vehicles/boats_real, and the BMW
-M3 GTR, Camaro, GMC Canyon, Dodge pickup, Porsche 911 GT3 R and McLaren F1 in assets/vehicles/brand)
+M3 GTR, Camaro, GMC Canyon, Dodge pickup, Porsche 911 GT3 R, McLaren F1, monster truck and
+Mercedes W14 in assets/vehicles/brand)
 come from the Motorpool project (https://github.com/Atul-Senapati/Motorpool), which prepared
 these Sketchfab exports:
   - "Generic Passenger Car Pack" and "Generic Civil Service Vehicles Pack" (Sketchfab)
