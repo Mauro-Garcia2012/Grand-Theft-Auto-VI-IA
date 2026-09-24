@@ -33,11 +33,14 @@ var money := 5000:
 		money_changed.emit(money)
 
 var paused := false
+var wheel_open := false         # weapon wheel on screen (slow motion, the mouse picks a weapon)
 var cheats_used := 0
 var god_mode := false
 var infinite_ammo := false
 var stats := {"kills": 0, "cops_killed": 0, "cars_stolen": 0, "distance": 0.0, "busted": 0, "wasted": 0, "robberies": 0}
-var settings := {"mouse_sens": 0.25, "invert_y": false, "fov": 70.0, "volume": 0.8, "shadows": 2, "view_distance": 1.0, "show_fps": false}
+var settings := {"mouse_sens": 0.25, "invert_y": false, "fov": 70.0, "volume": 0.8, "shadows": 2, "view_distance": 1.0, "show_fps": false,
+	"difficulty": 1}
+const DIFFICULTIES := ["Fácil", "Normal", "Difícil", "Realista"]
 ## Android/iOS build (or `--mobile` on the command line): touch controls and lighter graphics.
 var mobile := false
 ## Touch controls on screen (mobile, or `--touch` to try them on a PC with the mouse).
@@ -61,6 +64,16 @@ func _ready() -> void:
 		root.scaling_3d_scale = 0.7
 		RenderingServer.directional_shadow_atlas_set_size(2048, true)
 	load_settings()
+
+
+## 0 easy, 1 normal, 2 hard, 3 realistic.
+func difficulty() -> int:
+	return clampi(int(settings.get("difficulty", 1)), 0, 3)
+
+
+## Picks the value for the current difficulty from [easy, normal, hard, realistic].
+func by_difficulty(values: Array) -> float:
+	return float(values[difficulty()])
 
 
 func msg(text: String, seconds := 3.0) -> void:

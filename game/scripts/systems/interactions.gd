@@ -257,8 +257,8 @@ class ShopMenu extends PanelContainer:
 	func _ready() -> void:
 		process_mode = Node.PROCESS_MODE_ALWAYS
 		visible = false
-		custom_minimum_size = Vector2(660, 520)
-		UI.place(self, Control.PRESET_CENTER, Vector2(-330, -260), Vector2(660, 520))
+		custom_minimum_size = Vector2(720, 680)
+		UI.place(self, Control.PRESET_CENTER, Vector2(-360, -340), Vector2(720, 680))
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.06, 0.04, 0.1, 0.95)
 		sb.border_color = Color(1, 0.4, 0.7)
@@ -272,8 +272,13 @@ class ShopMenu extends PanelContainer:
 		t.add_theme_font_size_override("font_size", 34)
 		t.add_theme_color_override("font_color", Color(1, 0.5, 0.75))
 		vb.add_child(t)
+		var sc := ScrollContainer.new()
+		sc.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		vb.add_child(sc)
 		_list = VBoxContainer.new()
-		vb.add_child(_list)
+		_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		sc.add_child(_list)
 		var close := Button.new()
 		close.text = "Salir (ESC)"
 		close.pressed.connect(close_menu)
@@ -285,13 +290,13 @@ class ShopMenu extends PanelContainer:
 		_p = p
 		for c in _list.get_children():
 			c.queue_free()
-		for id in ["pistol", "smg", "shotgun", "rifle", "sniper", "rpg", "grenade"]:
+		for id in WeaponDB.SHOP:
 			var d := WeaponDB.get_def(id)
 			var hb := HBoxContainer.new()
 			var l := Label.new()
 			l.text = "%s" % d.name
-			l.custom_minimum_size = Vector2(250, 0)
-			l.add_theme_font_size_override("font_size", 22)
+			l.custom_minimum_size = Vector2(320, 0)
+			l.add_theme_font_size_override("font_size", 21)
 			hb.add_child(l)
 			var b := Button.new()
 			b.text = "Arma $%d" % d.price if not p.has_weapon(id) else "Ya la tienes"
@@ -299,11 +304,12 @@ class ShopMenu extends PanelContainer:
 			b.custom_minimum_size = Vector2(170, 44)
 			b.pressed.connect(_buy.bind(id, false))
 			hb.add_child(b)
-			var b2 := Button.new()
-			b2.text = "Munición $%d" % d.ammo_price
-			b2.custom_minimum_size = Vector2(170, 44)
-			b2.pressed.connect(_buy.bind(id, true))
-			hb.add_child(b2)
+			if d.get("type", "") != "melee":
+				var b2 := Button.new()
+				b2.text = "Munición $%d" % d.ammo_price
+				b2.custom_minimum_size = Vector2(170, 44)
+				b2.pressed.connect(_buy.bind(id, true))
+				hb.add_child(b2)
 			_list.add_child(hb)
 		var hb2 := HBoxContainer.new()
 		var la := Label.new()
@@ -337,8 +343,12 @@ class ShopMenu extends PanelContainer:
 			return
 		Game.money -= cost
 		var amount: int = int(d.get("clip", 1)) * (2 if ammo else 3)
-		if id == "grenade":
+		if d.get("type", "") == "throw":
 			amount = 3 if ammo else 5
+		elif d.get("type", "") == "melee":
+			amount = 0
+		elif id == "minigun":
+			amount = 500 if ammo else 1000
 		_p.give_weapon(id, amount, not ammo)
 		_bought += 1
 		Sfx.play("money")

@@ -292,6 +292,10 @@ func _build_model() -> void:
 	# seats
 	var sx := body_size.x * 0.22
 	var sy := maxf(0.25, (body_center.y - body_size.y * 0.5) + 0.15)
+	if not is_bike:
+		# people sit low enough for their heads to stay under the roof (they are visible through the windows)
+		var floor_y := body_center.y - body_size.y * 0.5
+		sy = clampf(body_center.y + body_size.y * 0.5 - 1.42, floor_y - 0.2, sy)
 	var sz := body_center.z + (0.1 if not is_bike else 0.05) * body_size.z
 	if is_bike:
 		_seat_offsets = [Transform3D(Basis(), Vector3(0, 0.35 * k, sz - 0.05)), Transform3D(Basis(), Vector3(0, 0.4 * k, sz + 0.45))]
@@ -418,6 +422,12 @@ func driver() -> Humanoid:
 	return get_occupant(0)
 
 
+## The driver if alive: someone shot dead stays slumped in the seat but no longer drives.
+func active_driver() -> Humanoid:
+	var d := driver()
+	return d if d != null and not d.dead else null
+
+
 func seat_count() -> int:
 	return 2 if is_bike else 4
 
@@ -534,7 +544,8 @@ func set_paint(c: Color) -> void:
 # --------------------------------------------------------------- physics
 func _physics_process(delta: float) -> void:
 	cannon_cd -= delta
-	var drv := driver()
+	var drv := active_driver()
+	var dead_driver := drv == null and driver() != null
 	if sleeping and drv == null and not on_fire:
 		return
 	var gb := global_basis
@@ -551,7 +562,11 @@ func _physics_process(delta: float) -> void:
 	if destroyed or drv == null or fuel <= 0.0:
 		if drv == null:
 			throttle = 0.0
-			if not ai_owned or destroyed:
+			if dead_driver and not destroyed:
+				# nobody at the wheel: the car coasts on (and may crash into something)
+				brake = 0.0
+				handbrake = false
+			elif not ai_owned or destroyed:
 				handbrake = true
 		if destroyed or fuel <= 0.0:
 			throttle = 0.0

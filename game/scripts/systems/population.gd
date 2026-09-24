@@ -243,7 +243,7 @@ func _spawn_gang_group(pos: Vector3, gang: String) -> void:
 		var h := spawn_ped(pos + Vector3(rng.randf_range(-2, 2), 0, rng.randf_range(-2, 2)), g, outfit_kind, gang)
 		h.max_health = 120.0
 		h.health = 120.0
-		h.give_weapon(["pistol", "smg", "pistol", "shotgun"][rng.randi() % 4], 60)
+		h.give_weapon(["pistol", "smg", "pistol", "shotgun", "revolver", "knife", "bat", "assault_shotgun"][rng.randi() % 8], 60)
 		h.select_weapon(1)
 		h.brain.start_idle(anims[rng.randi() % anims.size()])
 		h.brain.t = 999.0
@@ -257,7 +257,7 @@ func spawn_cop(pos: Vector3, swat := false) -> Humanoid:
 	h.max_health = 150.0 if swat else 110.0
 	h.health = h.max_health
 	h.armor = 50.0 if swat else 0.0
-	h.give_weapon("rifle" if swat else ("shotgun" if rng.randf() < 0.2 else "pistol"), 200)
+	h.give_weapon("carbine" if swat else ("shotgun" if rng.randf() < 0.2 else "pistol"), 200)
 	h.select_weapon(1)
 	h.brain.aggressive = true
 	return h

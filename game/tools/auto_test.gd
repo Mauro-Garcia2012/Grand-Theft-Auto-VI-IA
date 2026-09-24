@@ -80,6 +80,14 @@ func _process(delta: float) -> void:
 			_gunshop()
 		"touch":
 			_touch()
+		"occupants":
+			_occupants()
+		"police":
+			_police()
+		"weapons":
+			_weapons()
+		"planes":
+			_planes()
 		"traffic":
 			_traffic()
 		"chase":
@@ -800,6 +808,339 @@ func _touch() -> void:
 	tc._notification(NOTIFICATION_WM_GO_BACK_REQUEST)
 	await _wait(0.2)
 	print("[touch] back button: paused=%s  emulate_mouse=%s" % [Game.paused, Input.emulate_mouse_from_touch])
+	get_tree().quit()
+
+
+func _shoot_at(target: Vector3, shooter: Humanoid, times := 1, dmg := 26.0) -> void:
+	for i in times:
+		var from := shooter.global_position + Vector3.UP * 1.5
+		Combat.fire_bullet(from, (target - from).normalized(), 120.0, dmg, shooter)
+
+
+## Shooting people inside vehicles (OCC_SHOT=1 renders screenshots).
+func _occupants() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 12.0
+	var pop: Population = Game.population
+	pop.set_physics_process(false)
+	pop.clear_all()
+	Game.god_mode = true
+	var p := Game.player
+	var shots := OS.get_environment("OCC_SHOT") != ""
+	var sp := pop._random_lane_point(25.0, 45.0)
+	var v: Vehicle = pop.spawn_traffic_car("p_sedan", sp.pos, sp.yaw, sp.a, sp.b)
+	var drv: Humanoid = v.driver()
+	var pas: Humanoid = pop.spawn_ped(sp.pos + Vector3.UP * 3.0, "female", "")
+	pas.enter_vehicle(v, 1)
+	await _wait(2.5)
+	print("[occ] car driving %.0f km/h, driver alive=%s passenger=%s" % [v.speed_kmh, not drv.dead, pas.vehicle == v])
+	# stand beside the car and shoot the driver through the side window
+	p.global_position = v.global_transform * Vector3(-7.0, 0.2, 0.0)
+	await _wait(0.1)
+	if shots:
+		drv.model.visible = true
+		pas.model.visible = true
+		_place_cam(v.global_transform * Vector3(-4.5, 1.6, 1.5), v.global_transform * Vector3(0, 0.9, 0))
+		await _wait(0.2)
+		await _shot("occ_alive")
+	var head := drv.global_position + v.global_basis.y * 0.98
+	_shoot_at(head, p, 2)
+	await _wait(0.2)
+	print("[occ] driver dead=%s still seated=%s horn=%s throttle=%.1f | passenger in car=%s" % [drv.dead, drv.vehicle == v, v.horn, v.throttle, pas.vehicle == v])
+	var sp0 := v.speed_kmh
+	await _wait(2.0)
+	print("[occ] driverless car: %.0f -> %.0f km/h, active_driver=%s" % [sp0, v.speed_kmh, v.active_driver()])
+	if shots:
+		_place_cam(v.global_transform * Vector3(-3.0, 1.5, 0.8), v.global_transform * Vector3(0, 0.8, -0.3))
+		await _wait(0.2)
+		await _shot("occ_dead_driver")
+	# police car: kill both cops
+	var sp2 := pop._random_lane_point(25.0, 45.0)
+	var pv: Vehicle = pop.spawn_traffic_car("p_police", sp2.pos, sp2.yaw, sp2.a, sp2.b, "police")
+	var cop: Humanoid = pv.driver()
+	await _wait(1.0)
+	p.global_position = pv.global_transform * Vector3(-6.0, 0.2, 0.0)
+	await _wait(0.1)
+	_shoot_at(cop.global_position + pv.global_basis.y * 0.62, p, 6)
+	await _wait(0.2)
+	print("[occ] cop driver hit by 6 body shots: dead=%s health=%.0f" % [cop.dead, cop.health])
+	# pull the dead driver out and drive off
+	p.global_position = v.global_transform * Vector3(-2.2, 0.2, -0.3)
+	await _wait(0.1)
+	p.begin_enter(v)
+	await _wait(1.2)
+	print("[occ] player in car=%s body out=%s body pos-car=%.1f m" % [p.vehicle == v, drv.vehicle == null, drv.global_position.distance_to(v.global_position)])
+	if shots and p.vehicle:
+		p.exit_vehicle()
+		await _wait(0.8)
+		_place_cam(v.global_transform * Vector3(-5.0, 1.8, 3.0), drv.global_position)
+		await _wait(0.3)
+		await _shot("occ_body_out")
+	# helicopter: shoot the pilot
+	var hp := p.global_position + Vector3(20, 45, 0)
+	var h: Helicopter = VehicleDB.spawn("police_heli", hp, 0.0)
+	h.rotor_rpm = 1.0
+	var pilot: Humanoid = pop.spawn_cop(hp + Vector3.UP * 3.0, false)
+	pilot.enter_vehicle(h, 0)
+	pilot.brain.set_physics_process(false)
+	await _wait(1.0)
+	var alt0: float = h.global_position.y
+	_shoot_at(pilot.global_position + h.global_basis.y * 0.98, p, 3, 40.0)
+	await _wait(0.1)
+	print("[occ] heli pilot dead=%s" % pilot.dead)
+	for i in 8:
+		await _wait(1.0)
+		if not is_instance_valid(h) or h.destroyed:
+			break
+	print("[occ] heli after pilot killed: alt %.0f -> %.0f destroyed=%s" % [alt0, h.global_position.y if is_instance_valid(h) else -1.0, h.destroyed if is_instance_valid(h) else true])
+	get_tree().quit()
+
+
+## GTA V style police: roadblock ahead of a fleeing car, SWAT/army and helicopters (POL_SHOT=1 renders).
+func _police() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 12.0
+	var pop: Population = Game.population
+	pop.clear_all()
+	Game.god_mode = true
+	var p := Game.player
+	var w: WantedSystem = Game.wanted
+	# a fast car on a long road
+	var sp := pop._random_lane_point(20.0, 40.0)
+	var car: Vehicle = VehicleDB.spawn("b_porsche", sp.pos + Vector3.UP * 0.5, sp.yaw)
+	await _wait(0.3)
+	p.enter_vehicle(car, 0)
+	w.set_level(3)
+	var placed := false
+	for i in 30:
+		car.linear_velocity = -car.global_basis.z * 20.0
+		await _wait(0.1)
+		if w._try_roadblock():
+			placed = true
+			break
+		car.rotate_y(0.21)
+	print("[pol] roadblock placed=%s pieces=%d msg" % [placed, w.roadblocks.size()])
+	if placed:
+		var rb: Vehicle = w.roadblocks[0]
+		print("[pol] roadblock %.0f m away, car yaw %.2f siren=%s" % [rb.global_position.distance_to(car.global_position), rb.rotation.y, rb.siren_on])
+		if OS.get_environment("POL_SHOT") != "":
+			car.linear_velocity = Vector3.ZERO
+			var mid: Vector3 = (w.roadblocks[0].global_position + w.roadblocks[2].global_position) * 0.5
+			var back := (car.global_position - mid).normalized()
+			_place_cam(mid + back * 16.0 + Vector3.UP * 4.0, mid + Vector3.UP)
+			await _wait(1.5)
+			await _shot("pol_roadblock")
+	# 5 stars: several dispatches
+	w.set_level(5)
+	for i in 6:
+		w.dispatch_t = 0.0
+		await _wait(0.5)
+	var ids := {}
+	for u in w.units:
+		if is_instance_valid(u):
+			ids[u.def_id] = ids.get(u.def_id, 0) + 1
+	var crew := 0
+	for u in w.units:
+		if is_instance_valid(u):
+			for o in u.occupants:
+				crew += 1 if o != null else 0
+	print("[pol] 5 stars: units=%s crew=%d helis=%d" % [ids, crew, w.helis.size()])
+	# out of sight: units head for the search point, not for the player
+	w.seen = false
+	await _wait(0.5)
+	var tgt = null
+	for u in w.units:
+		if is_instance_valid(u) and u.active_driver() and u.active_driver().brain.driver_ai:
+			tgt = u.active_driver().brain.driver_ai.target
+			break
+	print("[pol] unseen -> units target: %s  seen now=%s" % [tgt.name if tgt else "-", w.seen])
+	w.clear()
+	await _wait(0.3)
+	print("[pol] cleared: roadblocks=%d units=%d helis=%d" % [w.roadblocks.size(), w.units.size(), w.helis.size()])
+	get_tree().quit()
+
+
+## New weapons: melee, revolver, minigun, grenade launcher, molotov and the weapon wheel
+## (WPN_SHOT=1 renders the models and the wheel).
+func _weapons() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 12.0
+	var pop: Population = Game.population
+	pop.set_physics_process(false)
+	pop.clear_all()
+	Game.god_mode = true
+	var p := Game.player
+	Cheats.apply("ARMAS")
+	var ids: Array = []
+	for w in p.weapons:
+		ids.append(w.id)
+	print("[wpn] inventory: ", ids)
+	var fwd := -p.global_basis.z
+	var base := p.global_position
+	# melee
+	for id in ["knife", "bat"]:
+		var v: Humanoid = pop.spawn_ped(base + fwd * 1.2 + Vector3.UP * 0.2, "male", "")
+		pop.peds.erase(v)
+		v.brain.set_physics_process(false)
+		await _wait(0.3)
+		PlayerController.select_category(p, 0)
+		while p.current_weapon_id() != id:
+			PlayerController.select_category(p, 0)
+		p.rotation.y = atan2(-fwd.x, -fwd.z)
+		var hp0 := v.health
+		for i in 3:
+			p.fire_cd = 0.0
+			p.try_fire()
+			await _wait(0.2)
+		print("[wpn] %s: victim %.0f -> %.0f dead=%s down=%s" % [id, hp0, v.health, v.dead, v.down_timer > 0.0])
+		v.queue_free()
+	# guns: revolver and minigun rate
+	for id in ["revolver", "minigun", "mg", "carbine", "heavy_sniper", "assault_shotgun"]:
+		for j in p.weapons.size():
+			if p.weapons[j].id == id:
+				p.select_weapon(j)
+		await _wait(0.3)
+		p.aim_point = base + fwd * 30.0 + Vector3.UP
+		var c0: int = p.weapons[p.weapon_index].clip
+		var shots := 0
+		var t0 := Time.get_ticks_msec()
+		while Time.get_ticks_msec() - t0 < 1000:
+			if p.try_fire():
+				shots += 1
+			await get_tree().physics_frame
+		print("[wpn] %s: %d shots in 1 s, clip %d -> %d, model=%s" % [id, shots, c0, p.weapons[p.weapon_index].clip, p._weapon_model != null])
+	# grenade launcher at a parked car
+	var car: Vehicle = VehicleDB.spawn("p_sedan", base + fwd * 25.0 + Vector3.UP * 0.5, 0.0)
+	await _wait(1.0)
+	var h0 := car.health
+	for j in p.weapons.size():
+		if p.weapons[j].id == "grenade_launcher":
+			p.select_weapon(j)
+	await _wait(0.3)
+	p.aim_point = car.global_position + Vector3.UP * 0.8
+	p.fire_cd = 0.0
+	p.try_fire()
+	await _wait(1.5)
+	print("[wpn] grenade launcher: car health %.0f -> %.0f destroyed=%s" % [h0, car.health, car.destroyed])
+	# molotov at a pedestrian
+	var victim: Humanoid = pop.spawn_ped(base + fwd * 9.0 + Vector3.UP * 0.2, "female", "")
+	pop.peds.erase(victim)
+	victim.brain.set_physics_process(false)
+	await _wait(0.3)
+	for j in p.weapons.size():
+		if p.weapons[j].id == "molotov":
+			p.select_weapon(j)
+	p.aim_point = victim.global_position
+	p.fire_cd = 0.0
+	var mol0: int = p.total_ammo()
+	p.try_fire()
+	await _wait(2.5)
+	var zones := get_tree().root.find_children("*", "FireZone", true, false)
+	print("[wpn] molotov: fire zones=%d victim health=%.0f ammo %d -> %d" % [zones.size(), victim.health, mol0, p.total_ammo()])
+	if OS.get_environment("WPN_SHOT") != "":
+		Game.hud.visible = false
+		_place_cam(victim.global_position + Vector3(4, 3, 6), victim.global_position)
+		await _wait(0.3)
+		await _shot("wpn_molotov")
+		Game.hud.visible = true
+	# weapon wheel: hold TAB, move the mouse up-right (category 2 = SMG/MG), release
+	Input.action_press("weapon_wheel")
+	await _wait(0.1)
+	var wheel: WeaponWheel = get_tree().root.find_children("*", "WeaponWheel", true, false)[0]
+	var mm := InputEventMouseMotion.new()
+	mm.relative = Vector2(90, -40)
+	Input.parse_input_event(mm)
+	await _wait(0.1)
+	print("[wpn] wheel open=%s hover=%d time_scale=%.2f" % [wheel.visible, wheel._hover, Engine.time_scale])
+	if OS.get_environment("WPN_SHOT") != "":
+		await _shot("wpn_wheel")
+	Input.action_release("weapon_wheel")
+	await _wait(0.2)
+	print("[wpn] wheel closed: weapon=%s time_scale=%.2f" % [p.current_weapon_id(), Engine.time_scale])
+	if OS.get_environment("WPN_SHOT") != "":
+		# line-up of the new models
+		Game.hud.visible = false
+		var gp := base + Vector3(0, 40, 0)
+		var k := 0
+		for id in ["knife", "bat", "revolver", "minigun", "grenade_launcher", "molotov", "carbine", "mg"]:
+			var m := WeaponDB.make_model(id)
+			Game.world.add_child(m)
+			m.global_position = gp + Vector3(0, 1.4 - (k % 4) * 0.35, 0) + Vector3(-0.6 + int(k / 4) * 1.3, 0, 0)
+			m.rotation.y = PI * 0.5
+			k += 1
+		_place_cam(gp + Vector3(0.05, 0.9, 2.3), gp + Vector3(0.05, 0.9, 0))
+		await _wait(0.4)
+		await _shot("wpn_models")
+		# player holding the minigun
+		for j in p.weapons.size():
+			if p.weapons[j].id == "minigun":
+				p.select_weapon(j)
+		p.aiming = true
+		p.aim_point = base + fwd * 30.0 + Vector3.UP
+		await _wait(0.5)
+		_place_cam(base + p.global_basis.x * 2.5 + Vector3.UP * 1.6 - fwd * 1.0, base + Vector3.UP * 1.2 + fwd * 0.5)
+		await _wait(0.3)
+		await _shot("wpn_minigun")
+	get_tree().quit()
+
+
+## Air traffic: AI planes fly over, one is brought down by a rocket, another by killing its pilot
+## (PLANE_SHOT=1 renders).
+func _planes() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 12.0
+	Game.population.clear_all()
+	Game.god_mode = true
+	var p := Game.player
+	var air: AirTraffic = get_tree().root.find_children("*", "AirTraffic", true, false)[0]
+	var ac := air.spawn_plane("airliner")
+	await _wait(4.0)
+	print("[air] airliner: alt %.0f m speed %.0f km/h pilot=%s dist %.0f" % [ac.altitude, ac.speed_kmh, ac.active_driver() != null, ac.global_position.distance_to(p.global_position)])
+	var alt0 := ac.altitude
+	await _wait(4.0)
+	print("[air] airliner after 8 s: alt %.0f (was %.0f) speed %.0f km/h" % [ac.altitude, alt0, ac.speed_kmh])
+	if OS.get_environment("PLANE_SHOT") != "":
+		_place_cam(ac.global_position + ac.global_basis.x * 60.0 + Vector3.UP * 10.0, ac.global_position)
+		await _wait(0.1)
+		await _shot("air_airliner")
+	# a rocket right into it
+	Combat.explosion(ac.global_position, 6.0, 250.0, p)
+	await _wait(0.2)
+	print("[air] rocket hit: destroyed=%s health=%.0f" % [ac.destroyed, ac.health])
+	if OS.get_environment("PLANE_SHOT") != "":
+		_place_cam(ac.global_position + Vector3(70, 20, 70), ac.global_position)
+		await _wait(0.4)
+		await _shot("air_explosion")
+	for i in 20:
+		await _wait(1.0)
+		if ac._wreck_boom:
+			break
+	print("[air] wreck: alt %.0f boom on impact=%s" % [ac.altitude, ac._wreck_boom])
+	# a Cessna: shoot the pilot
+	var c := air.spawn_plane("cessna")
+	await _wait(2.0)
+	var pilot: Humanoid = c.driver()
+	var head := pilot.global_position + c.global_basis.y * 0.98
+	var from := head + c.global_basis.x * 8.0
+	var dbg := Combat.raycast(from, from + (head - from).normalized() * 50.0, [p])
+	print("[air] dbg ray hit=%s at %.1f m (head %.1f m) pilot seat y above plane %.2f" % [dbg.get("collider"), from.distance_to(dbg.get("position", from)), from.distance_to(head), (pilot.global_position - c.global_position).dot(c.global_basis.y)])
+	Combat.fire_bullet(from, (head - from).normalized(), 50.0, 60.0, p)
+	await _wait(0.1)
+	print("[air] cessna pilot dead=%s" % pilot.dead)
+	var a0 := c.altitude
+	for i in 30:
+		await _wait(1.0)
+		if not is_instance_valid(c) or c.destroyed:
+			break
+	print("[air] cessna without pilot: alt %.0f -> %.0f destroyed=%s" % [a0, c.altitude if is_instance_valid(c) else -1.0, c.destroyed if is_instance_valid(c) else true])
 	get_tree().quit()
 
 

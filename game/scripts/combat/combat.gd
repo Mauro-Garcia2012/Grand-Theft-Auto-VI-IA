@@ -45,8 +45,12 @@ static func fire_bullet(from: Vector3, dir: Vector3, max_range: float, damage: f
 		if col is Humanoid:
 			col.take_damage(dmg, shooter, end, dir, "bullet")
 		elif col is Vehicle or col is Boat or col is Aircraft:
-			col.take_damage(dmg * 0.6, shooter, end)
-			Game.effects.impact(end, hit.normal, "metal")
+			if _hit_occupant(col, from, dir, from.distance_to(end), dmg, shooter):
+				col.take_damage(dmg * 0.2, shooter, end)
+				Game.effects.impact(end, hit.normal, "glass")
+			else:
+				col.take_damage(dmg * 0.6, shooter, end)
+				Game.effects.impact(end, hit.normal, "metal")
 		else:
 			Game.effects.impact(end, hit.normal, "concrete")
 			if col.has_method("on_bullet_hit"):
@@ -59,6 +63,41 @@ static func fire_bullet(from: Vector3, dir: Vector3, max_range: float, damage: f
 		Game.population.bullet_whiz(from, end, shooter)
 
 
+## A bullet that hits a vehicle carries on through the glass into the cabin: if its line passes
+## through someone sitting inside (head or chest), they take the hit.
+static func _hit_occupant(v: Node, from: Vector3, dir: Vector3, hit_dist: float, dmg: float, shooter: Node) -> bool:
+	if not "occupants" in v:
+		return false
+	var up: Vector3 = v.global_basis.y
+	# how far inside the vehicle the bullet may still reach someone (wings, long cabins)
+	var reach := 2.6
+	if "body_size" in v:
+		reach = maxf(reach, v.body_size.x * 0.6)
+	var best: Humanoid = null
+	var best_d := INF
+	var head := false
+	for o in v.occupants:
+		if o == null or not is_instance_valid(o) or o == shooter or not o is Humanoid:
+			continue
+		# [height above the seat, radius, is head]
+		for part in [[0.98, 0.2, true], [0.62, 0.3, false]]:
+			var c: Vector3 = o.global_position + up * part[0]
+			var t := clampf((c - from).dot(dir), hit_dist - 0.2, hit_dist + reach)
+			var d := (from + dir * t - c).length()
+			if d < part[1] and d < best_d:
+				best = o
+				best_d = d
+				head = part[2]
+	if best == null:
+		return false
+	if best.dead:
+		return true
+	var p := from + dir * hit_dist
+	best.take_damage(dmg * (3.0 if head else 1.0), shooter, p + dir * 0.5, dir, "bullet")
+	Sfx.play_at("glass", p, -4.0, randf_range(0.9, 1.2))
+	return true
+
+
 static func fire_rocket(from: Vector3, dir: Vector3, shooter: Node) -> void:
 	var r := Rocket.new()
 	r.shooter = shooter
@@ -68,8 +107,19 @@ static func fire_rocket(from: Vector3, dir: Vector3, shooter: Node) -> void:
 	r.look_at(from + dir * 10.0, Vector3.UP if absf(dir.y) < 0.95 else Vector3.FORWARD)
 
 
-static func throw_grenade(from: Vector3, target: Vector3, shooter: Node) -> void:
+## Grenade launcher: an explosive shell on a ballistic arc that goes off on impact.
+static func fire_shell(from: Vector3, dir: Vector3, shooter: Node) -> void:
 	var g := Grenade.new()
+	g.kind = "shell"
+	g.shooter = shooter
+	Game.world.add_child(g)
+	g.global_position = from + dir * 0.5
+	g.linear_velocity = dir * 42.0 + Vector3.UP * 2.0
+
+
+static func throw_grenade(from: Vector3, target: Vector3, shooter: Node, kind := "frag") -> void:
+	var g := Grenade.new()
+	g.kind = kind
 	g.shooter = shooter
 	Game.world.add_child(g)
 	g.global_position = from
@@ -104,9 +154,13 @@ static func explosion(pos: Vector3, radius: float, damage: float, source: Node =
 				h.velocity = dir * 9.0 * f + Vector3.UP * 7.0 * f
 	for v in Game.world.get_tree().get_nodes_in_group("vehicles"):
 		var dist: float = v.global_position.distance_to(pos)
+		if v is Aircraft:
+			# big airframes: measure roughly from the skin, not from the centre
+			dist = maxf(0.0, dist - v.body_size.x * 0.4)
 		if dist < radius * 1.3:
 			var f := 1.0 - dist / (radius * 1.3)
-			v.take_damage(damage * 3.0 * f, source)
+			# aircraft are fragile: one rocket brings a plane or helicopter down
+			v.take_damage(damage * 3.0 * f * (8.0 if v is Aircraft else 1.0), source)
 			if v is RigidBody3D:
 				v.apply_impulse((v.global_position - pos).normalized() * v.mass * 7.0 * f + Vector3.UP * v.mass * 4.0 * f, Vector3(randf() - 0.5, 0.3, randf() - 0.5))
 	if Game.population:

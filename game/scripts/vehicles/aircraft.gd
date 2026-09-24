@@ -49,6 +49,8 @@ var _seat_offsets: Array = []
 var _smoke: GPUParticles3D
 var _alt_t := 0.0
 var _age := 0.0
+var _fire: GPUParticles3D          # engine fire when badly damaged
+var _wreck_boom := false            # the burning wreck already exploded against the ground
 
 
 func _ready() -> void:
@@ -89,7 +91,8 @@ func _ready() -> void:
 	# collision: fuselage + wings, lifted so the gear carries the weight
 	_gear_h = clampf(h * 0.3, 0.8, 2.6)
 	var fw := clampf(span * 0.13, 1.2, 5.5)
-	_add_box(Vector3(fw, h * 0.42, length * 0.94), Vector3(0, _gear_h + h * 0.21, 0))
+	# the fuselage box reaches the cabin roof (so shots through the windscreen can hit the pilot)
+	_add_box(Vector3(fw, h * 0.55, length * 0.94), Vector3(0, _gear_h + h * 0.275, 0))
 	_add_box(Vector3(span * 0.94, clampf(h * 0.1, 0.25, 1.2), length * 0.16), Vector3(0, _gear_h + h * float(def.get("wing_y", 0.3)), float(def.get("wing_z", 0.0)) * length))
 	center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
 	center_of_mass = Vector3(0, _gear_h + h * 0.2, 0)
@@ -151,6 +154,12 @@ func driver() -> Humanoid:
 	return get_occupant(0)
 
 
+## The driver if alive: someone shot dead stays slumped in the seat but no longer drives.
+func active_driver() -> Humanoid:
+	var d := driver()
+	return d if d != null and not d.dead else null
+
+
 func seat_count() -> int:
 	return occupants.size()
 
@@ -189,11 +198,17 @@ func take_damage(amount: float, attacker: Node = null, _hit := Vector3.ZERO) -> 
 		amount *= 0.1
 	health -= amount
 	sleeping = false
-	if health < 500.0 and _smoke == null:
+	if health < float(def.get("health", 1400.0)) * 0.4 and _smoke == null:
 		_smoke = Game.effects.make_smoke(0.4, 1.2)
 		add_child(_smoke)
 		_smoke.position = Vector3(0, _gear_h + body_size.y * 0.4, -body_size.z * 0.2)
 		_smoke.emitting = true
+	if health < float(def.get("health", 1400.0)) * 0.2 and _fire == null:
+		# engine on fire: it loses power and the plane comes down
+		_fire = Game.effects.make_fire(1.0 + body_size.x * 0.02)
+		add_child(_fire)
+		_fire.position = Vector3(body_size.x * 0.18, _gear_h + body_size.y * 0.35, -body_size.z * 0.05)
+		_fire.emitting = true
 	if health <= 0.0:
 		explode(attacker)
 
@@ -208,6 +223,10 @@ func explode(attacker: Node = null) -> void:
 			o.exit_vehicle(true)
 			o.take_damage(400.0, attacker, o.global_position, Vector3.UP, "explosion")
 	Combat.explosion(global_position + Vector3.UP * _gear_h, 10.0 + body_size.x * 0.3, 220.0, attacker)
+	if airborne or altitude > 5.0:
+		# blown apart in the air: burning debris and the wreck spinning down
+		_debris(attacker)
+		apply_torque_impulse(Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5) * mass * 6.0)
 	var burnt := StandardMaterial3D.new()
 	burnt.albedo_color = Color(0.06, 0.05, 0.05)
 	for mi in model_root.find_children("*", "MeshInstance3D", true, false):
@@ -220,9 +239,41 @@ func explode(attacker: Node = null) -> void:
 	get_tree().create_timer(14.0).timeout.connect(func(): if is_instance_valid(fire): fire.emitting = false)
 
 
+func _debris(attacker: Node) -> void:
+	var burnt := StandardMaterial3D.new()
+	burnt.albedo_color = Color(0.08, 0.07, 0.06)
+	burnt.roughness = 0.9
+	for i in 5:
+		var b := RigidBody3D.new()
+		b.collision_layer = 0
+		b.collision_mask = Game.LAYER_WORLD
+		b.mass = 50.0
+		var s := Vector3(randf_range(0.5, 1.4), randf_range(0.1, 0.4), randf_range(0.6, 2.0)) * clampf(body_size.x / 12.0, 0.6, 2.5)
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = s
+		mi.mesh = bm
+		mi.material_override = burnt
+		b.add_child(mi)
+		var cs := CollisionShape3D.new()
+		var sh := BoxShape3D.new()
+		sh.size = s
+		cs.shape = sh
+		b.add_child(cs)
+		if i < 2:
+			var f: GPUParticles3D = Game.effects.make_fire(0.5)
+			b.add_child(f)
+			f.emitting = true
+		Game.world.add_child(b)
+		b.global_position = global_position + Vector3(randf_range(-2, 2), randf_range(0, 2), randf_range(-2, 2))
+		b.linear_velocity = linear_velocity * 0.6 + Vector3(randf_range(-14, 14), randf_range(4, 14), randf_range(-14, 14))
+		b.angular_velocity = Vector3(randf_range(-6, 6), randf_range(-6, 6), randf_range(-6, 6))
+		get_tree().create_timer(25.0).timeout.connect(b.queue_free)
+
+
 # --------------------------------------------------------------- physics
 func _physics_process(delta: float) -> void:
-	var drv := driver()
+	var drv := active_driver()
 	if sleeping and drv == null:
 		return
 	var gb := global_basis
@@ -235,15 +286,19 @@ func _physics_process(delta: float) -> void:
 	# after spawning, when the velocity may be set directly)
 	_age += delta
 	var dv := (v - _prev_v).length()
+	if destroyed and not _wreck_boom and dv > 8.0 and _age > 0.5:
+		# the burning wreck hits the ground
+		_wreck_boom = true
+		Combat.explosion(global_position, 14.0 + body_size.x * 0.3, 260.0, null)
 	if dv > 11.0 and not destroyed and _age > 0.5:
 		take_damage((dv - 11.0) * 90.0, null)
 		Sfx.play_at("crash", global_position, 2.0, 0.7)
 		if Game.camera_rig and drv != null and drv.is_player:
 			Game.camera_rig.shake(0.8)
 	_prev_v = v
-	# power lever
+	# power lever (an engine on fire gives half power at most)
 	if drv != null and not destroyed and fuel > 0.0:
-		power = clampf(power + throttle * delta * 0.55, 0.0, 1.0)
+		power = clampf(power + throttle * delta * 0.55, 0.0, 0.5 if _fire else 1.0)
 		fuel = maxf(0.0, fuel - power * delta * 0.0006)
 	else:
 		power = move_toward(power, 0.0, delta * 0.4)

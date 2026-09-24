@@ -158,7 +158,7 @@ func tracer(from: Vector3, to: Vector3) -> void:
 
 
 func impact(pos: Vector3, normal: Vector3, kind := "concrete") -> void:
-	var col := Color(0.75, 0.7, 0.6) if kind == "concrete" else Color(1, 0.8, 0.4)
+	var col := Color(0.75, 0.7, 0.6) if kind == "concrete" else (Color(0.85, 0.93, 1.0) if kind == "glass" else Color(1, 0.8, 0.4))
 	var pm := _pm(normal, 35.0, 2.0, 5.0, 9.8, col)
 	_burst(pos, 8, 0.4, _billboard_mat("impact_" + kind, Color.WHITE, kind == "metal"), 0.06 if kind == "metal" else 0.12, pm)
 	if Game.player and pos.distance_squared_to(Game.player.global_position) < 3600.0:

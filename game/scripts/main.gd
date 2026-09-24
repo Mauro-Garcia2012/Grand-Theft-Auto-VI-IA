@@ -55,6 +55,9 @@ func _ready() -> void:
 	var hud := HUD.new()
 	hud.name = "HUD"
 	hud_layer.add_child(hud)
+	var wheel := WeaponWheel.new()
+	wheel.name = "WeaponWheel"
+	hud_layer.add_child(wheel)
 	var menu := PauseMenu.new()
 	menu.name = "PauseMenu"
 	hud_layer.add_child(menu)
@@ -62,6 +65,9 @@ func _ready() -> void:
 		var tc := TouchControls.new()
 		tc.name = "TouchControls"
 		add_child(tc)
+	var air := AirTraffic.new()
+	air.name = "AirTraffic"
+	add_child(air)
 	var inter := Interactions.new()
 	inter.name = "Interactions"
 	add_child(inter)

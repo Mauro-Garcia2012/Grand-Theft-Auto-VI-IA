@@ -60,6 +60,7 @@ func _build() -> void:
 	_slider(sett, "Campo de visión (FOV)", 55.0, 100.0, Game.settings.fov, func(v): Game.settings.fov = v)
 	_slider(sett, "Volumen", 0.0, 1.0, Game.settings.volume, _set_volume)
 	_slider(sett, "Densidad de tráfico y peatones", 0.2, 1.5, 1.0, _set_density)
+	_option(sett, "Dificultad", Game.DIFFICULTIES, Game.difficulty(), func(v): Game.settings.difficulty = v)
 	_check(sett, "Invertir eje Y", Game.settings.invert_y, func(v): Game.settings.invert_y = v)
 	_check(sett, "Mostrar FPS", Game.settings.show_fps, func(v): Game.settings.show_fps = v)
 	_check(sett, "Sombras", Game.sky.sun.shadow_enabled if Game.sky else true, _set_shadows)
@@ -76,7 +77,7 @@ func _build() -> void:
 	help.text = """A PIE
   WASD / Stick izq.  Moverse          Shift  Correr        Alt  Caminar       Espacio  Saltar
   C / Ctrl  Agacharse                 Ratón  Cámara        Clic der.  Apuntar  Clic izq.  Disparar / Golpear
-  R  Recargar          1-8 / Rueda  Cambiar arma           G  Lanzar granada   E  Interactuar (tiendas, robos, gasolineras)
+  R  Recargar     TAB (mantener)  Rueda de armas     1-8  Categorías de armas     G  Granada / molotov     E  Interactuar
   F / Enter  Entrar / robar vehículo (con conductor = carjacking)             Z  Cambiar entre Jason y Lucía
 
 EN VEHÍCULO
@@ -142,6 +143,20 @@ func _slider(parent: Control, text: String, mn: float, mx: float, val: float, cb
 	s.custom_minimum_size = Vector2(400, 30)
 	s.value_changed.connect(_on_setting.bind(cb))
 	parent.add_child(s)
+
+
+func _option(parent: Control, text: String, items: Array, val: int, cb: Callable) -> void:
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_size_override("font_size", 20)
+	parent.add_child(l)
+	var o := OptionButton.new()
+	for it in items:
+		o.add_item(it)
+	o.selected = val
+	o.add_theme_font_size_override("font_size", 20)
+	o.item_selected.connect(_on_setting.bind(cb))
+	parent.add_child(o)
 
 
 func _check(parent: Control, text: String, val: bool, cb: Callable) -> void:

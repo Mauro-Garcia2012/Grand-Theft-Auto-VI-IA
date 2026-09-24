@@ -18,7 +18,7 @@ static func setup_input() -> void:
 		"camera_view": [KEY_V], "map": [KEY_M], "pause": [KEY_ESCAPE, KEY_P], "switch_char": [KEY_Z], "cheat": [KEY_T],
 		"weapon_next": [], "weapon_prev": [], "quick_save": [KEY_F5], "quick_load": [KEY_F9], "grenade": [KEY_G],
 		"slot_1": [KEY_1], "slot_2": [KEY_2], "slot_3": [KEY_3], "slot_4": [KEY_4], "slot_5": [KEY_5], "slot_6": [KEY_6], "slot_7": [KEY_7], "slot_8": [KEY_8],
-		"radio": [KEY_N], "phone": [KEY_TAB], "look_behind": [KEY_B],
+		"radio": [KEY_N], "weapon_wheel": [KEY_TAB], "look_behind": [KEY_B],
 	}
 	for a in keys:
 		if not InputMap.has_action(a):
@@ -92,7 +92,7 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if Game.paused or h == null:
 		return
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not Game.wheel_open:
 		rig.mouse_look(event.relative)
 	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -104,10 +104,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		h.cycle_weapon(-1)
 	for i in 8:
 		if event.is_action_pressed("slot_%d" % (i + 1)):
-			var id: String = WeaponDB.ORDER[i]
-			for j in h.weapons.size():
-				if h.weapons[j].id == id:
-					h.select_weapon(j)
+			select_category(h, i)
 	if event.is_action_pressed("reload"):
 		h.start_reload()
 	if event.is_action_pressed("camera_view"):
@@ -123,10 +120,26 @@ func _unhandled_input(event: InputEvent) -> void:
 			v.lights_on = not v.lights_on
 
 
+## Selects the next owned weapon of a category (GTA V weapon wheel slots, keys 1-8).
+static func select_category(hm: Humanoid, cat: int) -> void:
+	var owned: Array = []
+	for j in hm.weapons.size():
+		if int(WeaponDB.get_def(hm.weapons[j].id).get("slot", 0)) == cat:
+			owned.append(j)
+	if owned.is_empty():
+		return
+	var k := owned.find(hm.weapon_index)
+	hm.select_weapon(owned[(k + 1) % owned.size()])
+
+
 func _physics_process(delta: float) -> void:
 	if h == null or Game.paused:
 		return
 	_interact_cd = maxf(0.0, _interact_cd - delta)
+	# GTA V: a few seconds after the last hit, health slowly comes back up to a limit
+	var cap: float = h.max_health * Game.by_difficulty([0.75, 0.5, 0.3, 0.0])
+	if not h.dead and h.health < cap and Time.get_ticks_msec() / 1000.0 - h.last_hurt_time > 6.0:
+		h.health = minf(cap, h.health + delta * h.max_health * 0.025)
 	var rs := Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
 	rig.stick_look(rs, delta)
 	if h.dead:
@@ -142,10 +155,11 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("enter_vehicle") and _interact_cd <= 0.0:
 		_interact_cd = 0.6
 		_toggle_vehicle()
-	if Input.is_action_just_pressed("grenade") and h.has_weapon("grenade") and not h.vehicle:
+	var throwable := "grenade" if h.has_weapon("grenade") else "molotov"
+	if Input.is_action_just_pressed("grenade") and h.has_weapon(throwable) and not h.vehicle:
 		var prev := h.weapon_index
 		for j in h.weapons.size():
-			if h.weapons[j].id == "grenade":
+			if h.weapons[j].id == throwable:
 				h.select_weapon(j)
 				h.fire_cd = 0.0
 				h.aim_point = rig.aim_point

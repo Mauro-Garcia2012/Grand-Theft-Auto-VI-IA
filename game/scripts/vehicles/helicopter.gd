@@ -75,7 +75,8 @@ func get_exit_position(s: int) -> Vector3:
 
 
 func _physics_process(delta: float) -> void:
-	var drv := driver()
+	var drv := active_driver()
+	var pilot_dead := drv == null and driver() != null
 	if sleeping and drv == null and rotor_rpm <= 0.0:
 		return
 	var gb := global_basis
@@ -98,6 +99,8 @@ func _physics_process(delta: float) -> void:
 	if drv != null:
 		fuel = maxf(0.0, fuel - rotor_rpm * delta * 0.0005)
 	var alt := _update_altitude(delta)
+	if pilot_dead and alt < 1.6 and _age > 1.0 and not destroyed:
+		explode(null)
 	_check_water_and_bounds(drv, v.length())
 	airborne = alt > 1.3
 	stalled = false
@@ -111,7 +114,11 @@ func _physics_process(delta: float) -> void:
 	var top: float = float(def.get("top", 60.0))
 	var target := fwd * throttle * (top if throttle > 0.0 else top * 0.3) + right * (-steer_input) * 14.0
 	target.y = lift_input * (9.0 if lift_input > 0.0 else 7.0)
-	if drv == null:
+	if pilot_dead:
+		# pilot shot: the helicopter spins out of control and goes down
+		target = Vector3(-fwd.x * 6.0, -16.0, -fwd.z * 6.0)
+		angular_velocity.y = move_toward(angular_velocity.y, 3.5, delta * 2.0)
+	elif drv == null:
 		target = Vector3(0, -4.0, 0)      # pilotless: settle down
 	var acc := (target - v) * Vector3(0.9, 2.2, 0.9)
 	var h_acc := Vector2(acc.x, acc.z).limit_length(7.5)

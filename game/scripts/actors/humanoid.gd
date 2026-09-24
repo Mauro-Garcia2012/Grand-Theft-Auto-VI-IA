@@ -72,6 +72,7 @@ var _weapon_model: Node3D
 var _weapon_model_id := ""
 var recoil := 0.0
 var spread_bloom := 0.0
+var last_hurt_time := -100.0      # player: health regenerates a while after the last hit
 
 var _shape: CollisionShape3D
 var _capsule: CapsuleShape3D
@@ -249,16 +250,18 @@ func try_fire() -> bool:
 	var aim := aim_point
 	if aim == Vector3.ZERO:
 		aim = from - global_basis.z * 50.0
-	if npc and randf() < 0.55:
+	if npc and randf() < Game.by_difficulty([0.72, 0.55, 0.4, 0.25]):
 		# deliberate miss (GTA-style forgiving NPC accuracy)
 		aim += Vector3(randf_range(-1.6, 1.6), randf_range(-0.6, 1.4), randf_range(-1.6, 1.6))
-	if d.type == "launcher":
+	if d.type == "launcher" and d.get("projectile", "") == "shell":
+		Combat.fire_shell(from, Combat.apply_spread((aim - from).normalized(), float(d.spread)), self)
+	elif d.type == "launcher":
 		Combat.fire_rocket(from, (aim - from).normalized(), self)
 	else:
 		var pellets: int = int(d.get("pellets", 1))
 		var spread: float = float(d.spread) + spread_bloom * (0.5 if crouching else 1.0)
 		if not is_player:
-			spread *= 2.2
+			spread *= Game.by_difficulty([2.8, 2.2, 1.7, 1.3])
 		for i in pellets:
 			var dir := (aim - from).normalized()
 			dir = Combat.apply_spread(dir, spread)
@@ -304,8 +307,8 @@ func _melee_attack(d: Dictionary) -> void:
 	if best:
 		var dmg := float(d.damage) * (1.6 if melee_combo == 2 else 1.0)
 		best.take_damage(dmg, self, best.global_position + Vector3.UP * 1.4, fwd, "melee")
-		Sfx.play_at("punch", best.global_position, 0.0)
-		if melee_combo == 2 and best.health > 0:
+		Sfx.play_at("thud" if current_weapon_id() == "bat" else "punch", best.global_position, 0.0)
+		if (melee_combo == 2 or d.get("knockdown", false)) and best.health > 0:
 			best.knockdown(fwd * 4.0 + Vector3.UP * 2.0)
 	else:
 		for v in get_tree().get_nodes_in_group("vehicles"):
@@ -333,12 +336,13 @@ func _throw_grenade() -> void:
 		model.upper("OverhandThrow")
 	var from := global_position + Vector3.UP * 1.7 - global_basis.z * 0.3
 	var target := aim_point if aim_point != Vector3.ZERO else global_position - global_basis.z * 15.0
+	var id := current_weapon_id()
 	await get_tree().create_timer(0.35).timeout
 	if dead or not is_inside_tree():
 		return
-	Combat.throw_grenade(from, target, self)
+	Combat.throw_grenade(from, target, self, "molotov" if WeaponDB.get_def(id).get("fire", false) else "frag")
 	Game.report_crime(global_position, 1.5 if is_player else 0.0, "explosive")
-	if total_ammo() <= 0 and current_weapon_id() == "grenade":
+	if total_ammo() <= 0 and current_weapon_id() == id:
 		weapons.remove_at(weapon_index)
 		select_weapon(0)
 
@@ -350,9 +354,11 @@ func take_damage(amount: float, attacker: Node = null, hit_pos := Vector3.ZERO, 
 	if is_player and Game.god_mode:
 		return
 	if team == "player" and attacker is Humanoid and attacker.team != "player":
-		amount *= 0.45 if is_player else 0.3
+		amount *= (0.45 if is_player else 0.3) * Game.by_difficulty([0.6, 1.0, 1.4, 2.0])
+	if is_player:
+		last_hurt_time = Time.get_ticks_msec() / 1000.0
 	if vehicle and kind == "bullet" and vehicle.has_method("is_enclosed") and vehicle.is_enclosed():
-		amount *= 0.35
+		amount *= 0.8    # the window glass takes a little of the bullet
 	# headshots
 	if kind == "bullet" and hit_pos != Vector3.ZERO and hit_pos.y > global_position.y + 1.52 and not crouching:
 		amount *= 3.0 if not is_player else 1.6
@@ -386,21 +392,25 @@ func die(killer: Node = null, kind := "", dir := Vector3.ZERO) -> void:
 	health = 0.0
 	death_time = Time.get_ticks_msec() / 1000.0
 	if vehicle:
-		exit_vehicle(true)
+		var v = vehicle
+		if is_player or kind in ["explosion", "fall", "drown"] or v.destroyed or ("is_bike" in v and v.is_bike):
+			exit_vehicle(true)
+		else:
+			_die_in_seat(v, killer)
 	collision_layer = 0
 	collision_mask = Game.LAYER_WORLD
 	aiming = false
 	trigger = false
-	if model:
+	if model and vehicle == null:
 		model.upper("")
 		model.play("Death01")
 	if kind == "explosion" or kind == "vehicle":
 		velocity = dir * 6.0 + Vector3.UP * 5.0
-	# drop some cash / weapon
+	# drop some cash / weapon (not from inside a car)
 	if not is_player:
-		if money_carried > 0 or Game.rng.randf() < 0.5:
+		if vehicle == null and (money_carried > 0 or Game.rng.randf() < 0.5):
 			Pickups.spawn_money(global_position + Vector3(0, 0.3, 0), money_carried if money_carried > 0 else Game.rng.randi_range(5, 60))
-		if current_weapon_id() != "fists":
+		if current_weapon_id() != "fists" and vehicle == null:
 			Pickups.spawn_weapon(global_position + Vector3(0.5, 0.3, 0), current_weapon_id(), maxi(8, total_ammo()))
 		if killer != null and killer == Game.player:
 			Game.stats.kills += 1
@@ -411,6 +421,44 @@ func die(killer: Node = null, kind := "", dir := Vector3.ZERO) -> void:
 				Game.report_crime(global_position, 1.5, "murder")
 	died.emit(self, killer)
 	_update_weapon_model_hidden()
+
+
+## Shot inside a vehicle: the body stays slumped in the seat. A dead driver lets go of the wheel
+## (the car coasts on, often with the horn stuck) and the passengers still alive get out and run.
+func _die_in_seat(v: Node, killer: Node) -> void:
+	aiming = false
+	if model:
+		model.upper("")
+		model.visible = true
+		model.play("Sitting_Idle")
+		# slumped towards the middle of the car
+		model.rotation = Vector3(-0.4, model.rotation.y, -0.32 if seat % 2 == 0 else 0.32)
+		get_tree().create_timer(0.5).timeout.connect(func():
+			if is_instance_valid(model) and model.anim_tree and vehicle != null:
+				model.anim_tree.active = false)
+	if seat == 0 and "throttle" in v:
+		v.throttle = 0.0
+		v.steer_input = randf_range(-0.25, 0.25)
+		if "brake" in v:
+			v.brake = 0.0
+		if "handbrake" in v:
+			v.handbrake = false
+		if "horn" in v:
+			v.horn = randf() < 0.6
+		if "siren_on" in v and v.siren_on and randf() < 0.5:
+			v.siren_on = false
+	if Sfx:
+		Sfx.play_at("glass", global_position + Vector3.UP, -2.0)
+	for o in v.occupants.duplicate():
+		if o != null and is_instance_valid(o) and o != self and not o.dead and not o.is_player and o.brain:
+			var ov = o.vehicle
+			o.exit_vehicle()
+			if o.team == "police" or o.brain.aggressive:
+				o.brain.threat = killer
+				o.brain.state = PedBrain.S.FIGHT
+				o.brain.t = 40.0
+			elif ov:
+				o.brain.on_gunshot(ov.global_position, killer)
 
 
 func _update_weapon_model_hidden() -> void:
@@ -443,7 +491,8 @@ func enter_vehicle(v: Node, p_seat := 0) -> void:
 	if model:
 		model.upper("")
 		model.play("Driving" if p_seat == 0 else "Sitting_Idle")
-		model.visible = not (v.has_method("is_enclosed") and v.is_enclosed())
+		# visible through the windows (hidden in closed cars on phones to save GPU time)
+		model.visible = not (Game.mobile and v.has_method("is_enclosed") and v.is_enclosed())
 	if _weapon_model:
 		_weapon_model.visible = false
 
@@ -463,9 +512,16 @@ func exit_vehicle(force := false) -> void:
 	velocity = v.linear_velocity * (0.6 if force else 0.0) if v is RigidBody3D else Vector3.ZERO
 	if model:
 		model.visible = true
-		model.play("Idle")
+		if dead:
+			# a body pulled out of a car
+			model.rotation = Vector3(0, model.rotation.y, 0)
+			if model.anim_tree:
+				model.anim_tree.active = true
+			model.restart("Death01")
+		else:
+			model.play("Idle")
 	if _weapon_model:
-		_weapon_model.visible = true
+		_weapon_model.visible = not dead
 	fall_start_y = global_position.y
 
 
@@ -485,6 +541,10 @@ func begin_enter(v: Node) -> void:
 	if occ != null and occ != self:
 		# carjack!
 		occ.exit_vehicle(true)
+		if occ.dead:
+			# just pull the body out
+			Sfx.play_at("thud", occ.global_position, -4.0)
+			return
 		if occ.brain and occ.brain.has_method("on_carjacked"):
 			occ.brain.on_carjacked(self)
 		occ.knockdown((occ.global_position - global_position).normalized() * 2.0 + Vector3.UP)
@@ -754,7 +814,13 @@ func _update_weapon_pivot() -> void:
 	var hand := _weapon_attach.global_position
 	var d := current_def()
 	var dir: Vector3
-	if (aiming or fire_cd > 0.0) and aim_point != Vector3.ZERO:
+	if d.get("type", "") == "melee":
+		if d.get("hold", "") == "bat":
+			# resting on the shoulder, swung flat
+			dir = (-global_basis.z if fire_cd > 0.15 else Vector3.UP * 0.85 + global_basis.z * 0.45).normalized()
+		else:
+			dir = (-global_basis.z * 0.7 + Vector3.DOWN * (0.15 if fire_cd > 0.0 else 0.7)).normalized()
+	elif (aiming or fire_cd > 0.0) and aim_point != Vector3.ZERO:
 		dir = (aim_point - hand).normalized()
 	else:
 		dir = (-global_basis.z * 0.5 + Vector3.DOWN * 0.85).normalized()

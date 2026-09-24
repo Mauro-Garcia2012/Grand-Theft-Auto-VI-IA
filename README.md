@@ -96,11 +96,26 @@ Los dos archivos los compila y publica GitHub Actions automáticamente en cada c
 - Tráfico con IA que sigue los carriles, **para en los semáforos en rojo**, esquiva y huye.
 
 **Combate y policía**
-- Puños, pistola, SMG, rifle de asalto, escopeta, francotirador con mira, lanzacohetes y
-  granadas, con modelos 3D, retroceso, disparos a la cabeza, blindaje y munición.
-- Nivel de búsqueda de 1 a 5 estrellas: patrullas, persecuciones con A*, policía a pie, SWAT,
-  **helicóptero de la policía** con tirador y foco nocturno a partir de 3 estrellas,
-  zona de búsqueda en el minimapa, **¡WASTED!** y **¡BUSTED!**.
+- 17 armas: puños, **cuchillo, bate de béisbol**, pistola, **revólver pesado**, micro SMG,
+  **ametralladora de combate**, rifle de asalto, **carabina**, escopeta, **escopeta de asalto**,
+  francotirador, **francotirador pesado**, lanzacohetes, **lanzagranadas**, **minigun**, granadas
+  y **cócteles molotov** (dejan fuego en el suelo). Con retroceso, disparos a la cabeza, blindaje
+  y munición.
+- **Rueda de armas** como en GTA V: mantén TAB, el tiempo se ralentiza y eliges la categoría con
+  el ratón (la rueda del ratón cambia dentro de la categoría). Teclas 1-8 = categorías.
+- **Puedes matar a la gente dentro de los coches**: las balas atraviesan las ventanillas. El
+  conductor muerto se queda desplomado en el asiento, el coche sigue rodando sin control (a veces
+  con el claxon pegado) y los pasajeros huyen; puedes sacar el cadáver y llevarte el coche. Si
+  matas al piloto de un helicóptero o avioneta, se estrella.
+- **Policía al estilo GTA V**: cuando te pierden de vista buscan en tu última posición conocida
+  (las estrellas parpadean), **controles de carretera** delante de ti a partir de 3 estrellas,
+  SWAT en todoterrenos a 4 estrellas y **el ejército** con dos helicópteros a 5 estrellas.
+  **¡WASTED!** y **¡BUSTED!**.
+- **Tráfico aéreo que se puede derribar**: avionetas, jets y Airbus cruzan el cielo; con un
+  cohete (o matando al piloto) caen ardiendo, se desintegran en pedazos y explotan al estrellarse.
+- **Dificultad** (Fácil, Normal, Difícil, Realista) en Pausa → Ajustes: cambia el daño que
+  recibes, la puntería de los enemigos, cuántas patrullas vienen y lo que cuesta despistarlas.
+- La salud se regenera sola hasta la mitad (como en GTA V) si no te dan en unos segundos.
 
 **Sistemas**
 - **Armerías con interior**: se entra a pie por puertas de cristal automáticas; dentro hay

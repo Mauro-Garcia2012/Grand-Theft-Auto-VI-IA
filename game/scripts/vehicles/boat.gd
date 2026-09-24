@@ -158,6 +158,12 @@ func driver() -> Humanoid:
 	return get_occupant(0)
 
 
+## The driver if alive: someone shot dead stays slumped in the seat but no longer drives.
+func active_driver() -> Humanoid:
+	var d := driver()
+	return d if d != null and not d.dead else null
+
+
 func free_seat_for(h: Node) -> int:
 	if destroyed:
 		return -1
@@ -221,7 +227,7 @@ func _physics_process(delta: float) -> void:
 		var lat := linear_velocity.dot(gb.x)
 		apply_central_force(-gb.x * lat * mass * 1.2)
 		apply_central_force(-fwd * forward_speed * mass * 0.08)
-		if driver() != null and not destroyed:
+		if active_driver() != null and not destroyed:
 			var top: float = float(def.top)
 			if throttle > 0.0 and forward_speed < top:
 				apply_force(fwd * throttle * mass * float(def.accel), gb.z * body_size.z * 0.4)

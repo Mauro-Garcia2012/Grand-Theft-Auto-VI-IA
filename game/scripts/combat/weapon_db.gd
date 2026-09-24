@@ -1,9 +1,11 @@
 class_name WeaponDB
 extends RefCounted
 ## Weapon definitions (GTA-like arsenal). Models: amaraha "Free Low Poly Weapons Pack"
-## (via Jeh3no's Godot FPS weapon system, MIT) + "Low Poly RPG-7" by Polyte (CC-BY 4.0).
+## (via Jeh3no's Godot FPS weapon system, MIT), "Low Poly RPG-7" by Polyte (CC-BY 4.0), the AK-74 from
+## three-fps, and our own Blender models (knife, bat, revolver, minigun, grenade launcher, molotov).
 
 const MODELS_SCENE := "res://assets/weapons/weapons_models.tscn"
+const R := "res://assets/weapons/real/"
 
 const WEAPONS := {
 	"fists": {"name": "Puños", "slot": 0, "type": "melee", "damage": 14.0, "rate": 0.45, "range": 1.6, "icon": "✊"},
@@ -27,9 +29,45 @@ const WEAPONS := {
 		"sound": "rpg", "recoil": 3.0, "icon": "🚀", "hold": "rifle", "shoulder": true},
 	"grenade": {"name": "Granadas", "slot": 7, "type": "throw", "damage": 200.0, "rate": 1.1, "clip": 1, "reload": 0.0,
 		"range": 30.0, "price": 250, "ammo_price": 250, "icon": "💣"},
+	# ---- melee
+	"knife": {"name": "Cuchillo", "slot": 0, "type": "melee", "scene": R + "knife.glb", "length": 0.3, "damage": 38.0, "rate": 0.42,
+		"range": 1.7, "price": 150, "ammo_price": 0, "icon": "🔪", "hold": "knife"},
+	"bat": {"name": "Bate de béisbol", "slot": 0, "type": "melee", "scene": R + "bat.glb", "length": 0.84, "damage": 32.0, "rate": 0.6,
+		"range": 2.1, "price": 100, "ammo_price": 0, "icon": "🏏", "hold": "bat", "knockdown": true},
+	# ---- guns
+	"revolver": {"name": "Revólver pesado", "slot": 1, "type": "gun", "scene": R + "revolver.glb", "length": 0.28, "damage": 62.0, "rate": 0.55,
+		"auto": false, "clip": 6, "reload": 2.2, "spread": 0.8, "range": 150.0, "pellets": 1, "price": 1100, "ammo_price": 90, "flip": false,
+		"sound": "sniper", "recoil": 2.2, "icon": "🔫", "hold": "pistol"},
+	"mg": {"name": "Ametralladora de combate", "slot": 2, "type": "gun", "model": "AssaultRifle", "length": 1.05, "damage": 24.0, "rate": 0.075,
+		"auto": true, "clip": 100, "reload": 3.2, "spread": 2.6, "range": 160.0, "pellets": 1, "price": 6500, "ammo_price": 400, "flip": false,
+		"sound": "rifle", "recoil": 1.0, "icon": "🔫", "hold": "rifle", "tint": Color(0.18, 0.2, 0.14)},
+	"carbine": {"name": "Carabina", "slot": 3, "type": "gun", "model": "AssaultRifle", "length": 0.88, "damage": 28.0, "rate": 0.09,
+		"auto": true, "clip": 30, "reload": 1.7, "spread": 1.2, "range": 190.0, "pellets": 1, "price": 3800, "ammo_price": 220, "flip": false,
+		"sound": "rifle", "recoil": 0.9, "icon": "🔫", "hold": "rifle"},
+	"assault_shotgun": {"name": "Escopeta de asalto", "slot": 4, "type": "gun", "model": "Shotgun", "length": 0.95, "damage": 11.0, "rate": 0.28,
+		"auto": true, "clip": 12, "reload": 2.8, "spread": 6.0, "range": 40.0, "pellets": 8, "price": 4200, "ammo_price": 260, "flip": false,
+		"sound": "shotgun", "recoil": 1.8, "icon": "🔫", "hold": "rifle", "tint": Color(0.12, 0.12, 0.13)},
+	"heavy_sniper": {"name": "Francotirador pesado", "slot": 5, "type": "gun", "model": "Sniper", "length": 1.4, "damage": 420.0, "rate": 1.8,
+		"auto": false, "clip": 6, "reload": 3.0, "spread": 0.03, "range": 900.0, "pellets": 1, "price": 9500, "ammo_price": 500, "flip": false,
+		"sound": "sniper", "recoil": 4.0, "icon": "🎯", "hold": "rifle", "scope": true, "tint": Color(0.2, 0.2, 0.18)},
+	"grenade_launcher": {"name": "Lanzagranadas", "slot": 6, "type": "launcher", "scene": R + "grenade_launcher.glb", "length": 0.82, "damage": 200.0, "rate": 0.9,
+		"auto": false, "clip": 6, "reload": 3.2, "spread": 0.8, "range": 120.0, "pellets": 1, "price": 12000, "ammo_price": 700, "flip": false,
+		"sound": "shotgun", "recoil": 2.5, "icon": "💥", "hold": "rifle", "projectile": "shell"},
+	"minigun": {"name": "Minigun", "slot": 6, "type": "gun", "scene": R + "minigun.glb", "length": 0.98, "damage": 22.0, "rate": 0.04,
+		"auto": true, "clip": 500, "reload": 4.0, "spread": 3.4, "range": 150.0, "pellets": 1, "price": 25000, "ammo_price": 900, "flip": false,
+		"sound": "smg", "recoil": 0.5, "icon": "🔥", "hold": "rifle"},
+	# ---- throwables
+	"molotov": {"name": "Cóctel molotov", "slot": 7, "type": "throw", "scene": R + "molotov.glb", "length": 0.27, "damage": 20.0, "rate": 1.1,
+		"clip": 1, "reload": 0.0, "range": 25.0, "price": 300, "ammo_price": 300, "icon": "🍾", "fire": true},
 }
 
-const ORDER := ["fists", "pistol", "smg", "rifle", "shotgun", "sniper", "rpg", "grenade"]
+## Order in the inventory and on the weapon wheel; "slot" is the category (keys 1-8).
+const ORDER := ["fists", "knife", "bat", "pistol", "revolver", "smg", "mg", "rifle", "carbine", "shotgun", "assault_shotgun",
+	"sniper", "heavy_sniper", "rpg", "grenade_launcher", "minigun", "grenade", "molotov"]
+const CATEGORIES := ["Cuerpo a cuerpo", "Pistolas", "Subfusiles y ametralladoras", "Fusiles", "Escopetas", "Francotiradores", "Armas pesadas", "Arrojadizas"]
+## What the gun shops sell.
+const SHOP := ["knife", "bat", "pistol", "revolver", "smg", "mg", "rifle", "carbine", "shotgun", "assault_shotgun", "sniper", "heavy_sniper",
+	"rpg", "grenade_launcher", "minigun", "grenade", "molotov"]
 
 static var _models_root: Node3D
 static var _model_cache: Dictionary = {}
@@ -48,7 +86,7 @@ static func _root() -> Node3D:
 ## Returns a Node3D whose origin is the grip, barrel pointing to -Z, scaled to real size.
 static func make_model(id: String) -> Node3D:
 	var d := get_def(id)
-	if not d.has("model"):
+	if not d.has("model") and not d.has("scene"):
 		if id == "grenade":
 			return _grenade_model()
 		return null

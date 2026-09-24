@@ -6,7 +6,8 @@ VICE CITY - LEONIDA FREE ROAM (proyecto fan, uso privado)
 
 CONTROLES
   WASD mover | Shift correr | Espacio saltar | C agacharse | Ratón cámara
-  Clic der. apuntar | Clic izq. disparar | R recargar | 1-8 / rueda armas | G granada
+  Clic der. apuntar | Clic izq. disparar | R recargar | G granada / molotov
+  TAB (mantener) rueda de armas a cámara lenta | 1-8 categorías de armas | rueda del ratón cambiar
   F entrar/robar vehículo | E interactuar | Z cambiar Jason/Lucía | M mapa y GPS
   En coche: W/S acelerar/frenar, A/D girar, Espacio freno de mano, H claxon,
             Q sirena, L luces, N radio, V cámara

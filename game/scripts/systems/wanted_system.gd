@@ -9,8 +9,13 @@ var seen := false
 var evade_t := 0.0
 var dispatch_t := 0.0
 var units: Array = []           # police vehicles dispatched
-var heli: Node = null           # police helicopter (3+ stars)
+var heli: Node = null           # first police helicopter (3+ stars)
+var helis: Array = []           # one at 3-4 stars, two at 5
 var foot_cops: Array = []
+var roadblocks: Array = []      # police cars parked across the road + their cops (3+ stars)
+var _roadblock_t := 15.0
+var _search: Node3D             # where units go when they have lost sight of the player
+var _search_t := 0.0
 var bust_t := 0.0
 var respawning := false
 var _crime_cd := {}
@@ -18,6 +23,9 @@ var _crime_cd := {}
 
 func _ready() -> void:
 	Game.wanted = self
+	_search = Node3D.new()
+	_search.name = "SearchPoint"
+	add_child(_search)
 
 
 func report_crime(pos: Vector3, severity: float, kind := "") -> void:
@@ -95,11 +103,14 @@ func search_radius() -> float:
 
 
 func _stand_down() -> void:
-	if heli != null and is_instance_valid(heli):
-		var ai := heli.get_node_or_null("HeliAI")
-		if ai:
-			ai.leaving = true
+	for hh in helis:
+		if hh != null and is_instance_valid(hh):
+			var ai = hh.get_node_or_null("HeliAI")
+			if ai:
+				ai.leaving = true
+	helis.clear()
 	heli = null
+	_clear_roadblocks(0.0)
 	for v in units:
 		if is_instance_valid(v):
 			var d = v.driver()
@@ -148,26 +159,48 @@ func _physics_process(delta: float) -> void:
 			evade_t += delta
 		else:
 			evade_t += delta * 0.25
-		if evade_t > 8.0 + stars * 4.0:
+		if evade_t > (8.0 + stars * 4.0) * Game.by_difficulty([0.6, 1.0, 1.3, 1.6]):
 			Game.msg("Has despistado a la policía", 3.0)
 			clear()
 			return
+	# where the units drive: the player while seen, else a search point around the last sighting
+	_search_t -= delta
+	if seen:
+		_search.global_position = pp
+	elif _search_t <= 0.0:
+		_search_t = 7.0
+		var a := randf() * TAU
+		_search.global_position = last_seen + Vector3(cos(a), 0, sin(a)) * randf() * search_radius() * 0.6
 	# dispatch units
 	dispatch_t -= delta
 	if dispatch_t <= 0.0:
 		dispatch_t = 6.0
 		_dispatch()
+	_roadblock_t -= delta
+	if stars >= 3 and _roadblock_t <= 0.0:
+		_roadblock_t = 8.0
+		if _try_roadblock():
+			_roadblock_t = Game.by_difficulty([60.0, 40.0, 30.0, 25.0])
+	_clear_roadblocks(260.0)
 	_update_units()
 	_check_bust(delta)
 
 
 func _dispatch() -> void:
-	if stars >= 3 and (heli == null or not is_instance_valid(heli) or heli.destroyed):
+	for i in range(helis.size() - 1, -1, -1):
+		var hh = helis[i]
+		if hh == null or not is_instance_valid(hh) or hh.destroyed or hh.active_driver() == null:
+			helis.remove_at(i)
+	var want_helis := 0 if stars < 3 else (1 if stars < 5 else 2)
+	if helis.size() < want_helis:
 		_spawn_heli()
-	var want_cars = [0, 1, 2, 3, 4, 5][stars]
+	heli = helis[0] if not helis.is_empty() else null
+	var want_cars := clampi(stars + int(Game.by_difficulty([-1, 0, 1, 1])), 1, 6)
 	var alive := 0
 	for i in range(units.size() - 1, -1, -1):
-		if not is_instance_valid(units[i]) or units[i].destroyed:
+		var u = units[i]
+		# a car whose crew is dead no longer counts
+		if not is_instance_valid(u) or u.destroyed or u.active_driver() == null:
 			units.remove_at(i)
 		else:
 			alive += 1
@@ -177,19 +210,29 @@ func _dispatch() -> void:
 	var sp := pop._random_lane_point(90.0, 180.0)
 	if sp.is_empty():
 		return
-	var swat := stars >= 4 and randf() < 0.5
-	var id: String = "p_postvan" if swat else "p_police"
+	# 4 stars: SWAT; 5 stars: the army joins in (soldiers in military pickups)
+	var army := stars >= 5 and randf() < 0.55
+	var swat := army or (stars >= 4 and randf() < 0.5)
+	var id: String = "b_canyon" if army else ("p_suv" if swat else "p_police")
 	var v := pop.spawn_traffic_car(id, sp.pos, sp.yaw, sp.a, sp.b, "police")
 	var drv: Humanoid = v.get_meta("driver")
 	drv.team = "police"
-	drv.give_weapon("smg" if stars >= 3 else "pistol", 200)
+	if army and drv.model:
+		drv.model.set_outfit("soldier", Color(1, 1, 1), true)
+	drv.give_weapon("rifle" if army else ("smg" if stars >= 3 else "pistol"), 200)
 	drv.select_weapon(1)
 	drv.brain.driver_ai.start_pursuit(Game.player)
-	v.siren_on = true
-	# partner
-	var partner := pop.spawn_cop(sp.pos + Vector3.UP * 2.0, swat)
-	partner.enter_vehicle(v, 1)
-	partner.brain.state = PedBrain.S.DRIVE
+	if "siren_on" in v and v.def.get("siren", false):
+		v.siren_on = true
+	# partners (the army and SWAT come in fours)
+	for s in (range(1, 4) if swat else [1]):
+		var partner := pop.spawn_cop(sp.pos + Vector3.UP * (2.0 + s), swat)
+		if army:
+			partner.give_weapon("mg" if s == 1 else "rifle", 300, true)
+		partner.enter_vehicle(v, s)
+		partner.brain.state = PedBrain.S.DRIVE
+	if army and randf() < 0.5:
+		Game.msg("¡El ejército se une a la persecución!", 2.5)
 	units.append(v)
 
 
@@ -211,8 +254,9 @@ func _spawn_heli() -> void:
 	var ai := HeliAI.new()
 	ai.name = "HeliAI"
 	h.add_child(ai)
-	heli = h
-	Game.msg("¡Helicóptero de la policía!", 2.5)
+	helis.append(h)
+	heli = helis[0]
+	Game.msg("¡Helicóptero de la policía!" if helis.size() == 1 else "¡Otro helicóptero en camino!", 2.5)
 
 
 func _update_units() -> void:
@@ -222,9 +266,10 @@ func _update_units() -> void:
 		if not is_instance_valid(v) or v.destroyed:
 			continue
 		var d = v.global_position.distance_to(pp)
-		var drv = v.driver()
+		var drv = v.active_driver()
 		if drv and drv.brain and drv.brain.driver_ai:
-			drv.brain.driver_ai.target = p
+			# they only know where you are while someone sees you
+			drv.brain.driver_ai.target = p if seen else _search
 		# get out and fight when close and the player is on foot (or stopped)
 		var player_slow = p.vehicle == null or p.vehicle.linear_velocity.length() < 3.0
 		if d < 28.0 and player_slow and v.linear_velocity.length() < 4.0:
@@ -236,7 +281,7 @@ func _update_units() -> void:
 					o.brain.t = 60.0
 					foot_cops.append(o)
 		# drive-by shooting from cop cars at 3+ stars
-		if stars >= 3 and d < 35.0:
+		if stars >= 3 and d < 35.0 and seen:
 			for o in v.occupants:
 				if o != null and is_instance_valid(o) and o.seat == 1 and randf() < 0.08:
 					o.aim_point = pp + Vector3.UP
@@ -256,6 +301,76 @@ func _update_units() -> void:
 			else:
 				c.brain.threat = p
 				c.brain.state = PedBrain.S.FIGHT
+
+
+## Two police cars parked across the road ahead of a player who is driving away, with armed cops
+## behind them. Returns true when one was placed.
+func _try_roadblock() -> bool:
+	var p := Game.player
+	var pv = p.vehicle
+	if pv == null or not pv is Vehicle or pv.linear_velocity.length() < 8.0 or roadblocks.size() > 6:
+		return false
+	var c: CityMap = Game.city
+	var dir: Vector3 = pv.linear_velocity
+	dir.y = 0.0
+	dir = dir.normalized()
+	var pp := Game.player_pos()
+	var n := c.nearest_node(pp + dir * 170.0, 70.0)
+	if n < 0:
+		return false
+	var np: Vector3 = c.nodes[n]
+	var to := np - pp
+	to.y = 0.0
+	if to.length() < 110.0 or to.normalized().dot(dir) < 0.7:
+		return false
+	# the road through that node that is most in line with the player's direction
+	var rd := dir
+	var best := -1.0
+	for m in c.adj[n]:
+		var e: Vector3 = c.nodes[m] - np
+		e.y = 0.0
+		if e.length() < 1.0:
+			continue
+		var al := absf(e.normalized().dot(dir))
+		if al > best:
+			best = al
+			rd = e.normalized()
+	var side := rd.cross(Vector3.UP).normalized()
+	for k in [-1.0, 1.0]:
+		var pos: Vector3 = np + side * k * 2.9 + Vector3.UP * 0.6
+		var fwd := side.rotated(Vector3.UP, 0.3 * k)
+		var car: Vehicle = VehicleDB.spawn("p_police", pos, atan2(-fwd.x, -fwd.z))
+		car.siren_on = true
+		roadblocks.append(car)
+		var cop: Humanoid = Game.population.spawn_cop(pos - rd * 3.5 + Vector3.UP, stars >= 4)
+		cop.brain.threat = p
+		cop.brain.state = PedBrain.S.FIGHT
+		cop.brain.t = 60.0
+		foot_cops.append(cop)
+		roadblocks.append(cop)
+	Game.msg("¡Control policial más adelante!", 2.5)
+	return true
+
+
+## Removes roadblock cars and cops farther than `dist` from the player (all of them with 0).
+func _clear_roadblocks(dist: float) -> void:
+	var pp := Game.player_pos()
+	for i in range(roadblocks.size() - 1, -1, -1):
+		var r = roadblocks[i]
+		if r == null or not is_instance_valid(r):
+			roadblocks.remove_at(i)
+			continue
+		if dist > 0.0 and r.global_position.distance_to(pp) < dist:
+			continue
+		if r is Vehicle and r.driver() != null and r.driver().is_player:
+			roadblocks.remove_at(i)
+			continue
+		if r is Vehicle:
+			for o in r.occupants:
+				if o != null and is_instance_valid(o) and not o.is_player:
+					o.queue_free()
+		r.queue_free()
+		roadblocks.remove_at(i)
 
 
 func _check_bust(delta: float) -> void:

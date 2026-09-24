@@ -12,9 +12,16 @@ static func apply(code: String) -> void:
 		"DINERO", "MONEY":
 			Game.add_money(250000)
 		"ARMAS", "GUNS":
-			for id in ["pistol", "smg", "rifle", "shotgun", "sniper", "rpg"]:
-				p.give_weapon(id, int(WeaponDB.get_def(id).clip) * 8)
-			p.give_weapon("grenade", 10)
+			for id in WeaponDB.ORDER:
+				var d := WeaponDB.get_def(id)
+				if id == "fists":
+					continue
+				if d.type == "throw":
+					p.give_weapon(id, 10)
+				elif d.type == "melee":
+					p.give_weapon(id, 0)
+				else:
+					p.give_weapon(id, maxi(int(d.get("clip", 1)) * 6, 60))
 		"VIDA", "HEALTH":
 			p.health = p.max_health
 			p.armor = 100.0
