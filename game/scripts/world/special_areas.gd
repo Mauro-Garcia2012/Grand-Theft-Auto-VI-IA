@@ -179,13 +179,15 @@ func _beach() -> void:
 			next_tower += 160.0
 			var tx := x_water - 25.0
 			var ty := wb.height_grid(tx, z)
-			var col: Color = WorldBuilder.PASTELS[rng.randi() % WorldBuilder.PASTELS.size()]
-			for sx in [-1.2, 1.2]:
-				for sz in [-1.2, 1.2]:
-					wb.add_box(Transform3D(Basis().scaled(Vector3(0.25, 2.2, 0.25)), Vector3(tx + sx, ty, z + sz)), Color(0.95, 0.95, 0.95), 6, 0.0, false)
-			wb.add_box(Transform3D(Basis().scaled(Vector3(3.4, 0.25, 4.2)), Vector3(tx, ty + 2.2, z)), Color(0.95, 0.95, 0.95), 6, 0.0, true)
-			wb.add_box(Transform3D(Basis().scaled(Vector3(3.0, 2.4, 3.0)), Vector3(tx, ty + 2.45, z)), col, 1, rng.randf())
-			wb.add_roof(Transform3D(Basis().scaled(Vector3(3.6, 0.8, 3.6)), Vector3(tx, ty + 4.85, z)), col.darkened(0.2))
+			# pastel lifeguard stand facing the sea (+X); the prop is re-centred on its bounds,
+			# so the hut sits ~2.5 m towards the sea from the ramp end
+			wb.add_prop("lifeguard_%d" % (rng.randi() % 5), Vector3(tx, ty, z), PI * 0.5, 1.0)
+			var cs := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(4.4, 5.2, 3.6)
+			cs.shape = box
+			cs.position = Vector3(tx + 2.4, ty + 2.6, z)
+			wb.add_shape(cs)
 		z += rng.randf_range(12.0, 22.0)
 	# promenade / boardwalk along Ocean Drive beach side
 	wb.add_box(Transform3D(Basis().scaled(Vector3(6.0, 0.3, 800.0)), Vector3(1047.0, CityMap.LAND - 0.12, 590.0)), Color(0.75, 0.62, 0.45), 6, 0.0, true)
@@ -204,16 +206,26 @@ func _port() -> void:
 				wb.add_box(Transform3D(Basis().scaled(Vector3(2.5, 2.6, 12.0)), Vector3(x, y + s * 2.6, z)), cols[rng.randi() % cols.size()], 8, rng.randf(), s == 0)
 			z += 13.0
 		x += 3.0 if rng.randf() < 0.8 else 8.0
-	# gantry cranes at the east quay
+	# ship-to-shore container cranes at the east quay (boom over the water, towards +X)
 	for i in 4:
 		var cz := 580.0 + i * 70.0
 		var cx := 695.0
-		var red := Color(0.8, 0.15, 0.12)
+		# the prop mesh is re-centred on its bounds; the boom overhangs 10 m more to the water side
+		wb.add_prop("port_crane", Vector3(cx + 10.0, y, cz), 0.0, 1.0)
 		for lz in [-6.0, 6.0]:
 			for lx in [-8.0, 8.0]:
-				wb.add_box(Transform3D(Basis().scaled(Vector3(1.2, 32.0, 1.2)), Vector3(cx + lx, y, cz + lz)), red, 6, 0.0, true)
-		wb.add_box(Transform3D(Basis().scaled(Vector3(60.0, 3.0, 14.0)), Vector3(cx + 14.0, y + 32.0, cz)), red, 6, 0.0, false)
-		wb.add_box(Transform3D(Basis().scaled(Vector3(6.0, 4.0, 5.0)), Vector3(cx, y + 26.0, cz)), Color(0.95, 0.95, 0.9), 6, 0.0, false)
+				var cs := CollisionShape3D.new()
+				var box := BoxShape3D.new()
+				box.size = Vector3(1.4, 30.0, 1.4)
+				cs.shape = box
+				cs.position = Vector3(cx + lx, y + 15.0, cz + lz)
+				wb.add_shape(cs)
+		var boom := CollisionShape3D.new()
+		var bb := BoxShape3D.new()
+		bb.size = Vector3(68.0, 3.0, 7.0)
+		boom.shape = bb
+		boom.position = Vector3(cx + 10.0, y + 33.0, cz)
+		wb.add_shape(boom)
 	# warehouses
 	for i in 3:
 		wb.add_building(Vector3(610.0, y, 690.0 + i * 55.0), Vector3(50.0, 12.0, 40.0), Color(0.55, 0.57, 0.6), 7, rng.randf())

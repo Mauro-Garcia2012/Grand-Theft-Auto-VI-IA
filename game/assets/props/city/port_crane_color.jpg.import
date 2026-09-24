@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dum4okyqn3gxb"
-path="res://.godot/imported/chunk_Image_7.jpg-1bda6485d70091b7a57900fbbaa8841c.ctex"
+uid="uid://j0noeuctc2go"
+path="res://.godot/imported/port_crane_color.jpg-6de5f4e24d18ca394d7da97a4b1cfec0.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "5272b12fe04dad374d2a677b583c304e"
+"md5": "3c74ed73ccd0a413c74035cf75f48a57"
 }
 
 [deps]
 
-source_file="res://tools/_c/chunk_Image_7.jpg"
-dest_files=["res://.godot/imported/chunk_Image_7.jpg-1bda6485d70091b7a57900fbbaa8841c.ctex"]
+source_file="res://assets/props/city/port_crane_color.jpg"
+dest_files=["res://.godot/imported/port_crane_color.jpg-6de5f4e24d18ca394d7da97a4b1cfec0.ctex"]
 
 [params]
 

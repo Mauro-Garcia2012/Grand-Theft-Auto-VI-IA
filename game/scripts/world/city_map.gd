@@ -131,6 +131,9 @@ func surface_at(x: float, z: float) -> int:
 		return 3
 	if d == "airport":
 		return 4
+	# Lummus Park: palm-dotted lawns between the Ocean Drive promenade and the sand
+	if d == "ocean_beach" and x > 1051.0:
+		return 0
 	if d in ["downtown", "stockyard", "port", "ocean_beach", "little_cuba", "brickell"]:
 		return 2
 	return 0

@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cniq5sf7p2opt"
-path="res://.godot/imported/chunk_Image_0.jpg-b2207599fda4f4be2fbc5b6e0fea8014.ctex"
+uid="uid://3hv16wkjah03"
+path="res://.godot/imported/lifeguard_3_wood_c.jpg-83d5e639d88fd595412cbf2b44d77b5b.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "3b6bebd13063c4e3def97685a0f4bf3b"
+"md5": "276f3f013375010cc62cdf403a4ba915"
 }
 
 [deps]
 
-source_file="res://tools/_c/chunk_Image_0.jpg"
-dest_files=["res://.godot/imported/chunk_Image_0.jpg-b2207599fda4f4be2fbc5b6e0fea8014.ctex"]
+source_file="res://assets/props/city/lifeguard_3_wood_c.jpg"
+dest_files=["res://.godot/imported/lifeguard_3_wood_c.jpg-83d5e639d88fd595412cbf2b44d77b5b.ctex"]
 
 [params]
 

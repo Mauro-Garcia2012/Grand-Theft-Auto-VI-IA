@@ -233,7 +233,7 @@ func height_grid(x: float, z: float) -> float:
 
 
 const TERRAIN_CACHE := "res://data/terrain_cache.bin"
-const TERRAIN_VERSION := 4
+const TERRAIN_VERSION := 5
 var surf := PackedByteArray()
 
 
@@ -506,6 +506,12 @@ func _load_props() -> void:
 		"barrier": ["res://assets/props/city/concrete_road_barrier.glb", 0.83],
 		"aircon": ["res://assets/props/city/aircon.glb", 1.1],
 		"utility_box": ["res://assets/props/city/utility_box.glb", 1.4],
+		"port_crane": ["res://assets/props/city/port_crane.glb", 56.2],
+		"lifeguard_0": ["res://assets/props/city/lifeguard_0.glb", 5.85],
+		"lifeguard_1": ["res://assets/props/city/lifeguard_1.glb", 5.85],
+		"lifeguard_2": ["res://assets/props/city/lifeguard_2.glb", 5.85],
+		"lifeguard_3": ["res://assets/props/city/lifeguard_3.glb", 5.85],
+		"lifeguard_4": ["res://assets/props/city/lifeguard_4.glb", 5.85],
 	}
 	for k in defs:
 		var m := _extract_mesh(defs[k][0], defs[k][1])
@@ -773,7 +779,7 @@ func _flush_chunks() -> void:
 			var mmi := MultiMeshInstance3D.new()
 			mmi.multimesh = mm
 			mmi.visibility_range_end = 700.0 if not pk.begins_with("palm") else 1000.0
-			if pk.begins_with("bld_"):
+			if pk.begins_with("bld_") or pk == "port_crane":
 				mmi.visibility_range_end = 1800.0
 			if pk in ["traffic_light", "sign_stop", "cone"]:
 				mmi.visibility_range_end = 450.0
@@ -1134,3 +1140,18 @@ func _build_street_props() -> void:
 		add_prop(["palm_tall", "palm_detail", "palm_bend", "palm_pm"][rng.randi() % 4], p, rng.randf() * TAU, rng.randf_range(0.9, 1.3), 0.35)
 		palms_sites.append(p)
 		z += rng.randf_range(9.0, 14.0)
+	# Lummus Park lawn: clusters of coconut palms, a few bushes and benches along the path
+	z = 195.0
+	while z < 985.0:
+		for i in rng.randi_range(1, 3):
+			var lp := Vector3(rng.randf_range(1054.0, 1075.0), _y(), z + rng.randf_range(-4.0, 4.0))
+			if city.surface_at(lp.x, lp.z) != 0 or city.height_at(lp.x, lp.z) < CityMap.LAND - 0.05:
+				continue
+			var r := rng.randf()
+			if r < 0.7:
+				add_prop(["palm_bend", "palm_short", "palm_pm", "palm_tall"][rng.randi() % 4], lp, rng.randf() * TAU, rng.randf_range(0.85, 1.2), 0.35)
+			elif r < 0.9:
+				add_prop("bush", lp, rng.randf() * TAU, rng.randf_range(0.8, 1.3))
+			else:
+				add_prop("bench", Vector3(1053.0, _y(), lp.z), PI * 0.5, 1.0)
+		z += rng.randf_range(10.0, 18.0)

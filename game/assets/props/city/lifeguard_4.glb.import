@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://brpetmroku38i"
-path="res://.godot/imported/chunk.glb-0bc15f8d87aac33008f357ffcfd6e28b.scn"
+uid="uid://b3mcupy7h240e"
+path="res://.godot/imported/lifeguard_4.glb-eef3249e23ca6f853814af75c57115e4.scn"
 
 [deps]
 
-source_file="res://tools/_c/chunk.glb"
-dest_files=["res://.godot/imported/chunk.glb-0bc15f8d87aac33008f357ffcfd6e28b.scn"]
+source_file="res://assets/props/city/lifeguard_4.glb"
+dest_files=["res://.godot/imported/lifeguard_4.glb-eef3249e23ca6f853814af75c57115e4.scn"]
 
 [params]
 

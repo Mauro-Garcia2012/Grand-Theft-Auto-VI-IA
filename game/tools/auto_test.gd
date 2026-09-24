@@ -613,6 +613,12 @@ func _bshot() -> void:
 	step = 1
 	Game.sky.time_of_day = float(OS.get_environment("BSHOT_T")) if OS.get_environment("BSHOT_T") != "" else 11.0
 	Game.hud.visible = false
+	if OS.get_environment("BSHOT_BEACH") != "":
+		_place_cam(Vector3(1092, 7.0, 640), Vector3(1118, 2.0, 480))
+		await _wait(1.0)
+		await _shot("beach_towers")
+		get_tree().quit()
+		return
 	_place_cam(Vector3(1045, 2.0, 700), Vector3(1010, 6, 690))
 	await _wait(1.0)
 	await _shot("facade_deco")
