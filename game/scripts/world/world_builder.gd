@@ -511,6 +511,85 @@ func _load_props() -> void:
 		var m := _extract_mesh(defs[k][0], defs[k][1])
 		if m:
 			prop_meshes[k] = m
+	_load_building_lib()
+
+
+# ------------------------------------------------------------------ textured building models
+const BUILDING_LIB := "res://assets/buildings/city_lib.glb"
+var lib_bounds := {}          # prop key -> AABB (model space, base at y=0)
+var lib_office: Array = []
+var lib_industry: Array = []
+
+
+## Realistic textured buildings (offices / industry) split out of Motorpool's city model.
+func _load_building_lib() -> void:
+	var ps: PackedScene = load(BUILDING_LIB)
+	if ps == null:
+		return
+	var inst: Node = ps.instantiate()
+	for mi: MeshInstance3D in inst.find_children("*", "MeshInstance3D", true, false):
+		var key := "bld_" + String(mi.name)
+		var mesh: Mesh = mi.mesh
+		# surfaces keep their imported materials; bake any node transform into the bounds only
+		prop_meshes[key] = mesh
+		lib_bounds[key] = mi.transform * mesh.get_aabb()
+		if String(mi.name).begins_with("ind_"):
+			lib_industry.append(key)
+		else:
+			lib_office.append(key)
+	inst.free()
+
+
+## Places the library building that best fills `r` (random among the best few). Returns false if none fits.
+func _lib_building(r: Rect2, pool: Array, min_fill := 0.3, max_h := 999.0) -> bool:
+	var cands: Array = []
+	for key in pool:
+		var a: AABB = lib_bounds[key]
+		if a.size.y > max_h:
+			continue
+		for rot in [0, 1]:
+			var w := a.size.x if rot == 0 else a.size.z
+			var d := a.size.z if rot == 0 else a.size.x
+			if w <= r.size.x and d <= r.size.y:
+				var fill := (w * d) / (r.size.x * r.size.y)
+				if fill >= min_fill:
+					cands.append([key, rot, fill])
+	if cands.is_empty():
+		return false
+	cands.sort_custom(func(x, y): return x[2] > y[2])
+	var pick: Array = cands[rng.randi() % mini(cands.size(), 5)]
+	var yaw := (PI * 0.5 if pick[1] == 1 else 0.0) + (PI if rng.randf() < 0.5 else 0.0)
+	var a: AABB = lib_bounds[pick[0]]
+	var basis := Basis(Vector3.UP, yaw)
+	var c := Vector3(r.get_center().x, _y(), r.get_center().y) - basis * Vector3(a.get_center().x, 0, a.get_center().z)
+	add_prop(pick[0], c, yaw, 1.0)
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = a.size
+	cs.shape = box
+	cs.transform = Transform3D(basis, c + basis * a.get_center())
+	add_shape(cs)
+	var w: float = a.size.x if pick[1] == 0 else a.size.z
+	var d: float = a.size.z if pick[1] == 0 else a.size.x
+	building_boxes.append(AABB(Vector3(r.get_center().x - w * 0.5, _y(), r.get_center().y - d * 0.5), Vector3(w, a.size.y, d)))
+	return true
+
+
+## Splits a block into 1-3 parcels along its long side and fills each with a library building.
+func _lib_block(inner: Rect2, pool: Array, max_h := 999.0) -> bool:
+	var along_x := inner.size.x >= inner.size.y
+	var L := inner.size.x if along_x else inner.size.y
+	var n := clampi(int(L / 45.0), 1, 3)
+	var placed := 0
+	for i in n:
+		var r: Rect2
+		if along_x:
+			r = Rect2(inner.position.x + i * L / n, inner.position.y, L / n - 2.0, inner.size.y)
+		else:
+			r = Rect2(inner.position.x, inner.position.y + i * L / n, inner.size.x, L / n - 2.0)
+		if _lib_building(r, pool, 0.28, max_h):
+			placed += 1
+	return placed > 0
 
 
 func _extract_mesh(path: String, target_h: float) -> Mesh:
@@ -694,6 +773,8 @@ func _flush_chunks() -> void:
 			var mmi := MultiMeshInstance3D.new()
 			mmi.multimesh = mm
 			mmi.visibility_range_end = 700.0 if not pk.begins_with("palm") else 1000.0
+			if pk.begins_with("bld_"):
+				mmi.visibility_range_end = 1800.0
 			if pk in ["traffic_light", "sign_stop", "cone"]:
 				mmi.visibility_range_end = 450.0
 			if pk in ["bin", "bench", "hydrant", "planter", "barrier", "bush2", "aircon", "utility_box"]:
@@ -840,6 +921,9 @@ func _towers(inner: Rect2, c: Vector2) -> void:
 	# distance to downtown core boosts height
 	var core := Vector2(80, 180)
 	var f := clampf(1.0 - c.distance_to(core) / 450.0, 0.1, 1.0)
+	# outside the very core, most blocks get real textured office buildings
+	if rng.randf() < 0.75 - f * 0.45 and _lib_block(inner, lib_office):
+		return
 	var podium_h := rng.randf_range(8.0, 16.0)
 	var col := Color(0.55, 0.57, 0.6).lerp(Color(0.85, 0.83, 0.8), rng.randf())
 	add_building(Vector3(inner.get_center().x, _y(), inner.get_center().y), Vector3(inner.size.x, podium_h, inner.size.y), col, 2 if rng.randf() < 0.5 else 4, rng.randf())
@@ -916,6 +1000,8 @@ func _lowrise(inner: Rect2) -> void:
 
 
 func _midrise(inner: Rect2) -> void:
+	if rng.randf() < 0.6 and _lib_block(inner, lib_office, 45.0):
+		return
 	if rng.randf() < 0.45:
 		var h := rng.randf_range(25.0, 70.0)
 		add_building(Vector3(inner.get_center().x, _y(), inner.get_center().y), Vector3(inner.size.x * 0.8, h, inner.size.y * 0.7),
@@ -925,6 +1011,8 @@ func _midrise(inner: Rect2) -> void:
 
 
 func _warehouses(inner: Rect2) -> void:
+	if rng.randf() < 0.5 and _lib_block(inner, lib_industry):
+		return
 	var n := rng.randi_range(1, 3)
 	for i in n:
 		var w := inner.size.x / n

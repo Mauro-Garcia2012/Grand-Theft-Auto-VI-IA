@@ -4,8 +4,8 @@ render_mode diffuse_burley, specular_schlick_ggx, cull_disabled, depth_draw_alwa
 
 uniform sampler2D depth_tex : hint_depth_texture, filter_linear;
 uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
-uniform vec3 shallow = vec3(0.2, 0.78, 0.75);
-uniform vec3 deep = vec3(0.02, 0.22, 0.38);
+uniform vec3 shallow = vec3(0.13, 0.55, 0.52);
+uniform vec3 deep = vec3(0.02, 0.13, 0.2);
 global uniform float night_factor;
 
 varying vec3 wpos;

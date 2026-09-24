@@ -535,6 +535,12 @@ func _bshot() -> void:
 	_place_cam(Vector3(40, 4, 380), Vector3(80, 40, 120))
 	await _wait(1.0)
 	await _shot("facade_towers")
+	_place_cam(Vector3(600, 160, 700), Vector3(80, 60, 150))
+	await _wait(1.0)
+	await _shot("skyline")
+	_place_cam(Vector3(50, 30, -700), Vector3(-100, 5, -900))
+	await _wait(1.0)
+	await _shot("stockyard")
 	get_tree().quit()
 
 

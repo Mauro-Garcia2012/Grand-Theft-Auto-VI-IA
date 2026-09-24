@@ -161,8 +161,19 @@ void fragment() {
 		float grime = noise(vec2(u * 0.3, h * 0.2)) * 0.12;
 		bool ground_floor = id.y < 1.0;
 		if (style == 0) {
-			float m = wmask(f, fw, vec4(0.07, 0.93, 0.08, 0.93));
+			// facade variants: full curtain wall / spandrel bands / vertical fins
+			float variant = hash(vec2(seed, 7.7));
+			vec4 wr = vec4(0.07, 0.93, 0.08, 0.93);
+			if (variant > 0.66) wr = vec4(0.05, 0.95, 0.3, 0.95);
+			else if (variant > 0.33) wr = vec4(0.18, 0.82, 0.06, 0.94);
+			float m = wmask(f, fw, wr);
+			// glass tints: blue-green, silver, bronze, dark grey, green
+			float gsel = hash(vec2(seed, 2.9));
 			vec3 glass = mix(vec3(0.07, 0.17, 0.24), vec3(0.14, 0.38, 0.46), params.z);
+			if (gsel > 0.8) glass = vec3(0.28, 0.3, 0.32);
+			else if (gsel > 0.6) glass = vec3(0.2, 0.15, 0.1);
+			else if (gsel > 0.4) glass = vec3(0.07, 0.08, 0.09);
+			else if (gsel > 0.25) glass = vec3(0.1, 0.2, 0.16);
 			// subtle vertical gradient reflections
 			glass *= 0.85 + 0.3 * noise(vec2(u * 0.05, h * 0.02 + seed));
 			vec3 room = interior(f, V, tangent, wnorm, bay, floor_h, hash(id + seed), true);
