@@ -19,3 +19,8 @@ Vegetation (assets/props/nature):
     Converted from .babylon to glTF; the bushes are built from the same leaf atlas.
   - palm_tall.glb, palm_curved.glb, palm_short.glb: made for this project in Blender; trunk
     texture derived from ambientCG Bark012 (CC0), frond texture painted procedurally.
+
+Textured buildings (assets/buildings/city_lib.glb): offices, towers and industrial buildings
+  split out of the city model of the Motorpool project (github.com/Atul-Senapati/Motorpool,
+  public/models/city.glb, prepared from the Sketchfab "Drive for Speed - Map" model). Split into
+  individual buildings, deduplicated and re-exported with Blender. Private, non-commercial use.
