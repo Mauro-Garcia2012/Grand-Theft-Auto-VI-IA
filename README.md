@@ -68,6 +68,7 @@ de más de 100 MB):
 - Puños, pistola, SMG, rifle de asalto, escopeta, francotirador con mira, lanzacohetes y
   granadas, con modelos 3D, retroceso, disparos a la cabeza, blindaje y munición.
 - Nivel de búsqueda de 1 a 5 estrellas: patrullas, persecuciones con A*, policía a pie, SWAT,
+  **helicóptero de la policía** con tirador y foco nocturno a partir de 3 estrellas,
   zona de búsqueda en el minimapa, **¡WASTED!** y **¡BUSTED!**.
 
 **Sistemas**

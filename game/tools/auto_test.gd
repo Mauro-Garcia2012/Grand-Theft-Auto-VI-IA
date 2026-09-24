@@ -72,6 +72,8 @@ func _process(delta: float) -> void:
 			_bshot()
 		"heli":
 			_heli()
+		"copheli":
+			_copheli()
 		"traffic":
 			_traffic()
 		"chase":
@@ -577,6 +579,31 @@ func _heli() -> void:
 		var gb := v.global_basis
 		print("[heli] t=%.0f rpm=%.2f spd=%.0f km/h alt=%.1f y=%.1f pitch=%.0f bank=%.0f hdg=%.0f air=%s hp=%.0f" % [ft, v.rotor_rpm, v.speed_kmh, v.altitude, v.global_position.y,
 			rad_to_deg(asin(clampf(-gb.z.y, -1, 1))), rad_to_deg(asin(clampf(gb.x.y, -1, 1))), rad_to_deg(atan2(-gb.z.x, -gb.z.z)), v.airborne, v.health])
+
+
+var _ch_log := 0.0
+func _copheli() -> void:
+	if t < 3.0:
+		return
+	if step == 0:
+		step = 1
+		Game.wanted.set_level(3)
+		Game.god_mode = true
+	if t - _ch_log >= 2.0:
+		_ch_log = t
+		var h = Game.wanted.heli
+		if h and is_instance_valid(h):
+			print("[copheli] t=%.0f dist=%.0f alt=%.0f spd=%.0f rpm=%.2f seen=%s stars=%d hp=%.0f" % [t, h.global_position.distance_to(Game.player.global_position), h.altitude, h.speed_kmh, h.rotor_rpm, Game.wanted.seen, Game.wanted.stars, Game.player.health])
+		else:
+			print("[copheli] t=%.0f no heli stars=%d" % [t, Game.wanted.stars])
+	if t > 50.0 and step == 1:
+		step = 2
+		Game.wanted.clear()
+		print("[copheli] cleared")
+	if t > 62.0:
+		var h = Game.wanted.heli
+		print("[copheli] end heli_ref=%s" % [h])
+		get_tree().quit()
 
 
 ## Quick close-ups of facades (shader checks). Optional env BSHOT_T = hour.

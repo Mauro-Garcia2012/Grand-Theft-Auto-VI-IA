@@ -9,6 +9,7 @@ var seen := false
 var evade_t := 0.0
 var dispatch_t := 0.0
 var units: Array = []           # police vehicles dispatched
+var heli: Node = null           # police helicopter (3+ stars)
 var foot_cops: Array = []
 var bust_t := 0.0
 var respawning := false
@@ -94,6 +95,11 @@ func search_radius() -> float:
 
 
 func _stand_down() -> void:
+	if heli != null and is_instance_valid(heli):
+		var ai := heli.get_node_or_null("HeliAI")
+		if ai:
+			ai.leaving = true
+	heli = null
 	for v in units:
 		if is_instance_valid(v):
 			var d = v.driver()
@@ -156,6 +162,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _dispatch() -> void:
+	if stars >= 3 and (heli == null or not is_instance_valid(heli) or heli.destroyed):
+		_spawn_heli()
 	var want_cars = [0, 1, 2, 3, 4, 5][stars]
 	var alive := 0
 	for i in range(units.size() - 1, -1, -1):
@@ -183,6 +191,28 @@ func _dispatch() -> void:
 	partner.enter_vehicle(v, 1)
 	partner.brain.state = PedBrain.S.DRIVE
 	units.append(v)
+
+
+## VCPD Bell 407 arriving from a distance, already in the air.
+func _spawn_heli() -> void:
+	var pp := Game.player_pos()
+	var a := randf() * TAU
+	var pos := pp + Vector3(cos(a), 0, sin(a)) * 260.0
+	pos.y = maxf(pp.y, 0.0) + 60.0
+	var h: Helicopter = VehicleDB.spawn("police_heli", pos, a)
+	h.rotor_rpm = 1.0
+	h.persistent = false
+	var pilot: Humanoid = Game.population.spawn_cop(pos + Vector3.UP * 3.0, false)
+	pilot.enter_vehicle(h, 0)
+	pilot.brain.set_physics_process(false)
+	var shooter: Humanoid = Game.population.spawn_cop(pos + Vector3.UP * 3.0, true)
+	shooter.enter_vehicle(h, 1)
+	shooter.brain.set_physics_process(false)
+	var ai := HeliAI.new()
+	ai.name = "HeliAI"
+	h.add_child(ai)
+	heli = h
+	Game.msg("¡Helicóptero de la policía!", 2.5)
 
 
 func _update_units() -> void:
