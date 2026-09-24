@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkhjivtv80kqc"
 path.s3tc="res://.godot/imported/ferry_tex_4.webp-fd93d7033cad2fc6f82db6acccf39e5f.s3tc.ctex"
+path.etc2="res://.godot/imported/ferry_tex_4.webp-fd93d7033cad2fc6f82db6acccf39e5f.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/boats_real/ferry_tex_4.webp"
-dest_files=["res://.godot/imported/ferry_tex_4.webp-fd93d7033cad2fc6f82db6acccf39e5f.s3tc.ctex"]
+dest_files=["res://.godot/imported/ferry_tex_4.webp-fd93d7033cad2fc6f82db6acccf39e5f.s3tc.ctex", "res://.godot/imported/ferry_tex_4.webp-fd93d7033cad2fc6f82db6acccf39e5f.etc2.ctex"]
 
 [params]
 

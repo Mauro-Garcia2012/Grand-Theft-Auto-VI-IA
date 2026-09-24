@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bpjcxdt8pdjim"
 path.s3tc="res://.godot/imported/aircon_exterior_aircon_unit_01_nor_gl_1k.jpg-b6c3d92c312f4b348761615215aaec4c.s3tc.ctex"
+path.etc2="res://.godot/imported/aircon_exterior_aircon_unit_01_nor_gl_1k.jpg-b6c3d92c312f4b348761615215aaec4c.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/aircon_exterior_aircon_unit_01_nor_gl_1k.jpg"
-dest_files=["res://.godot/imported/aircon_exterior_aircon_unit_01_nor_gl_1k.jpg-b6c3d92c312f4b348761615215aaec4c.s3tc.ctex"]
+dest_files=["res://.godot/imported/aircon_exterior_aircon_unit_01_nor_gl_1k.jpg-b6c3d92c312f4b348761615215aaec4c.s3tc.ctex", "res://.godot/imported/aircon_exterior_aircon_unit_01_nor_gl_1k.jpg-b6c3d92c312f4b348761615215aaec4c.etc2.ctex"]
 
 [params]
 

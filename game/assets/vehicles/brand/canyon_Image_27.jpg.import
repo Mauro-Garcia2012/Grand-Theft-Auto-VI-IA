@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dcuiudqdsaco6"
 path.s3tc="res://.godot/imported/canyon_Image_27.jpg-b96a2ebdf439c87e0e4a5ef0486b2766.s3tc.ctex"
+path.etc2="res://.godot/imported/canyon_Image_27.jpg-b96a2ebdf439c87e0e4a5ef0486b2766.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/canyon_Image_27.jpg"
-dest_files=["res://.godot/imported/canyon_Image_27.jpg-b96a2ebdf439c87e0e4a5ef0486b2766.s3tc.ctex"]
+dest_files=["res://.godot/imported/canyon_Image_27.jpg-b96a2ebdf439c87e0e4a5ef0486b2766.s3tc.ctex", "res://.godot/imported/canyon_Image_27.jpg-b96a2ebdf439c87e0e4a5ef0486b2766.etc2.ctex"]
 
 [params]
 

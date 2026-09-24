@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://chvone6bw6yar"
 path.s3tc="res://.godot/imported/ferrari599_15.jpg-a318d827c4b9c6bbf7fe8bb4ecb0f6ac.s3tc.ctex"
+path.etc2="res://.godot/imported/ferrari599_15.jpg-a318d827c4b9c6bbf7fe8bb4ecb0f6ac.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/ferrari599_15.jpg"
-dest_files=["res://.godot/imported/ferrari599_15.jpg-a318d827c4b9c6bbf7fe8bb4ecb0f6ac.s3tc.ctex"]
+dest_files=["res://.godot/imported/ferrari599_15.jpg-a318d827c4b9c6bbf7fe8bb4ecb0f6ac.s3tc.ctex", "res://.godot/imported/ferrari599_15.jpg-a318d827c4b9c6bbf7fe8bb4ecb0f6ac.etc2.ctex"]
 
 [params]
 

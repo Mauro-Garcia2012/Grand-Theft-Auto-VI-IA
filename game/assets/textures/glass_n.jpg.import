@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cbd53chhchdkp"
 path.s3tc="res://.godot/imported/glass_n.jpg-f92e3798b723c3e4232c59a806014ca0.s3tc.ctex"
+path.etc2="res://.godot/imported/glass_n.jpg-f92e3798b723c3e4232c59a806014ca0.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/glass_n.jpg"
-dest_files=["res://.godot/imported/glass_n.jpg-f92e3798b723c3e4232c59a806014ca0.s3tc.ctex"]
+dest_files=["res://.godot/imported/glass_n.jpg-f92e3798b723c3e4232c59a806014ca0.s3tc.ctex", "res://.godot/imported/glass_n.jpg-f92e3798b723c3e4232c59a806014ca0.etc2.ctex"]
 
 [params]
 

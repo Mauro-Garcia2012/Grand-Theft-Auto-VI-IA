@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://d1q6t1iywf6y8"
 path.s3tc="res://.godot/imported/ak74_weapon_ak47_N_S.jpg-5de37d4dd94effe4cb6e148d3539c892.s3tc.ctex"
+path.etc2="res://.godot/imported/ak74_weapon_ak47_N_S.jpg-5de37d4dd94effe4cb6e148d3539c892.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/weapons/real/ak74_weapon_ak47_N_S.jpg"
-dest_files=["res://.godot/imported/ak74_weapon_ak47_N_S.jpg-5de37d4dd94effe4cb6e148d3539c892.s3tc.ctex"]
+dest_files=["res://.godot/imported/ak74_weapon_ak47_N_S.jpg-5de37d4dd94effe4cb6e148d3539c892.s3tc.ctex", "res://.godot/imported/ak74_weapon_ak47_N_S.jpg-5de37d4dd94effe4cb6e148d3539c892.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c3lgthi4d8381"
 path.s3tc="res://.godot/imported/challenger_15.jpg-051cb5938c8d0517a9c68cfc6e501928.s3tc.ctex"
+path.etc2="res://.godot/imported/challenger_15.jpg-051cb5938c8d0517a9c68cfc6e501928.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/challenger_15.jpg"
-dest_files=["res://.godot/imported/challenger_15.jpg-051cb5938c8d0517a9c68cfc6e501928.s3tc.ctex"]
+dest_files=["res://.godot/imported/challenger_15.jpg-051cb5938c8d0517a9c68cfc6e501928.s3tc.ctex", "res://.godot/imported/challenger_15.jpg-051cb5938c8d0517a9c68cfc6e501928.etc2.ctex"]
 
 [params]
 

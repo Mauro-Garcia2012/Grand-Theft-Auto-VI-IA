@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://behumfv1u3r8w"
 path.s3tc="res://.godot/imported/bmw_m5_bM_Rim_NoTint_Max1_normal.jpg-b8f5ec8bc118aae290a33467aa93d447.s3tc.ctex"
+path.etc2="res://.godot/imported/bmw_m5_bM_Rim_NoTint_Max1_normal.jpg-b8f5ec8bc118aae290a33467aa93d447.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/bmw_m5_bM_Rim_NoTint_Max1_normal.jpg"
-dest_files=["res://.godot/imported/bmw_m5_bM_Rim_NoTint_Max1_normal.jpg-b8f5ec8bc118aae290a33467aa93d447.s3tc.ctex"]
+dest_files=["res://.godot/imported/bmw_m5_bM_Rim_NoTint_Max1_normal.jpg-b8f5ec8bc118aae290a33467aa93d447.s3tc.ctex", "res://.godot/imported/bmw_m5_bM_Rim_NoTint_Max1_normal.jpg-b8f5ec8bc118aae290a33467aa93d447.etc2.ctex"]
 
 [params]
 

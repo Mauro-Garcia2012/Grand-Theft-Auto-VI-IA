@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dg1hcmvnuvwk6"
 path.s3tc="res://.godot/imported/roadster_grill_normal.jpg-0fbee9bd5f2b8892370da2dd9db1b7f3.s3tc.ctex"
+path.etc2="res://.godot/imported/roadster_grill_normal.jpg-0fbee9bd5f2b8892370da2dd9db1b7f3.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/roadster_grill_normal.jpg"
-dest_files=["res://.godot/imported/roadster_grill_normal.jpg-0fbee9bd5f2b8892370da2dd9db1b7f3.s3tc.ctex"]
+dest_files=["res://.godot/imported/roadster_grill_normal.jpg-0fbee9bd5f2b8892370da2dd9db1b7f3.s3tc.ctex", "res://.godot/imported/roadster_grill_normal.jpg-0fbee9bd5f2b8892370da2dd9db1b7f3.etc2.ctex"]
 
 [params]
 

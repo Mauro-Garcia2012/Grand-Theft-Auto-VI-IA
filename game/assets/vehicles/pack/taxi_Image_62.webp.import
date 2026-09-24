@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bnqtntpbwle50"
 path.s3tc="res://.godot/imported/taxi_Image_62.webp-0ea4ad3064ef7a798d333f399cf4d14e.s3tc.ctex"
+path.etc2="res://.godot/imported/taxi_Image_62.webp-0ea4ad3064ef7a798d333f399cf4d14e.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/taxi_Image_62.webp"
-dest_files=["res://.godot/imported/taxi_Image_62.webp-0ea4ad3064ef7a798d333f399cf4d14e.s3tc.ctex"]
+dest_files=["res://.godot/imported/taxi_Image_62.webp-0ea4ad3064ef7a798d333f399cf4d14e.s3tc.ctex", "res://.godot/imported/taxi_Image_62.webp-0ea4ad3064ef7a798d333f399cf4d14e.etc2.ctex"]
 
 [params]
 

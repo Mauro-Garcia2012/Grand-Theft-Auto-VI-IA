@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://5ttois1fnw84"
 path.s3tc="res://.godot/imported/steel_n.jpg-4515ff7d0c2834a7f337abf4251cf88a.s3tc.ctex"
+path.etc2="res://.godot/imported/steel_n.jpg-4515ff7d0c2834a7f337abf4251cf88a.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/steel_n.jpg"
-dest_files=["res://.godot/imported/steel_n.jpg-4515ff7d0c2834a7f337abf4251cf88a.s3tc.ctex"]
+dest_files=["res://.godot/imported/steel_n.jpg-4515ff7d0c2834a7f337abf4251cf88a.s3tc.ctex", "res://.godot/imported/steel_n.jpg-4515ff7d0c2834a7f337abf4251cf88a.etc2.ctex"]
 
 [params]
 

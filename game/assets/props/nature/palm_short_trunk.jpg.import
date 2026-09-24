@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bevypqqmdd7ei"
 path.s3tc="res://.godot/imported/palm_short_trunk.jpg-3e23526b534d094726d0916658027ef2.s3tc.ctex"
+path.etc2="res://.godot/imported/palm_short_trunk.jpg-3e23526b534d094726d0916658027ef2.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/nature/palm_short_trunk.jpg"
-dest_files=["res://.godot/imported/palm_short_trunk.jpg-3e23526b534d094726d0916658027ef2.s3tc.ctex"]
+dest_files=["res://.godot/imported/palm_short_trunk.jpg-3e23526b534d094726d0916658027ef2.s3tc.ctex", "res://.godot/imported/palm_short_trunk.jpg-3e23526b534d094726d0916658027ef2.etc2.ctex"]
 
 [params]
 

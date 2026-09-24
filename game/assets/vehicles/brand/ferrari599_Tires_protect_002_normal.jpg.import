@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://wa0gokci463i"
 path.s3tc="res://.godot/imported/ferrari599_Tires_protect_002_normal.jpg-691e230d50c3850b41f8a65acde0ca57.s3tc.ctex"
+path.etc2="res://.godot/imported/ferrari599_Tires_protect_002_normal.jpg-691e230d50c3850b41f8a65acde0ca57.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/ferrari599_Tires_protect_002_normal.jpg"
-dest_files=["res://.godot/imported/ferrari599_Tires_protect_002_normal.jpg-691e230d50c3850b41f8a65acde0ca57.s3tc.ctex"]
+dest_files=["res://.godot/imported/ferrari599_Tires_protect_002_normal.jpg-691e230d50c3850b41f8a65acde0ca57.s3tc.ctex", "res://.godot/imported/ferrari599_Tires_protect_002_normal.jpg-691e230d50c3850b41f8a65acde0ca57.etc2.ctex"]
 
 [params]
 

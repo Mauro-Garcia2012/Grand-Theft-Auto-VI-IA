@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://6aw4xw7i15d7"
 path.s3tc="res://.godot/imported/suv_Image_25.jpg-e4c8a9fcd61a9db95a1448244fcb9397.s3tc.ctex"
+path.etc2="res://.godot/imported/suv_Image_25.jpg-e4c8a9fcd61a9db95a1448244fcb9397.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/suv_Image_25.jpg"
-dest_files=["res://.godot/imported/suv_Image_25.jpg-e4c8a9fcd61a9db95a1448244fcb9397.s3tc.ctex"]
+dest_files=["res://.godot/imported/suv_Image_25.jpg-e4c8a9fcd61a9db95a1448244fcb9397.s3tc.ctex", "res://.godot/imported/suv_Image_25.jpg-e4c8a9fcd61a9db95a1448244fcb9397.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkxqj17f4x7th"
 path.s3tc="res://.godot/imported/garbage_truck_Image_44.webp-3c59b6741d5b2182acef6c34be98eff7.s3tc.ctex"
+path.etc2="res://.godot/imported/garbage_truck_Image_44.webp-3c59b6741d5b2182acef6c34be98eff7.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/garbage_truck_Image_44.webp"
-dest_files=["res://.godot/imported/garbage_truck_Image_44.webp-3c59b6741d5b2182acef6c34be98eff7.s3tc.ctex"]
+dest_files=["res://.godot/imported/garbage_truck_Image_44.webp-3c59b6741d5b2182acef6c34be98eff7.s3tc.ctex", "res://.godot/imported/garbage_truck_Image_44.webp-3c59b6741d5b2182acef6c34be98eff7.etc2.ctex"]
 
 [params]
 

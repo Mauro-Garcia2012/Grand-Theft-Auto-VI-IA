@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://xkg6oi5407ji"
 path.s3tc="res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020_Wheel1A_3D_3DWheel2A_Material1_orm.jpg-10da05c40bb640ca7547cdf568e50dad.s3tc.ctex"
+path.etc2="res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020_Wheel1A_3D_3DWheel2A_Material1_orm.jpg-10da05c40bb640ca7547cdf568e50dad.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/bmw_m8_bBMW_M8RewardRecycled_2020_Wheel1A_3D_3DWheel2A_Material1_orm.jpg"
-dest_files=["res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020_Wheel1A_3D_3DWheel2A_Material1_orm.jpg-10da05c40bb640ca7547cdf568e50dad.s3tc.ctex"]
+dest_files=["res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020_Wheel1A_3D_3DWheel2A_Material1_orm.jpg-10da05c40bb640ca7547cdf568e50dad.s3tc.ctex", "res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020_Wheel1A_3D_3DWheel2A_Material1_orm.jpg-10da05c40bb640ca7547cdf568e50dad.etc2.ctex"]
 
 [params]
 

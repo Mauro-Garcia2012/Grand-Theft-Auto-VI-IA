@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://6kfga373y5gr"
 path.s3tc="res://.godot/imported/broadleaf_Broadleaf_Desktop_Atlas.png-5e2492fc52330f30a632db42068a09ff.s3tc.ctex"
+path.etc2="res://.godot/imported/broadleaf_Broadleaf_Desktop_Atlas.png-5e2492fc52330f30a632db42068a09ff.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/nature/broadleaf_Broadleaf_Desktop_Atlas.png"
-dest_files=["res://.godot/imported/broadleaf_Broadleaf_Desktop_Atlas.png-5e2492fc52330f30a632db42068a09ff.s3tc.ctex"]
+dest_files=["res://.godot/imported/broadleaf_Broadleaf_Desktop_Atlas.png-5e2492fc52330f30a632db42068a09ff.s3tc.ctex", "res://.godot/imported/broadleaf_Broadleaf_Desktop_Atlas.png-5e2492fc52330f30a632db42068a09ff.etc2.ctex"]
 
 [params]
 

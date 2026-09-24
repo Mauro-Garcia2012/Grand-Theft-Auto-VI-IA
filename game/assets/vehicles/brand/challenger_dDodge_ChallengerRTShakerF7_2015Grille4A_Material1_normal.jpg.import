@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cqqy3nj23ra0v"
 path.s3tc="res://.godot/imported/challenger_dDodge_ChallengerRTShakerF7_2015Grille4A_Material1_normal.jpg-3f6816d35fe508d49f94d90819f801e9.s3tc.ctex"
+path.etc2="res://.godot/imported/challenger_dDodge_ChallengerRTShakerF7_2015Grille4A_Material1_normal.jpg-3f6816d35fe508d49f94d90819f801e9.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/challenger_dDodge_ChallengerRTShakerF7_2015Grille4A_Material1_normal.jpg"
-dest_files=["res://.godot/imported/challenger_dDodge_ChallengerRTShakerF7_2015Grille4A_Material1_normal.jpg-3f6816d35fe508d49f94d90819f801e9.s3tc.ctex"]
+dest_files=["res://.godot/imported/challenger_dDodge_ChallengerRTShakerF7_2015Grille4A_Material1_normal.jpg-3f6816d35fe508d49f94d90819f801e9.s3tc.ctex", "res://.godot/imported/challenger_dDodge_ChallengerRTShakerF7_2015Grille4A_Material1_normal.jpg-3f6816d35fe508d49f94d90819f801e9.etc2.ctex"]
 
 [params]
 

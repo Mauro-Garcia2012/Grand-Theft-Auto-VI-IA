@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://byfo1qpym1o6o"
 path.s3tc="res://.godot/imported/monster_Image_10.webp-980c0d655bd56af41edd9fe2e59d237e.s3tc.ctex"
+path.etc2="res://.godot/imported/monster_Image_10.webp-980c0d655bd56af41edd9fe2e59d237e.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/monster_Image_10.webp"
-dest_files=["res://.godot/imported/monster_Image_10.webp-980c0d655bd56af41edd9fe2e59d237e.s3tc.ctex"]
+dest_files=["res://.godot/imported/monster_Image_10.webp-980c0d655bd56af41edd9fe2e59d237e.s3tc.ctex", "res://.godot/imported/monster_Image_10.webp-980c0d655bd56af41edd9fe2e59d237e.etc2.ctex"]
 
 [params]
 

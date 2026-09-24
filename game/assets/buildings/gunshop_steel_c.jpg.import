@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cm8arx078kvr8"
 path.s3tc="res://.godot/imported/gunshop_steel_c.jpg-97e5821d176fc36139944aab41bd1f91.s3tc.ctex"
+path.etc2="res://.godot/imported/gunshop_steel_c.jpg-97e5821d176fc36139944aab41bd1f91.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/buildings/gunshop_steel_c.jpg"
-dest_files=["res://.godot/imported/gunshop_steel_c.jpg-97e5821d176fc36139944aab41bd1f91.s3tc.ctex"]
+dest_files=["res://.godot/imported/gunshop_steel_c.jpg-97e5821d176fc36139944aab41bd1f91.s3tc.ctex", "res://.godot/imported/gunshop_steel_c.jpg-97e5821d176fc36139944aab41bd1f91.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cr8lqkfagke6v"
 path.s3tc="res://.godot/imported/Ch07_Ch07_1002_Normal.jpg-15b4734a08279d8004174f29b20fa055.s3tc.ctex"
+path.etc2="res://.godot/imported/Ch07_Ch07_1002_Normal.jpg-15b4734a08279d8004174f29b20fa055.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/people/Ch07_Ch07_1002_Normal.jpg"
-dest_files=["res://.godot/imported/Ch07_Ch07_1002_Normal.jpg-15b4734a08279d8004174f29b20fa055.s3tc.ctex"]
+dest_files=["res://.godot/imported/Ch07_Ch07_1002_Normal.jpg-15b4734a08279d8004174f29b20fa055.s3tc.ctex", "res://.godot/imported/Ch07_Ch07_1002_Normal.jpg-15b4734a08279d8004174f29b20fa055.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://d4giihi66v0gv"
 path.s3tc="res://.godot/imported/bmw_m5_BMW_M5CSRewardRecycled_2022_Wheel1A_3D_3DWheel1A_Material_orm.jpg-f0765c131d0fa363091f70a2d275288f.s3tc.ctex"
+path.etc2="res://.godot/imported/bmw_m5_BMW_M5CSRewardRecycled_2022_Wheel1A_3D_3DWheel1A_Material_orm.jpg-f0765c131d0fa363091f70a2d275288f.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/bmw_m5_BMW_M5CSRewardRecycled_2022_Wheel1A_3D_3DWheel1A_Material_orm.jpg"
-dest_files=["res://.godot/imported/bmw_m5_BMW_M5CSRewardRecycled_2022_Wheel1A_3D_3DWheel1A_Material_orm.jpg-f0765c131d0fa363091f70a2d275288f.s3tc.ctex"]
+dest_files=["res://.godot/imported/bmw_m5_BMW_M5CSRewardRecycled_2022_Wheel1A_3D_3DWheel1A_Material_orm.jpg-f0765c131d0fa363091f70a2d275288f.s3tc.ctex", "res://.godot/imported/bmw_m5_BMW_M5CSRewardRecycled_2022_Wheel1A_3D_3DWheel1A_Material_orm.jpg-f0765c131d0fa363091f70a2d275288f.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://d3ykqkjei64ga"
 path.s3tc="res://.godot/imported/towtruck_Image_67.jpg-02e7c64622035f3b0ca77530128a7e77.s3tc.ctex"
+path.etc2="res://.godot/imported/towtruck_Image_67.jpg-02e7c64622035f3b0ca77530128a7e77.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/towtruck_Image_67.jpg"
-dest_files=["res://.godot/imported/towtruck_Image_67.jpg-02e7c64622035f3b0ca77530128a7e77.s3tc.ctex"]
+dest_files=["res://.godot/imported/towtruck_Image_67.jpg-02e7c64622035f3b0ca77530128a7e77.s3tc.ctex", "res://.godot/imported/towtruck_Image_67.jpg-02e7c64622035f3b0ca77530128a7e77.etc2.ctex"]
 
 [params]
 

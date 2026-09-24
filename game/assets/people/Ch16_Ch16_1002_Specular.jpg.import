@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://csl1rfiyng36b"
 path.s3tc="res://.godot/imported/Ch16_Ch16_1002_Specular.jpg-41a86b016694d8b8352557e6c6cbecce.s3tc.ctex"
+path.etc2="res://.godot/imported/Ch16_Ch16_1002_Specular.jpg-41a86b016694d8b8352557e6c6cbecce.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/people/Ch16_Ch16_1002_Specular.jpg"
-dest_files=["res://.godot/imported/Ch16_Ch16_1002_Specular.jpg-41a86b016694d8b8352557e6c6cbecce.s3tc.ctex"]
+dest_files=["res://.godot/imported/Ch16_Ch16_1002_Specular.jpg-41a86b016694d8b8352557e6c6cbecce.s3tc.ctex", "res://.godot/imported/Ch16_Ch16_1002_Specular.jpg-41a86b016694d8b8352557e6c6cbecce.etc2.ctex"]
 
 [params]
 

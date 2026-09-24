@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cag6vgchpkkkk"
 path.s3tc="res://.godot/imported/utility_box_utility_box_01_diff_1k.jpg-507477a61686a047f363f8036af1e358.s3tc.ctex"
+path.etc2="res://.godot/imported/utility_box_utility_box_01_diff_1k.jpg-507477a61686a047f363f8036af1e358.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/utility_box_utility_box_01_diff_1k.jpg"
-dest_files=["res://.godot/imported/utility_box_utility_box_01_diff_1k.jpg-507477a61686a047f363f8036af1e358.s3tc.ctex"]
+dest_files=["res://.godot/imported/utility_box_utility_box_01_diff_1k.jpg-507477a61686a047f363f8036af1e358.s3tc.ctex", "res://.godot/imported/utility_box_utility_box_01_diff_1k.jpg-507477a61686a047f363f8036af1e358.etc2.ctex"]
 
 [params]
 

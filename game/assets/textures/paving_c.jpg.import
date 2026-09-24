@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bepw1478skwgj"
 path.s3tc="res://.godot/imported/paving_c.jpg-702a1b4727e5c4d70172dbd62d56115b.s3tc.ctex"
+path.etc2="res://.godot/imported/paving_c.jpg-702a1b4727e5c4d70172dbd62d56115b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/paving_c.jpg"
-dest_files=["res://.godot/imported/paving_c.jpg-702a1b4727e5c4d70172dbd62d56115b.s3tc.ctex"]
+dest_files=["res://.godot/imported/paving_c.jpg-702a1b4727e5c4d70172dbd62d56115b.s3tc.ctex", "res://.godot/imported/paving_c.jpg-702a1b4727e5c4d70172dbd62d56115b.etc2.ctex"]
 
 [params]
 

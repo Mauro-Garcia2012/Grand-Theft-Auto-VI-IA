@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dpvnbxpnmqvrb"
 path.s3tc="res://.godot/imported/bmw_m8_18.jpg-8f7b183b77284725ee15356a85d10ebf.s3tc.ctex"
+path.etc2="res://.godot/imported/bmw_m8_18.jpg-8f7b183b77284725ee15356a85d10ebf.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/bmw_m8_18.jpg"
-dest_files=["res://.godot/imported/bmw_m8_18.jpg-8f7b183b77284725ee15356a85d10ebf.s3tc.ctex"]
+dest_files=["res://.godot/imported/bmw_m8_18.jpg-8f7b183b77284725ee15356a85d10ebf.s3tc.ctex", "res://.godot/imported/bmw_m8_18.jpg-8f7b183b77284725ee15356a85d10ebf.etc2.ctex"]
 
 [params]
 

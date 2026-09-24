@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bhs2n8e03cvw6"
 path.s3tc="res://.godot/imported/planter_box_01_planter_box_01_arm_1k.jpg-66a0502a5d1ffaa9b071e7ab0c42b38c.s3tc.ctex"
+path.etc2="res://.godot/imported/planter_box_01_planter_box_01_arm_1k.jpg-66a0502a5d1ffaa9b071e7ab0c42b38c.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/planter_box_01_planter_box_01_arm_1k.jpg"
-dest_files=["res://.godot/imported/planter_box_01_planter_box_01_arm_1k.jpg-66a0502a5d1ffaa9b071e7ab0c42b38c.s3tc.ctex"]
+dest_files=["res://.godot/imported/planter_box_01_planter_box_01_arm_1k.jpg-66a0502a5d1ffaa9b071e7ab0c42b38c.s3tc.ctex", "res://.godot/imported/planter_box_01_planter_box_01_arm_1k.jpg-66a0502a5d1ffaa9b071e7ab0c42b38c.etc2.ctex"]
 
 [params]
 

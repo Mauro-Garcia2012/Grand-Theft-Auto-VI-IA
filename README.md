@@ -1,6 +1,7 @@
 # VICE CITY · Leonida Free Roam
 
-Réplica fan de **GTA VI** en modo **mundo libre** (sin historia) para **Windows (.exe)**, hecha con
+Réplica fan de **GTA VI** en modo **mundo libre** (sin historia) para **Windows (.exe)** y
+**Android (.apk)**, hecha con
 [Godot 4.7](https://godotengine.org). Recrea Vice City y el estado de Leonida a partir de la
 información pública de los tráilers (Ocean Drive, Downtown, Little Cuba/Havana, el puerto, el
 aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como protagonistas.
@@ -16,15 +17,33 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
   <a href="https://github.com/Mauro-Garcia2012/Grand-Theft-Auto-VI-IA/releases/latest/download/ViceCity-Windows-x64.zip">
     <img src="https://img.shields.io/badge/DESCARGAR%20PARA%20WINDOWS-ViceCity--Windows--x64.zip-e91e63?style=for-the-badge&logo=windows&logoColor=white" alt="Descargar para Windows (un solo zip)" height="44">
   </a>
+  &nbsp;
+  <a href="https://github.com/Mauro-Garcia2012/Grand-Theft-Auto-VI-IA/releases/latest/download/ViceCity-Android.apk">
+    <img src="https://img.shields.io/badge/DESCARGAR%20PARA%20ANDROID-ViceCity--Android.apk-3ddc84?style=for-the-badge&logo=android&logoColor=white" alt="Descargar para Android (APK)" height="44">
+  </a>
 </p>
 
-1. Pulsa el botón de arriba: se descarga **un solo archivo**, `ViceCity-Windows-x64.zip`
+**Windows**
+1. Pulsa el botón rosa: se descarga **un solo archivo**, `ViceCity-Windows-x64.zip`
    (unos 200 MB, siempre la última versión).
 2. Descomprímelo (clic derecho → *Extraer todo*) y ejecuta `ViceCity/ViceCity.exe`
    (Windows 10/11 de 64 bits, GPU con Vulkan o DirectX 12). `ViceCity.exe` y `ViceCity.pck`
    tienen que estar juntos. Si SmartScreen avisa: *Más información → Ejecutar de todas formas*.
 
-El zip lo compila y publica GitHub Actions automáticamente en cada cambio del juego
+**Android**
+1. Abre este repositorio en el móvil y pulsa el botón verde: se descarga `ViceCity-Android.apk`
+   (unos 300 MB).
+2. Ábrelo e instálalo. La primera vez Android pide permiso para *instalar apps desconocidas*
+   desde el navegador o el gestor de archivos: actívalo. Si Play Protect avisa, pulsa
+   *Instalar de todas formas* (es una app hecha para uso privado, sin publicar en Google Play).
+3. Requisitos: Android 7 o superior de 64 bits (arm64) con Vulkan; recomendado un móvil de gama
+   media-alta con 6 GB de RAM o más. Las versiones nuevas se instalan encima de la anterior.
+4. Se juega en horizontal con **controles táctiles**: joystick a la izquierda (llévalo al borde
+   para correr), arrastra a la derecha para mover la cámara y usa los botones (disparar, apuntar,
+   saltar, coche, usar...). También funciona con mando Bluetooth. En *Pausa → Ajustes* puedes
+   bajar la resolución 3D o quitar sombras si va lento.
+
+Los dos archivos los compila y publica GitHub Actions automáticamente en cada cambio del juego
 ([workflow](.github/workflows/build-windows.yml)); también está en la página de
 [Releases](https://github.com/Mauro-Garcia2012/Grand-Theft-Auto-VI-IA/releases/latest).
 
@@ -138,9 +157,16 @@ El zip lo compila y publica GitHub Actions automáticamente en cada cambio del j
 2. Abre `game/project.godot`, o exporta por línea de comandos:
    ```
    godot --headless --path game --export-release "Windows Desktop" ../builds/ViceCity/ViceCity.exe
+   godot --headless --path game --export-release "Android" ../builds/ViceCity-Android.apk
    ```
+   El APK necesita el Android SDK y Java 17 configurados en Godot y se firma con
+   `android/vicecity.keystore` (variables `GODOT_ANDROID_KEYSTORE_RELEASE_*`, ver el
+   [workflow](.github/workflows/build-windows.yml)). Es una clave pública del proyecto, pensada
+   solo para que cada versión se instale encima de la anterior.
 3. Pruebas automáticas (sin ventana): `godot --headless --path game -- --test=smoke`
-   (también `traffic`, `chase`, `combat`, `fly`, `perf`).
+   (también `traffic`, `chase`, `combat`, `fly`, `perf`, `gunshop`; y `-- --test=touch --mobile`
+   para los controles táctiles). Con `-- --touch` se prueban los controles táctiles en el PC
+   usando el ratón como dedo.
 
 Estructura: `game/scripts/world` (mapa, generación de la ciudad, zonas especiales, semáforos),
 `actors`, `vehicles`, `combat`, `ai`, `player`, `systems` (población, policía, tiendas, radio,

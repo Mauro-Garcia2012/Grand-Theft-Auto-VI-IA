@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cr86dvlmdcsq7"
 path.s3tc="res://.godot/imported/school_bus_Image_58.jpg-3e1c35c111e9ff8e996d54e64f86f45e.s3tc.ctex"
+path.etc2="res://.godot/imported/school_bus_Image_58.jpg-3e1c35c111e9ff8e996d54e64f86f45e.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/school_bus_Image_58.jpg"
-dest_files=["res://.godot/imported/school_bus_Image_58.jpg-3e1c35c111e9ff8e996d54e64f86f45e.s3tc.ctex"]
+dest_files=["res://.godot/imported/school_bus_Image_58.jpg-3e1c35c111e9ff8e996d54e64f86f45e.s3tc.ctex", "res://.godot/imported/school_bus_Image_58.jpg-3e1c35c111e9ff8e996d54e64f86f45e.etc2.ctex"]
 
 [params]
 

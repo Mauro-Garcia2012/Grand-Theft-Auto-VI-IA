@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bcpfanrexplxc"
 path.s3tc="res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020BadgeB_Material1_normal.jpg-18a2f5bab876b725f843c9d5347f413d.s3tc.ctex"
+path.etc2="res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020BadgeB_Material1_normal.jpg-18a2f5bab876b725f843c9d5347f413d.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/bmw_m8_bBMW_M8RewardRecycled_2020BadgeB_Material1_normal.jpg"
-dest_files=["res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020BadgeB_Material1_normal.jpg-18a2f5bab876b725f843c9d5347f413d.s3tc.ctex"]
+dest_files=["res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020BadgeB_Material1_normal.jpg-18a2f5bab876b725f843c9d5347f413d.s3tc.ctex", "res://.godot/imported/bmw_m8_bBMW_M8RewardRecycled_2020BadgeB_Material1_normal.jpg-18a2f5bab876b725f843c9d5347f413d.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://v074okc6278m"
 path.s3tc="res://.godot/imported/e190_door.jpg-5b892e8e0b426661d53e3675078e7156.s3tc.ctex"
+path.etc2="res://.godot/imported/e190_door.jpg-5b892e8e0b426661d53e3675078e7156.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/aircraft/e190_door.jpg"
-dest_files=["res://.godot/imported/e190_door.jpg-5b892e8e0b426661d53e3675078e7156.s3tc.ctex"]
+dest_files=["res://.godot/imported/e190_door.jpg-5b892e8e0b426661d53e3675078e7156.s3tc.ctex", "res://.godot/imported/e190_door.jpg-5b892e8e0b426661d53e3675078e7156.etc2.ctex"]
 
 [params]
 

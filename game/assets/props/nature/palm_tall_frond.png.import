@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6l1npgwxx6ht"
 path.s3tc="res://.godot/imported/palm_tall_frond.png-250bc0a493422135ccd0be860fe12e6a.s3tc.ctex"
+path.etc2="res://.godot/imported/palm_tall_frond.png-250bc0a493422135ccd0be860fe12e6a.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/nature/palm_tall_frond.png"
-dest_files=["res://.godot/imported/palm_tall_frond.png-250bc0a493422135ccd0be860fe12e6a.s3tc.ctex"]
+dest_files=["res://.godot/imported/palm_tall_frond.png-250bc0a493422135ccd0be860fe12e6a.s3tc.ctex", "res://.godot/imported/palm_tall_frond.png-250bc0a493422135ccd0be860fe12e6a.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://wcid1swx7r2s"
 path.s3tc="res://.godot/imported/camaro_Image_10.jpg-69e16dd7f7581eb311be1d8df94e1b82.s3tc.ctex"
+path.etc2="res://.godot/imported/camaro_Image_10.jpg-69e16dd7f7581eb311be1d8df94e1b82.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/camaro_Image_10.jpg"
-dest_files=["res://.godot/imported/camaro_Image_10.jpg-69e16dd7f7581eb311be1d8df94e1b82.s3tc.ctex"]
+dest_files=["res://.godot/imported/camaro_Image_10.jpg-69e16dd7f7581eb311be1d8df94e1b82.s3tc.ctex", "res://.godot/imported/camaro_Image_10.jpg-69e16dd7f7581eb311be1d8df94e1b82.etc2.ctex"]
 
 [params]
 

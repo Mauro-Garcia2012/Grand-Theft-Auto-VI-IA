@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6qa67g0ruir6"
 path.s3tc="res://.godot/imported/traffic_signal_rot.jpg-72b12823519f08f27920d01f35749d82.s3tc.ctex"
+path.etc2="res://.godot/imported/traffic_signal_rot.jpg-72b12823519f08f27920d01f35749d82.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/traffic_signal_rot.jpg"
-dest_files=["res://.godot/imported/traffic_signal_rot.jpg-72b12823519f08f27920d01f35749d82.s3tc.ctex"]
+dest_files=["res://.godot/imported/traffic_signal_rot.jpg-72b12823519f08f27920d01f35749d82.s3tc.ctex", "res://.godot/imported/traffic_signal_rot.jpg-72b12823519f08f27920d01f35749d82.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dqvub2jcxm3a8"
 path.s3tc="res://.godot/imported/cruiser_tex_23.jpg-3d358dbeb876d99ffbf323938d317f81.s3tc.ctex"
+path.etc2="res://.godot/imported/cruiser_tex_23.jpg-3d358dbeb876d99ffbf323938d317f81.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/boats_real/cruiser_tex_23.jpg"
-dest_files=["res://.godot/imported/cruiser_tex_23.jpg-3d358dbeb876d99ffbf323938d317f81.s3tc.ctex"]
+dest_files=["res://.godot/imported/cruiser_tex_23.jpg-3d358dbeb876d99ffbf323938d317f81.s3tc.ctex", "res://.godot/imported/cruiser_tex_23.jpg-3d358dbeb876d99ffbf323938d317f81.etc2.ctex"]
 
 [params]
 

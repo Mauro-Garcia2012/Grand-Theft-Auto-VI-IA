@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ora4y05lvdad"
 path.s3tc="res://.godot/imported/sport_Image_22.jpg-4416da779c167387ee910e5b9e99113d.s3tc.ctex"
+path.etc2="res://.godot/imported/sport_Image_22.jpg-4416da779c167387ee910e5b9e99113d.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/sport_Image_22.jpg"
-dest_files=["res://.godot/imported/sport_Image_22.jpg-4416da779c167387ee910e5b9e99113d.s3tc.ctex"]
+dest_files=["res://.godot/imported/sport_Image_22.jpg-4416da779c167387ee910e5b9e99113d.s3tc.ctex", "res://.godot/imported/sport_Image_22.jpg-4416da779c167387ee910e5b9e99113d.etc2.ctex"]
 
 [params]
 

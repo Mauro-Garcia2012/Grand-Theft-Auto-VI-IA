@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cf5hst7t8kgix"
 path.s3tc="res://.godot/imported/minivan_Image_11.jpg-0ee3badce5733d2af8f6b3642a0c3024.s3tc.ctex"
+path.etc2="res://.godot/imported/minivan_Image_11.jpg-0ee3badce5733d2af8f6b3642a0c3024.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/minivan_Image_11.jpg"
-dest_files=["res://.godot/imported/minivan_Image_11.jpg-0ee3badce5733d2af8f6b3642a0c3024.s3tc.ctex"]
+dest_files=["res://.godot/imported/minivan_Image_11.jpg-0ee3badce5733d2af8f6b3642a0c3024.s3tc.ctex", "res://.godot/imported/minivan_Image_11.jpg-0ee3badce5733d2af8f6b3642a0c3024.etc2.ctex"]
 
 [params]
 

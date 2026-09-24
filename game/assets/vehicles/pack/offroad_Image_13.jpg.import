@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dpf6awttm1gup"
 path.s3tc="res://.godot/imported/offroad_Image_13.jpg-695ffd00c391ba3e4ee8c0b2263edb21.s3tc.ctex"
+path.etc2="res://.godot/imported/offroad_Image_13.jpg-695ffd00c391ba3e4ee8c0b2263edb21.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/offroad_Image_13.jpg"
-dest_files=["res://.godot/imported/offroad_Image_13.jpg-695ffd00c391ba3e4ee8c0b2263edb21.s3tc.ctex"]
+dest_files=["res://.godot/imported/offroad_Image_13.jpg-695ffd00c391ba3e4ee8c0b2263edb21.s3tc.ctex", "res://.godot/imported/offroad_Image_13.jpg-695ffd00c391ba3e4ee8c0b2263edb21.etc2.ctex"]
 
 [params]
 

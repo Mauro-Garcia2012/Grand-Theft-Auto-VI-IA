@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dldtkpwoyasdi"
 path.s3tc="res://.godot/imported/citybus_Image_35.webp-9afa833e7e8ffd3f4d2e467435e3e73b.s3tc.ctex"
+path.etc2="res://.godot/imported/citybus_Image_35.webp-9afa833e7e8ffd3f4d2e467435e3e73b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/citybus_Image_35.webp"
-dest_files=["res://.godot/imported/citybus_Image_35.webp-9afa833e7e8ffd3f4d2e467435e3e73b.s3tc.ctex"]
+dest_files=["res://.godot/imported/citybus_Image_35.webp-9afa833e7e8ffd3f4d2e467435e3e73b.s3tc.ctex", "res://.godot/imported/citybus_Image_35.webp-9afa833e7e8ffd3f4d2e467435e3e73b.etc2.ctex"]
 
 [params]
 

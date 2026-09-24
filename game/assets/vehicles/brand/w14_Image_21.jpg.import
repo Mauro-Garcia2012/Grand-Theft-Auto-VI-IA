@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cro0lwyiwi54f"
 path.s3tc="res://.godot/imported/w14_Image_21.jpg-08824ed09d009c0f35b80a0055a312cd.s3tc.ctex"
+path.etc2="res://.godot/imported/w14_Image_21.jpg-08824ed09d009c0f35b80a0055a312cd.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/w14_Image_21.jpg"
-dest_files=["res://.godot/imported/w14_Image_21.jpg-08824ed09d009c0f35b80a0055a312cd.s3tc.ctex"]
+dest_files=["res://.godot/imported/w14_Image_21.jpg-08824ed09d009c0f35b80a0055a312cd.s3tc.ctex", "res://.godot/imported/w14_Image_21.jpg-08824ed09d009c0f35b80a0055a312cd.etc2.ctex"]
 
 [params]
 

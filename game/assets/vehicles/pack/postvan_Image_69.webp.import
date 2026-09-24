@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0hf1mlyvrw5u"
 path.s3tc="res://.godot/imported/postvan_Image_69.webp-56d41d1621159ca7448bca4d9af610f3.s3tc.ctex"
+path.etc2="res://.godot/imported/postvan_Image_69.webp-56d41d1621159ca7448bca4d9af610f3.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/postvan_Image_69.webp"
-dest_files=["res://.godot/imported/postvan_Image_69.webp-56d41d1621159ca7448bca4d9af610f3.s3tc.ctex"]
+dest_files=["res://.godot/imported/postvan_Image_69.webp-56d41d1621159ca7448bca4d9af610f3.s3tc.ctex", "res://.godot/imported/postvan_Image_69.webp-56d41d1621159ca7448bca4d9af610f3.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dw54j60dknmgn"
 path.s3tc="res://.godot/imported/police_sedan_Image_46.jpg-f44db9790b9b46fec93fc2ed5c3a1e63.s3tc.ctex"
+path.etc2="res://.godot/imported/police_sedan_Image_46.jpg-f44db9790b9b46fec93fc2ed5c3a1e63.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/police_sedan_Image_46.jpg"
-dest_files=["res://.godot/imported/police_sedan_Image_46.jpg-f44db9790b9b46fec93fc2ed5c3a1e63.s3tc.ctex"]
+dest_files=["res://.godot/imported/police_sedan_Image_46.jpg-f44db9790b9b46fec93fc2ed5c3a1e63.s3tc.ctex", "res://.godot/imported/police_sedan_Image_46.jpg-f44db9790b9b46fec93fc2ed5c3a1e63.etc2.ctex"]
 
 [params]
 

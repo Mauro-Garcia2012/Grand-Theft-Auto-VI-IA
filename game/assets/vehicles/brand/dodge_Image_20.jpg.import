@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://btknw6pkuv4lc"
 path.s3tc="res://.godot/imported/dodge_Image_20.jpg-a3b4ec60683263b98fdc78cf963ed435.s3tc.ctex"
+path.etc2="res://.godot/imported/dodge_Image_20.jpg-a3b4ec60683263b98fdc78cf963ed435.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/dodge_Image_20.jpg"
-dest_files=["res://.godot/imported/dodge_Image_20.jpg-a3b4ec60683263b98fdc78cf963ed435.s3tc.ctex"]
+dest_files=["res://.godot/imported/dodge_Image_20.jpg-a3b4ec60683263b98fdc78cf963ed435.s3tc.ctex", "res://.godot/imported/dodge_Image_20.jpg-a3b4ec60683263b98fdc78cf963ed435.etc2.ctex"]
 
 [params]
 

@@ -1,8 +1,10 @@
 name: Build Windows exe
 
-# Builds the Windows version on every push that changes the game and publishes it as ONE zip in
-# the "descarga" release, so the README button always downloads the latest build:
+# Builds the Windows version (one zip) and the Android version (one APK) on every push that changes
+# the game and publishes both in the "descarga" release, so the README buttons always download the
+# latest build:
 #   https://github.com/<owner>/<repo>/releases/latest/download/ViceCity-Windows-x64.zip
+#   https://github.com/<owner>/<repo>/releases/latest/download/ViceCity-Android.apk
 # It can also be started by hand: Actions tab -> "Build Windows exe" -> Run workflow.
 on:
   push:
@@ -10,6 +12,7 @@ on:
     paths:
       - "game/**"
       - "builds/ViceCity/LEEME.txt"
+      - "android/**"
       - ".github/workflows/build-windows.yml"
   workflow_dispatch:
 
@@ -23,6 +26,7 @@ concurrency:
 env:
   GODOT_VERSION: "4.7.2"
   ZIP_NAME: ViceCity-Windows-x64.zip
+  APK_NAME: ViceCity-Android.apk
   RELEASE_TAG: descarga
 
 jobs:
@@ -64,13 +68,52 @@ jobs:
           unzip -t "$ZIP_NAME"
           ls -la "$ZIP_NAME"
 
-      - name: Publish the download (release "descarga")
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Signed with the project's own key (android/vicecity.keystore) so new builds install as updates.
+      # If it fails, the Windows zip is still published.
+      - name: Export Android APK
+        id: apk
+        continue-on-error: true
+        env:
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ github.workspace }}/android/vicecity.keystore
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: vicecity
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: vicecity-leonida
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/android/vicecity.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: vicecity
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: vicecity-leonida
+        run: |
+          sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "Android SDK: $sdk  Java: $JAVA_HOME"
+          ls "$sdk/build-tools"
+          mkdir -p ~/.config/godot
+          for f in editor_settings-4.tres "editor_settings-${GODOT_VERSION%.*}.tres"; do
+            printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\nexport/android/java_sdk_path = "%s"\n' "$sdk" "$JAVA_HOME" > ~/.config/godot/$f
+          done
+          # every build gets a higher version code so Android installs it over the previous one
+          sed -i "s/^version\/code=.*/version\/code=${GITHUB_RUN_NUMBER}/; s/^version\/name=.*/version\/name=\"1.${GITHUB_RUN_NUMBER}\"/" game/export_presets.cfg
+          ./godot --headless --path game --export-release "Android" "../builds/$APK_NAME" 2>&1 | tee apk.log
+          test -s "builds/$APK_NAME"
+          ls -la "builds/$APK_NAME"
+          unzip -l "builds/$APK_NAME" | tail -3
+
+      - name: Publish the downloads (release "descarga")
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          notes="Descarga un solo archivo: **${ZIP_NAME}**. Descomprímelo y ejecuta ViceCity/ViceCity.exe (Windows 10/11 64 bits).
+          files=("builds/$ZIP_NAME")
+          apk_note="El APK de Android no se pudo generar en esta compilación."
+          if [ -s "builds/$APK_NAME" ]; then
+            files+=("builds/$APK_NAME")
+            apk_note="Android: descarga **${APK_NAME}** en el móvil e instálalo (permite instalar apps de origen desconocido). Controles táctiles incluidos."
+          fi
+          notes="Windows: descarga un solo archivo, **${ZIP_NAME}**, descomprímelo y ejecuta ViceCity/ViceCity.exe (Windows 10/11 64 bits).
+          ${apk_note}
           Compilado automáticamente desde ${GITHUB_SHA::7} (${GITHUB_REF_NAME}). Proyecto fan sin ánimo de lucro, uso privado."
           gh release delete "$RELEASE_TAG" --yes --cleanup-tag || true
-          gh release create "$RELEASE_TAG" "builds/$ZIP_NAME" --target "$GITHUB_SHA" \
-            --title "Vice City · Leonida — última versión para Windows" --notes "$notes" --latest
+          gh release create "$RELEASE_TAG" "${files[@]}" --target "$GITHUB_SHA" \
+            --title "Vice City · Leonida — última versión (Windows y Android)" --notes "$notes" --latest

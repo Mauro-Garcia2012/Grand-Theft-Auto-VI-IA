@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://oappmaokqg60"
 path.s3tc="res://.godot/imported/roadster_4.jpg-440f8934654476fd028d8efe5922dcac.s3tc.ctex"
+path.etc2="res://.godot/imported/roadster_4.jpg-440f8934654476fd028d8efe5922dcac.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/roadster_4.jpg"
-dest_files=["res://.godot/imported/roadster_4.jpg-440f8934654476fd028d8efe5922dcac.s3tc.ctex"]
+dest_files=["res://.godot/imported/roadster_4.jpg-440f8934654476fd028d8efe5922dcac.s3tc.ctex", "res://.godot/imported/roadster_4.jpg-440f8934654476fd028d8efe5922dcac.etc2.ctex"]
 
 [params]
 

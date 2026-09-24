@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cn4at365v10cg"
 path.s3tc="res://.godot/imported/bmw_m5_bMAT_Details_Disk1_normal.jpg-ffbd5ad3c15a3e8e785c2ee2c7c255e4.s3tc.ctex"
+path.etc2="res://.godot/imported/bmw_m5_bMAT_Details_Disk1_normal.jpg-ffbd5ad3c15a3e8e785c2ee2c7c255e4.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/bmw_m5_bMAT_Details_Disk1_normal.jpg"
-dest_files=["res://.godot/imported/bmw_m5_bMAT_Details_Disk1_normal.jpg-ffbd5ad3c15a3e8e785c2ee2c7c255e4.s3tc.ctex"]
+dest_files=["res://.godot/imported/bmw_m5_bMAT_Details_Disk1_normal.jpg-ffbd5ad3c15a3e8e785c2ee2c7c255e4.s3tc.ctex", "res://.godot/imported/bmw_m5_bMAT_Details_Disk1_normal.jpg-ffbd5ad3c15a3e8e785c2ee2c7c255e4.etc2.ctex"]
 
 [params]
 

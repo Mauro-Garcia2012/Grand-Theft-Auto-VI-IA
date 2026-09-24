@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://batd1vk6r6hsq"
 path.s3tc="res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.s3tc.ctex"
+path.etc2="res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/traffic_signal_galvanized-metal-texture-seamless-hr.jpg"
-dest_files=["res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.s3tc.ctex"]
+dest_files=["res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.s3tc.ctex", "res://.godot/imported/traffic_signal_galvanized-metal-texture-seamless-hr.jpg-811897a4c5254770e05298d2c22a7f0c.etc2.ctex"]
 
 [params]
 

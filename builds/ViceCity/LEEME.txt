@@ -27,4 +27,7 @@ ARMERÍAS: entra a pie por la puerta automática, acércate al mostrador y pulsa
   Al fondo, detrás del cristal, está la galería de tiro: dispara a las dianas para puntuar
   (allí disparar no es delito).
 
+ANDROID: en la página del proyecto hay otro botón para descargar ViceCity-Android.apk
+  (controles táctiles, se instala en el móvil permitiendo "instalar apps desconocidas").
+
 AJUSTES (ESC -> Ajustes): sombras, SSAO y reflejos (SSR) se pueden desactivar si va lento.

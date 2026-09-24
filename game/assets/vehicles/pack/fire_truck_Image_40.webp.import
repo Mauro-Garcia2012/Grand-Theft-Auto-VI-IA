@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://d3lc4oeuemn51"
 path.s3tc="res://.godot/imported/fire_truck_Image_40.webp-14a0dc7e0f4322675cf26cceb2111245.s3tc.ctex"
+path.etc2="res://.godot/imported/fire_truck_Image_40.webp-14a0dc7e0f4322675cf26cceb2111245.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/fire_truck_Image_40.webp"
-dest_files=["res://.godot/imported/fire_truck_Image_40.webp-14a0dc7e0f4322675cf26cceb2111245.s3tc.ctex"]
+dest_files=["res://.godot/imported/fire_truck_Image_40.webp-14a0dc7e0f4322675cf26cceb2111245.s3tc.ctex", "res://.godot/imported/fire_truck_Image_40.webp-14a0dc7e0f4322675cf26cceb2111245.etc2.ctex"]
 
 [params]
 

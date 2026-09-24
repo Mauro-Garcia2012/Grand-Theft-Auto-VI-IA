@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://6p5qp34gpw1a"
 path.s3tc="res://.godot/imported/yacht_tex_24.jpg-d777b55c41db17aec5a58054784c8d96.s3tc.ctex"
+path.etc2="res://.godot/imported/yacht_tex_24.jpg-d777b55c41db17aec5a58054784c8d96.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/boats_real/yacht_tex_24.jpg"
-dest_files=["res://.godot/imported/yacht_tex_24.jpg-d777b55c41db17aec5a58054784c8d96.s3tc.ctex"]
+dest_files=["res://.godot/imported/yacht_tex_24.jpg-d777b55c41db17aec5a58054784c8d96.s3tc.ctex", "res://.godot/imported/yacht_tex_24.jpg-d777b55c41db17aec5a58054784c8d96.etc2.ctex"]
 
 [params]
 

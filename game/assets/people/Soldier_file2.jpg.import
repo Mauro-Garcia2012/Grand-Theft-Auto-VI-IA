@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bwsfnrly7rcl8"
 path.s3tc="res://.godot/imported/Soldier_file2.jpg-5183d44042daee23f645b5af1f522914.s3tc.ctex"
+path.etc2="res://.godot/imported/Soldier_file2.jpg-5183d44042daee23f645b5af1f522914.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/people/Soldier_file2.jpg"
-dest_files=["res://.godot/imported/Soldier_file2.jpg-5183d44042daee23f645b5af1f522914.s3tc.ctex"]
+dest_files=["res://.godot/imported/Soldier_file2.jpg-5183d44042daee23f645b5af1f522914.s3tc.ctex", "res://.godot/imported/Soldier_file2.jpg-5183d44042daee23f645b5af1f522914.etc2.ctex"]
 
 [params]
 

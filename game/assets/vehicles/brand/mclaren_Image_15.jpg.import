@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cv05ndxmsdivj"
 path.s3tc="res://.godot/imported/mclaren_Image_15.jpg-54763a53d9cd9d27c4f84d7e51970816.s3tc.ctex"
+path.etc2="res://.godot/imported/mclaren_Image_15.jpg-54763a53d9cd9d27c4f84d7e51970816.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/mclaren_Image_15.jpg"
-dest_files=["res://.godot/imported/mclaren_Image_15.jpg-54763a53d9cd9d27c4f84d7e51970816.s3tc.ctex"]
+dest_files=["res://.godot/imported/mclaren_Image_15.jpg-54763a53d9cd9d27c4f84d7e51970816.s3tc.ctex", "res://.godot/imported/mclaren_Image_15.jpg-54763a53d9cd9d27c4f84d7e51970816.etc2.ctex"]
 
 [params]
 

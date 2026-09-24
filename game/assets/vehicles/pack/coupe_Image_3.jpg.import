@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ot80lw515sd"
 path.s3tc="res://.godot/imported/coupe_Image_3.jpg-4e14d6eab636b933495bcca3a76b720b.s3tc.ctex"
+path.etc2="res://.godot/imported/coupe_Image_3.jpg-4e14d6eab636b933495bcca3a76b720b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/coupe_Image_3.jpg"
-dest_files=["res://.godot/imported/coupe_Image_3.jpg-4e14d6eab636b933495bcca3a76b720b.s3tc.ctex"]
+dest_files=["res://.godot/imported/coupe_Image_3.jpg-4e14d6eab636b933495bcca3a76b720b.s3tc.ctex", "res://.godot/imported/coupe_Image_3.jpg-4e14d6eab636b933495bcca3a76b720b.etc2.ctex"]
 
 [params]
 

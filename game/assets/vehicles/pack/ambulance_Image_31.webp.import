@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5l8nrghs0atc"
 path.s3tc="res://.godot/imported/ambulance_Image_31.webp-956073609d6c2af5d1e496de6634e954.s3tc.ctex"
+path.etc2="res://.godot/imported/ambulance_Image_31.webp-956073609d6c2af5d1e496de6634e954.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/pack/ambulance_Image_31.webp"
-dest_files=["res://.godot/imported/ambulance_Image_31.webp-956073609d6c2af5d1e496de6634e954.s3tc.ctex"]
+dest_files=["res://.godot/imported/ambulance_Image_31.webp-956073609d6c2af5d1e496de6634e954.s3tc.ctex", "res://.godot/imported/ambulance_Image_31.webp-956073609d6c2af5d1e496de6634e954.etc2.ctex"]
 
 [params]
 

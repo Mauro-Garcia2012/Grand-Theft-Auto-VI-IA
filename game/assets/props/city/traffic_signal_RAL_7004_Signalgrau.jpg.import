@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cv8vjpqokjo56"
 path.s3tc="res://.godot/imported/traffic_signal_RAL_7004_Signalgrau.jpg-48713e655baa8303d6de2fc5526662d6.s3tc.ctex"
+path.etc2="res://.godot/imported/traffic_signal_RAL_7004_Signalgrau.jpg-48713e655baa8303d6de2fc5526662d6.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/traffic_signal_RAL_7004_Signalgrau.jpg"
-dest_files=["res://.godot/imported/traffic_signal_RAL_7004_Signalgrau.jpg-48713e655baa8303d6de2fc5526662d6.s3tc.ctex"]
+dest_files=["res://.godot/imported/traffic_signal_RAL_7004_Signalgrau.jpg-48713e655baa8303d6de2fc5526662d6.s3tc.ctex", "res://.godot/imported/traffic_signal_RAL_7004_Signalgrau.jpg-48713e655baa8303d6de2fc5526662d6.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bguegmjrkqdak"
 path.s3tc="res://.godot/imported/c172_Image_8.jpg-0b8e60d76784c4eb4d3807cc20a1cf73.s3tc.ctex"
+path.etc2="res://.godot/imported/c172_Image_8.jpg-0b8e60d76784c4eb4d3807cc20a1cf73.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/aircraft/c172_Image_8.jpg"
-dest_files=["res://.godot/imported/c172_Image_8.jpg-0b8e60d76784c4eb4d3807cc20a1cf73.s3tc.ctex"]
+dest_files=["res://.godot/imported/c172_Image_8.jpg-0b8e60d76784c4eb4d3807cc20a1cf73.s3tc.ctex", "res://.godot/imported/c172_Image_8.jpg-0b8e60d76784c4eb4d3807cc20a1cf73.etc2.ctex"]
 
 [params]
 

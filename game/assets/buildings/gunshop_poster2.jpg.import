@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cb02asa8ix2w3"
 path.s3tc="res://.godot/imported/gunshop_poster2.jpg-7c2dfb7deacee5726f2ca8989e439098.s3tc.ctex"
+path.etc2="res://.godot/imported/gunshop_poster2.jpg-7c2dfb7deacee5726f2ca8989e439098.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/buildings/gunshop_poster2.jpg"
-dest_files=["res://.godot/imported/gunshop_poster2.jpg-7c2dfb7deacee5726f2ca8989e439098.s3tc.ctex"]
+dest_files=["res://.godot/imported/gunshop_poster2.jpg-7c2dfb7deacee5726f2ca8989e439098.s3tc.ctex", "res://.godot/imported/gunshop_poster2.jpg-7c2dfb7deacee5726f2ca8989e439098.etc2.ctex"]
 
 [params]
 

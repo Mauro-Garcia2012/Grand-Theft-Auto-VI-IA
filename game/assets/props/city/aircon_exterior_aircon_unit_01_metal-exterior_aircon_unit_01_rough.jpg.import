@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://be7kwdbnpo8kl"
 path.s3tc="res://.godot/imported/aircon_exterior_aircon_unit_01_metal-exterior_aircon_unit_01_rough.jpg-9be8a0305d8e1d7ff81911f0f0529feb.s3tc.ctex"
+path.etc2="res://.godot/imported/aircon_exterior_aircon_unit_01_metal-exterior_aircon_unit_01_rough.jpg-9be8a0305d8e1d7ff81911f0f0529feb.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/city/aircon_exterior_aircon_unit_01_metal-exterior_aircon_unit_01_rough.jpg"
-dest_files=["res://.godot/imported/aircon_exterior_aircon_unit_01_metal-exterior_aircon_unit_01_rough.jpg-9be8a0305d8e1d7ff81911f0f0529feb.s3tc.ctex"]
+dest_files=["res://.godot/imported/aircon_exterior_aircon_unit_01_metal-exterior_aircon_unit_01_rough.jpg-9be8a0305d8e1d7ff81911f0f0529feb.s3tc.ctex", "res://.godot/imported/aircon_exterior_aircon_unit_01_metal-exterior_aircon_unit_01_rough.jpg-9be8a0305d8e1d7ff81911f0f0529feb.etc2.ctex"]
 
 [params]
 

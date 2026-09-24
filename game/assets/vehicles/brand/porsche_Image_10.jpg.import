@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dibcp7abstse5"
 path.s3tc="res://.godot/imported/porsche_Image_10.jpg-eae2810a369c16c24a27d5dd51c9d2a3.s3tc.ctex"
+path.etc2="res://.godot/imported/porsche_Image_10.jpg-eae2810a369c16c24a27d5dd51c9d2a3.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/vehicles/brand/porsche_Image_10.jpg"
-dest_files=["res://.godot/imported/porsche_Image_10.jpg-eae2810a369c16c24a27d5dd51c9d2a3.s3tc.ctex"]
+dest_files=["res://.godot/imported/porsche_Image_10.jpg-eae2810a369c16c24a27d5dd51c9d2a3.s3tc.ctex", "res://.godot/imported/porsche_Image_10.jpg-eae2810a369c16c24a27d5dd51c9d2a3.etc2.ctex"]
 
 [params]
 
