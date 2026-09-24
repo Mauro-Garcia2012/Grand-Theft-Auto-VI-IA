@@ -1,15 +1,34 @@
 name: Build Windows exe
 
-# Manual build of the Windows version (Actions tab -> "Build Windows exe" -> Run workflow).
+# Builds the Windows version on every push that changes the game and publishes it as ONE zip in
+# the "descarga" release, so the README button always downloads the latest build:
+#   https://github.com/<owner>/<repo>/releases/latest/download/ViceCity-Windows-x64.zip
+# It can also be started by hand: Actions tab -> "Build Windows exe" -> Run workflow.
 on:
+  push:
+    branches: [main, master, claude/gta-vi-replica-pc-eqgiiw]
+    paths:
+      - "game/**"
+      - "builds/ViceCity/LEEME.txt"
+      - ".github/workflows/build-windows.yml"
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-build
+  cancel-in-progress: true
 
 env:
   GODOT_VERSION: "4.7.2"
+  ZIP_NAME: ViceCity-Windows-x64.zip
+  RELEASE_TAG: descarga
 
 jobs:
   export:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
 
@@ -26,7 +45,7 @@ jobs:
           mv templates/templates/* "$dest/"
 
       - name: Import assets
-        run: ./godot --headless --path game --import
+        run: timeout 3000 ./godot --headless --path game --import
 
       - name: Smoke test
         run: timeout 300 ./godot --headless --path game -- --test=smoke | tee smoke.log && grep -q "OK smoke test finished" smoke.log
@@ -36,8 +55,22 @@ jobs:
           mkdir -p builds/ViceCity
           ./godot --headless --path game --export-release "Windows Desktop" ../builds/ViceCity/ViceCity.exe
           ls -la builds/ViceCity
+          test -s builds/ViceCity/ViceCity.exe && test -s builds/ViceCity/ViceCity.pck
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ViceCity-Windows-x64
-          path: builds/ViceCity
+      - name: Package a single zip
+        run: |
+          cd builds
+          zip -9 -r "$ZIP_NAME" ViceCity/ViceCity.exe ViceCity/ViceCity.pck ViceCity/LEEME.txt
+          unzip -t "$ZIP_NAME"
+          ls -la "$ZIP_NAME"
+
+      - name: Publish the download (release "descarga")
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          notes="Descarga un solo archivo: **${ZIP_NAME}**. Descomprímelo y ejecuta ViceCity/ViceCity.exe (Windows 10/11 64 bits).
+          Compilado automáticamente desde ${GITHUB_SHA::7} (${GITHUB_REF_NAME}). Proyecto fan sin ánimo de lucro, uso privado."
+          gh release delete "$RELEASE_TAG" --yes --cleanup-tag || true
+          gh release create "$RELEASE_TAG" "builds/$ZIP_NAME" --target "$GITHUB_SHA" \
+            --title "Vice City · Leonida — última versión para Windows" --notes "$notes" --latest

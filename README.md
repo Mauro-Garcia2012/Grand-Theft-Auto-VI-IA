@@ -12,16 +12,21 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 
 ## Descargar y jugar
 
-El juego pesa unos 200 MB comprimido, así que va dividido en 3 partes (GitHub no admite archivos
-de más de 100 MB):
+<p align="center">
+  <a href="https://github.com/Mauro-Garcia2012/Grand-Theft-Auto-VI-IA/releases/latest/download/ViceCity-Windows-x64.zip">
+    <img src="https://img.shields.io/badge/DESCARGAR%20PARA%20WINDOWS-ViceCity--Windows--x64.zip-e91e63?style=for-the-badge&logo=windows&logoColor=white" alt="Descargar para Windows (un solo zip)" height="44">
+  </a>
+</p>
 
-1. Descarga las tres partes de [`builds/`](builds): `ViceCity-Windows-x64.zip.001`, `.002` y `.003`,
-   y también `UNIR_PARTES.bat`, todo en la misma carpeta.
-2. Haz doble clic en `UNIR_PARTES.bat` (o abre la parte `.001` con 7-Zip/WinRAR): se crea
-   `ViceCity-Windows-x64.zip`.
-3. Descomprime la carpeta completa (`ViceCity.exe` y `ViceCity.pck` tienen que estar juntos) y
-   ejecuta `ViceCity.exe` (Windows 10/11 de 64 bits, GPU con Vulkan o DirectX 12).
-   Si SmartScreen avisa: *Más información → Ejecutar de todas formas*.
+1. Pulsa el botón de arriba: se descarga **un solo archivo**, `ViceCity-Windows-x64.zip`
+   (unos 200 MB, siempre la última versión).
+2. Descomprímelo (clic derecho → *Extraer todo*) y ejecuta `ViceCity/ViceCity.exe`
+   (Windows 10/11 de 64 bits, GPU con Vulkan o DirectX 12). `ViceCity.exe` y `ViceCity.pck`
+   tienen que estar juntos. Si SmartScreen avisa: *Más información → Ejecutar de todas formas*.
+
+El zip lo compila y publica GitHub Actions automáticamente en cada cambio del juego
+([workflow](.github/workflows/build-windows.yml)); también está en la página de
+[Releases](https://github.com/Mauro-Garcia2012/Grand-Theft-Auto-VI-IA/releases/latest).
 
 ## Qué incluye
 
@@ -45,8 +50,10 @@ de más de 100 MB):
   pelea a tu lado.
 - Personajes **realistas** (modelos Mixamo): peatones, bañistas, bandas callejeras en sus barrios,
   médicos, policía y SWAT.
-- Animaciones completas: andar, correr, agacharse, nadar, apuntar, recargar, puñetazos, lanzar
-  granadas, caídas, entrar y salir de coches.
+- Animaciones de **captura de movimiento** (Mixamo) reorientadas al esqueleto humanoide: andar,
+  trotar, retroceder apuntando, correr y disparar con el rifle al hombro, hablar gesticulando,
+  señalar, arrodillarse, reanimación (RCP), levantarse, reacciones y muertes; además de nadar,
+  agacharse, recargar, puñetazos, lanzar granadas, caídas y entrar y salir de coches.
 
 **Vehículos** (todos con modelos realistas)
 - Coches de calle, deportivos, SUVs, taxis, furgonetas, pick-ups, camión de basura, grúa,
@@ -72,7 +79,11 @@ de más de 100 MB):
   zona de búsqueda en el minimapa, **¡WASTED!** y **¡BUSTED!**.
 
 **Sistemas**
-- Tiendas: gasolineras, armerías, tiendas de ropa, badulaques que se pueden atracar, Pinta
+- **Armerías con interior**: se entra a pie por puertas de cristal automáticas; dentro hay
+  paneles con las armas expuestas y sus precios, vitrina-mostrador, estanterías de munición,
+  ventiladores de techo, dependiente que te saluda y te entrega el arma, y una **galería de tiro**
+  detrás del cristal con dianas que se balancean y puntúan (disparar allí no es delito).
+- Tiendas: gasolineras, tiendas de ropa, badulaques que se pueden atracar, Pinta
   Rápido (reparar, repintar y perder a la policía), hospitales, casas seguras para guardar.
 - HUD al estilo GTA: minimapa giratorio con GPS, vida, blindaje, estrellas, dinero, arma,
   hora, nombres de zona y vehículo. Menú de pausa con mapa completo (clic para marcar destino),
@@ -138,7 +149,12 @@ trucos) y `ui`. `game/tools` contiene los scripts de prueba y los conversores de
 ## Créditos y licencias
 
 - Personajes: modelos Mixamo (Adobe) publicados en proyectos de GitHub; animaciones: Quaternius
-  *Universal Animation Library* 1 y 2 (CC0), retargeteadas en la importación.
+  *Universal Animation Library* 1 y 2 (CC0) y capturas de movimiento de Mixamo publicadas en
+  [Interactive_Character_Experience](https://github.com/eseosapku/Interactive_Character_Experience),
+  [CayneByron.github.io](https://github.com/CayneByron/CayneByron.github.io) y
+  [ShootAll](https://github.com/MohamedIsseAhmed/ShootAll), retargeteadas en la importación.
+- Armería: modelo propio hecho en Blender con texturas de ambientCG/Poly Haven (CC0); carteles,
+  dianas y cajas de munición generados para el proyecto.
 - Coches, servicios y barcos: proyecto [Motorpool](https://github.com/Atul-Senapati/Motorpool)
   (exportaciones de Sketchfab) y colección [Vivekkk-1/3D-Models](https://github.com/Vivekkk-1/3D-Models)
   (Boost Software License 1.0); las marcas y diseños pertenecen a sus fabricantes.
