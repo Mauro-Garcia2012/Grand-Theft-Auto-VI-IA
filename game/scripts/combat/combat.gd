@@ -49,6 +49,8 @@ static func fire_bullet(from: Vector3, dir: Vector3, max_range: float, damage: f
 			Game.effects.impact(end, hit.normal, "metal")
 		else:
 			Game.effects.impact(end, hit.normal, "concrete")
+			if col.has_method("on_bullet_hit"):
+				col.on_bullet_hit(end, dir, shooter)
 			if col is RigidBody3D:
 				col.apply_impulse(dir * 3.0, end - col.global_position)
 		# bullets passing near pedestrians scare them

@@ -11,6 +11,8 @@ var rob_progress := 0.0
 var clerks := {}          # place name -> Humanoid
 var _refuel_hold := 0.0
 var _distance_last := Vector3.ZERO
+var _clerk_seq := {}      # place name -> [[anim, seconds], ...] played by the clerk in order
+var _last_place := ""
 
 
 func _ready() -> void:
@@ -18,6 +20,7 @@ func _ready() -> void:
 	shop_ui = ShopMenu.new()
 	shop_ui.name = "ShopMenu"
 	Game.hud.get_parent().add_child(shop_ui)
+	shop_ui.closed.connect(_on_shop_closed)
 
 
 func _physics_process(delta: float) -> void:
@@ -36,6 +39,15 @@ func _physics_process(delta: float) -> void:
 		_t = 0.15
 		current = loc.place_at(pp)
 		_manage_clerks(pp)
+		var name_now: String = current.get("name", "")
+		if name_now != _last_place:
+			if current.get("kind", "") == "gun" and p.vehicle == null:
+				_clerk_play(name_now, [["Point", 1.5], ["Idle_Talking", -1.0]])
+				Game.msg("Dependiente: Bienvenido. Mira lo que quieras, aquí no preguntamos.", 3.0)
+			if _last_place != "" and clerks.has(_last_place):
+				_clerk_play(_last_place, [["Idle", -1.0]])
+			_last_place = name_now
+	_update_clerks(delta)
 	if current.is_empty():
 		rob_progress = 0.0
 		return
@@ -155,6 +167,49 @@ func _store(p: Humanoid, delta: float) -> void:
 		Game.hud.prompt("%s · Apunta al dependiente para atracar" % current.name)
 
 
+## Queues full-body animations for a shop clerk (seconds < 0: hold until the next request).
+func _clerk_play(place: String, seq: Array) -> void:
+	_clerk_seq[place] = seq.duplicate(true)
+	_apply_clerk_anim(place)
+
+
+func _apply_clerk_anim(place: String) -> void:
+	var c = clerks.get(place)
+	var seq: Array = _clerk_seq.get(place, [])
+	if c == null or not is_instance_valid(c) or c.dead or c.brain == null or seq.is_empty():
+		return
+	if c.brain.state == PedBrain.S.BEACH:
+		c.brain.idle_anim = seq[0][0]
+		if c.model:
+			if c.model.current_loco == seq[0][0]:
+				c.model.restart(seq[0][0])
+			else:
+				c.model.play(seq[0][0])
+
+
+func _update_clerks(delta: float) -> void:
+	for place in _clerk_seq.keys():
+		var seq: Array = _clerk_seq[place]
+		if seq.is_empty() or float(seq[0][1]) < 0.0:
+			continue
+		seq[0][1] = float(seq[0][1]) - delta
+		if seq[0][1] <= 0.0:
+			seq.pop_front()
+			_apply_clerk_anim(place)
+		# the gun shop clerk only draws the shotgun when there is trouble
+	for place in clerks:
+		var c = clerks[place]
+		if c != null and is_instance_valid(c) and not c.dead and c.brain and c.brain.state == PedBrain.S.FIGHT \
+				and c.current_weapon_id() == "fists" and c.has_weapon("shotgun"):
+			c.give_weapon("shotgun", 0, true)
+
+
+func _on_shop_closed(bought: int) -> void:
+	if bought > 0 and current.get("kind", "") == "gun":
+		_clerk_play(current.name, [["Interact", 1.4], ["Yes", 1.6], ["Idle_Talking", -1.0]])
+		Game.msg("Dependiente: Buena elección. Úsala con cabeza.", 2.5)
+
+
 func _manage_clerks(pp: Vector3) -> void:
 	for pl in loc.places:
 		if not pl.has("clerk_pos"):
@@ -163,7 +218,8 @@ func _manage_clerks(pp: Vector3) -> void:
 		var c = clerks.get(pl.name)
 		if d < 70.0 and (c == null or not is_instance_valid(c)):
 			var g := "male" if randf() < 0.5 else "female"
-			var h = Game.population.spawn_ped(pl.clerk_pos + Vector3.UP * 0.2, g, "tee")
+			var h = Game.population.spawn_ped(pl.clerk_pos + Vector3.UP * 0.2, "male" if pl.kind == "gun" else g,
+					"clerk" if pl.kind == "gun" else "tee")
 			Game.population.peds.erase(h)
 			h.brain.state = PedBrain.S.BEACH
 			h.brain.idle_anim = "Idle"
@@ -171,7 +227,7 @@ func _manage_clerks(pp: Vector3) -> void:
 			h.rotation.y = atan2(-pl.clerk_face.x, -pl.clerk_face.z)
 			if pl.kind == "gun":
 				h.give_weapon("shotgun", 40)
-				h.select_weapon(1)
+				h.select_weapon(0)
 				h.brain.aggressive = true
 			clerks[pl.name] = h
 		elif d > 120.0 and c != null and is_instance_valid(c):
@@ -193,8 +249,10 @@ func _change_clothes(p: Humanoid) -> void:
 
 
 class ShopMenu extends PanelContainer:
+	signal closed(bought: int)
 	var _list: VBoxContainer
 	var _p: Humanoid
+	var _bought := 0
 
 	func _ready() -> void:
 		process_mode = Node.PROCESS_MODE_ALWAYS
@@ -222,6 +280,8 @@ class ShopMenu extends PanelContainer:
 		vb.add_child(close)
 
 	func open_guns(p: Humanoid) -> void:
+		if not visible:
+			_bought = 0
 		_p = p
 		for c in _list.get_children():
 			c.queue_free()
@@ -267,6 +327,7 @@ class ShopMenu extends PanelContainer:
 			if Game.money >= 500:
 				Game.money -= 500
 				_p.armor = 100.0
+				_bought += 1
 				Sfx.play("money")
 			return
 		var d := WeaponDB.get_def(id)
@@ -279,6 +340,7 @@ class ShopMenu extends PanelContainer:
 		if id == "grenade":
 			amount = 3 if ammo else 5
 		_p.give_weapon(id, amount, not ammo)
+		_bought += 1
 		Sfx.play("money")
 		open_guns(_p)
 
@@ -287,6 +349,7 @@ class ShopMenu extends PanelContainer:
 		Game.paused = false
 		get_tree().paused = false
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		closed.emit(_bought)
 
 	func _unhandled_input(e: InputEvent) -> void:
 		if visible and (e.is_action_pressed("ui_cancel") or e.is_action_pressed("pause")):

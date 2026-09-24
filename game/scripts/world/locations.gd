@@ -65,7 +65,9 @@ func build(p_wb: WorldBuilder) -> void:
 		match d.kind:
 			"gas":
 				_gas(p)
-			"gun", "store", "clothes":
+			"gun":
+				_gun_shop(p)
+			"store", "clothes":
 				_shop(p)
 			"hospital":
 				_big(p, Color(0.95, 0.95, 0.97), "HOSPITAL", Color(1, 0.2, 0.2))
@@ -79,12 +81,12 @@ func build(p_wb: WorldBuilder) -> void:
 	Game.set_meta("locations", self)
 
 
-func _marker(pos: Vector3, color: Color, radius := 1.2) -> MeshInstance3D:
+func _marker(pos: Vector3, color: Color, radius := 1.2, height := 1.2) -> MeshInstance3D:
 	var m := MeshInstance3D.new()
 	var c := CylinderMesh.new()
 	c.top_radius = radius
 	c.bottom_radius = radius
-	c.height = 1.2
+	c.height = height
 	c.cap_top = false
 	c.cap_bottom = false
 	m.mesh = c
@@ -99,7 +101,7 @@ func _marker(pos: Vector3, color: Color, radius := 1.2) -> MeshInstance3D:
 	m.material_override = _mat_cache[key]
 	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(m)
-	m.global_position = pos + Vector3.UP * 0.6
+	m.global_position = pos + Vector3.UP * height * 0.5
 	return m
 
 
@@ -187,6 +189,25 @@ func _shop(p: Dictionary) -> void:
 	var marker_pos := pos - f * 0.5
 	_marker(marker_pos, Color(1, 0.85, 0.2) if p.kind != "store" else Color(0.3, 1, 0.4), 0.8)
 	_area(p, pos, Vector3(w - 1.0, 3.0, d - 1.0))
+	p["robbed_until"] = 0.0
+
+
+## Enterable gun shop (see GunShop): the lot centre is the middle of the 26 m deep building.
+func _gun_shop(p: Dictionary) -> void:
+	var f: Vector3 = p.face
+	var gs := GunShop.new()
+	gs.name = "GunShop"
+	add_child(gs)
+	var front: Vector3 = p.pos + f * 13.0
+	front.y = CityMap.LAND + 0.02
+	gs.setup(front, f)
+	p["shop"] = gs
+	p["clerk_pos"] = gs.clerk_position()
+	p["clerk_face"] = f
+	var c := gs.counter_position()
+	_marker(c + Vector3.UP * 0.05, Color(1, 0.85, 0.2), 0.55, 0.25)
+	# purchase zone in front of the counter
+	_area(p, c, Vector3(8.0, 3.0, 2.6) if absf(f.z) > 0.5 else Vector3(2.6, 3.0, 8.0))
 	p["robbed_until"] = 0.0
 
 

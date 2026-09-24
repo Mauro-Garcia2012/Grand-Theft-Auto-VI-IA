@@ -268,9 +268,9 @@ func try_fire() -> bool:
 	Game.effects.muzzle_flash(from, (aim - from).normalized(), d.type == "launcher")
 	Sfx.play_at(d.get("sound", "pistol"), from, 0.0 if is_player else -3.0)
 	if model:
-		model.upper("Aim")
-	# shooting in public is a crime (police are allowed)
-	if team != "police":
+		model.upper("Rifle_Fire" if d.get("hold", "") == "rifle" and d.type == "gun" else "Aim")
+	# shooting in public is a crime (police are allowed, and so is a gun shop's shooting range)
+	if team != "police" and not GunShop.in_range(global_position):
 		Game.report_crime(global_position, 1.0 if is_player else 0.0, "shots")
 		if Game.population:
 			Game.population.panic_at(global_position, 35.0, self)
@@ -701,16 +701,23 @@ func _update_anim(_delta: float) -> void:
 			model.play("Jump")
 	elif crouching:
 		model.play("Crouch_Fwd" if hs > 0.3 else "Crouch_Idle", maxf(hs / 1.4, 0.6) if hs > 0.3 else 1.0)
+	elif hs > 1.2 and aiming and Vector2(velocity.x, velocity.z).dot(Vector2(-global_basis.z.x, -global_basis.z.z)) < -0.5 * hs:
+		# backing away while aiming
+		model.play("Run_Back", clampf(hs / 3.0, 0.6, 1.4))
 	elif hs > 5.6:
 		model.play("Sprint", hs / 6.8)
 	elif hs > 2.6:
-		model.play("Jog_Fwd", hs / 4.0)
+		if current_def().get("hold", "") == "rifle":
+			model.play("Rifle_Run", hs / 2.9)
+		else:
+			model.play("Jog_Fwd", hs / 3.4)
 	elif hs > 0.35:
-		model.play("Walk", hs / 1.45)
+		model.play("Walk", hs / 1.4)
 	else:
 		if model.current_loco in ["Jump_Land", "LayToIdle"] and model.loco_time_left() > 0.1:
 			pass
-		elif model.current_loco in ["Idle_Talking", "Idle_TalkingPhone", "Idle_FoldArms", "Dance", "Sitting_Idle", "Push", "Fixing_Kneeling"]:
+		elif model.current_loco in ["Idle_Talking", "Idle_TalkingPhone", "Idle_FoldArms", "Dance", "Sitting_Idle", "Push", "Fixing_Kneeling",
+				"Point", "Kneel", "CPR", "CPR_Recv", "Stand_Up", "Idle_No", "Yes"]:
 			pass
 		else:
 			model.play("Idle")
@@ -719,6 +726,9 @@ func _update_anim(_delta: float) -> void:
 	var t: String = d.get("type", "melee")
 	if reload_left > 0.0:
 		model.upper("Pistol_Reload")
+	elif aiming and t == "gun" and d.get("hold", "") == "rifle":
+		# two-handed shouldered rifle (mocap)
+		model.upper("Rifle_Fire")
 	elif aiming and t in ["gun", "launcher", "throw"]:
 		model.upper("Aim")
 		var to := aim_point - eye_position()

@@ -1,6 +1,6 @@
 VICE CITY - LEONIDA FREE ROAM (proyecto fan, uso privado)
 =========================================================
-1. Descomprime la carpeta completa (ViceCity.exe y ViceCity.pck deben estar juntos).
+1. Descomprime el zip completo (ViceCity.exe y ViceCity.pck deben estar juntos).
 2. Ejecuta ViceCity.exe (Windows 10/11 de 64 bits, GPU compatible con Vulkan o DirectX 12).
    Si Windows SmartScreen avisa: "Más información" -> "Ejecutar de todas formas".
 
@@ -22,5 +22,9 @@ TRUCOS (pulsa T y escribe)
   DEPORTIVO, DRAGSTER, MCLAREN, MONSTRUO, F1, PATRULLA, TAXI, AMBULANCIA, BOMBEROS, CAMION, AUTOBUS,
   AVIONETA, JET, CAZA, JUMBO, HELICOPTERO, HELIPOLICIA, LANCHA, TORMENTA, LLUVIA, SOL, NOCHE, MEDIODIA, ATARDECER,
   RAPIDO, CAOS, TELEPORT
+
+ARMERÍAS: entra a pie por la puerta automática, acércate al mostrador y pulsa E para comprar.
+  Al fondo, detrás del cristal, está la galería de tiro: dispara a las dianas para puntuar
+  (allí disparar no es delito).
 
 AJUSTES (ESC -> Ajustes): sombras, SSAO y reflejos (SSR) se pueden desactivar si va lento.

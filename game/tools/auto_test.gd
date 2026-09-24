@@ -74,6 +74,10 @@ func _process(delta: float) -> void:
 			_heli()
 		"copheli":
 			_copheli()
+		"anims":
+			_anims()
+		"gunshop":
+			_gunshop()
 		"traffic":
 			_traffic()
 		"chase":
@@ -579,6 +583,119 @@ func _heli() -> void:
 		var gb := v.global_basis
 		print("[heli] t=%.0f rpm=%.2f spd=%.0f km/h alt=%.1f y=%.1f pitch=%.0f bank=%.0f hdg=%.0f air=%s hp=%.0f" % [ft, v.rotor_rpm, v.speed_kmh, v.altitude, v.global_position.y,
 			rad_to_deg(asin(clampf(-gb.z.y, -1, 1))), rad_to_deg(asin(clampf(gb.x.y, -1, 1))), rad_to_deg(atan2(-gb.z.x, -gb.z.z)), v.airborne, v.health])
+
+
+## Line-up of characters in the mocap states (visual check of the retargeting).
+func _anims() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 12.0
+	Game.population.set_physics_process(false)
+	Game.population.clear_all()
+	Game.hud.visible = false
+	var base := Vector3(1062, 1.0, 420)
+	var states := ["Idle", "Walk", "Jog_Fwd", "Idle_Talking", "Point", "Kneel", "CPR", "Rifle_Run", "Run_Back", "Death01"]
+	var ids := ["ch12", "ch07", "ch16", "ch17", "ch28", "ch16", "ch12", "soldier", "ch28", "ch17"]
+	var hs: Array = []
+	for i in states.size():
+		var h = Game.population.spawn_ped(base + Vector3(i * 1.6, 0.3, 0), CharacterModel.MODELS[ids[i]].gender, "")
+		h.model.set_outfit(ids[i], Color(1, 1, 1), true)
+		h.brain.set_physics_process(false)
+		h.set_physics_process(false)
+		h.rotation.y = PI - 0.5
+		h.model.always_full_rate = true
+		h.model.restart(states[i])
+		hs.append(h)
+	var rifle = hs[7]
+	rifle.give_weapon("rifle", 30, true)
+	await _wait(0.6)
+	_place_cam(base + Vector3(7.2, 1.6, 6.5), base + Vector3(7.2, 0.9, 0))
+	await _wait(0.4)
+	await _shot("anims_a")
+	await _wait(1.3)
+	await _shot("anims_b")
+	get_tree().quit()
+
+
+## Walks into the Ocean Beach gun shop through the automatic doors, renders the interior and
+## fires at a range target (checks scoring and that it is not a crime). GS_T env = hour.
+func _gunshop() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	Game.sky.time_of_day = float(OS.get_environment("GS_T")) if OS.get_environment("GS_T") != "" else 16.5
+	Game.population.set_physics_process(false)
+	Game.population.clear_all()
+	var loc: Locations = Game.get_meta("locations")
+	var pl: Dictionary = loc.nearest("gun", Vector3(910, 0, 700))
+	var gs: GunShop = pl.shop
+	var p := Game.player
+	p.global_position = gs.to_global(Vector3(0, 0.3, 6.0))
+	p.rotation.y = gs.rotation.y
+	await _wait(0.5)
+	print("[gunshop] ", pl.name, " front=", gs.global_position, " player=", p.global_position, " floor=", p.is_on_floor())
+	p.move_dir = -gs.global_basis.z
+	p.want_walk = false
+	await _wait(1.2)
+	print("[gunshop] door open=%.2f player local=%s" % [gs._door_open, gs.to_local(p.global_position)])
+	await _wait(2.8)
+	p.move_dir = Vector3.ZERO
+	var lp := gs.to_local(p.global_position)
+	print("[gunshop] after walking: local=%s inside=%s place=%s" % [lp, gs.contains(p.global_position), loc.place_at(p.global_position).get("name", "-")])
+	# the clerk is spawned by Interactions when the player is near; walk up to the counter
+	await _wait(1.0)
+	var inter: Interactions = get_tree().root.find_children("*", "Interactions", true, false)[0]
+	p.global_position = gs.counter_position() + Vector3.UP * 0.3
+	await _wait(0.5)
+	var clerk = inter.clerks.get(pl.name)
+	print("[gunshop] at counter: place=%s clerk=%s anim=%s" % [inter.current.get("name", "-"), clerk != null, clerk.model.current_loco if clerk else "-"])
+	await _wait(2.0)
+	print("[gunshop] clerk anim after greeting: %s  weapon=%s" % [clerk.model.current_loco if clerk else "-", clerk.current_weapon_id() if clerk else "-"])
+	inter._on_shop_closed(1)
+	await _wait(0.3)
+	print("[gunshop] clerk anim after purchase: %s" % [clerk.model.current_loco if clerk else "-"])
+	if OS.get_environment("GS_FIGHT") != "":
+		Game.god_mode = true
+		clerk.brain.on_damaged(p, 5.0)
+		await _wait(0.5)
+		print("[gunshop] clerk attacked: state=%d weapon=%s" % [clerk.brain.state, clerk.current_weapon_id()])
+		get_tree().quit()
+		return
+	Game.hud.visible = false
+	var shots := [
+		["gs_front", Vector3(-6.0, 2.0, 16.0), Vector3(0.0, 3.0, -2.0)],
+		["gs_inside", Vector3(-2.5, 1.9, -1.2), Vector3(1.5, 1.3, -12.0)],
+		["gs_counter", Vector3(-1.2, 1.7, -7.0), Vector3(0.5, 1.2, -12.5)],
+		["gs_wall", Vector3(2.0, 1.8, -3.0), Vector3(-9.5, 2.0, -6.5)],
+		["gs_range", Vector3(-3.0, 1.9, -15.3), Vector3(-2.0, 1.4, -24.0)],
+	]
+	var only := OS.get_environment("GS_ONLY")
+	for sh in shots:
+		if only != "" and not sh[0] in only.split(","):
+			continue
+		_place_cam(gs.to_global(sh[1]), gs.to_global(sh[2]))
+		await _wait(0.6)
+		await _shot(sh[0])
+	if only != "":
+		get_tree().quit()
+		return
+	# range: shoot the lane 2 target from the bench
+	p.global_position = gs.to_global(Vector3(2.0, 0.3, -15.8))
+	await _wait(0.4)
+	var tgt := gs.to_global(Vector3(2.0, 1.53, -23.0))
+	p.aiming = true
+	p.give_weapon("pistol", 60, true)
+	for i in 3:
+		p.aim_point = tgt
+		p.fire_cd = 0.0
+		p.try_fire()
+		await _wait(0.3)
+	print("[gunshop] after range shots: wanted=%d score=%d in_range=%s" % [Game.get_wanted(), gs._score, GunShop.in_range(p.global_position)])
+	_place_cam(gs.to_global(Vector3(3.5, 1.8, -17.0)), tgt)
+	await _wait(0.1)
+	await _shot("gs_target_swing")
+	get_tree().quit()
 
 
 var _ch_log := 0.0

@@ -18,7 +18,7 @@ const ROLES := {
 	"jason": ["ch12"], "lucia": ["ch07"],
 	"civil_male": ["ch16", "ch17", "ch28", "ch17"], "civil_female": ["ch07"],
 	"police": ["ch28"], "swat": ["soldier"], "medic": ["ch16"],
-	"gang_purple": ["ch28", "ch17"], "gang_green": ["ch17", "ch28"], "tee": ["ch17", "ch28"],
+	"gang_purple": ["ch28", "ch17"], "gang_green": ["ch17", "ch28"], "tee": ["ch17", "ch28"], "clerk": ["ch17"],
 }
 const HAIR_COLORS := [
 	Color(1, 1, 1), Color(0.8, 0.75, 0.7), Color(1.2, 1.0, 0.8), Color(0.6, 0.55, 0.5), Color(1.3, 1.1, 0.75),
@@ -37,6 +37,18 @@ const UPPER_BODY_BONES := [
 ]
 const SKELETON_PATH := "%GeneralSkeleton"
 
+## Mixamo motion-capture clips (assets/characters/mocap, retargeted on import with the Mixamo bone
+## map). Some replace the stylised UAL clips of the same name, the rest are new states.
+## [file, state name, loop, strip root motion]
+const MOCAP := [
+	["mx_idle", "Idle", true, true], ["mx_walk2", "Walk", true, true], ["mx_jog", "Jog_Fwd", true, true],
+	["mx_talk", "Idle_Talking", true, true], ["mx_death", "Death01", false, false],
+	["mx_run_back", "Run_Back", true, true], ["mx_rifle_run", "Rifle_Run", true, true],
+	["mx_rifle_fire", "Rifle_Fire", true, true], ["mx_point", "Point", false, true],
+	["mx_kneel", "Kneel", false, false], ["mx_cpr", "CPR", true, false], ["mx_cpr_recv", "CPR_Recv", true, false],
+	["mx_stand_up", "Stand_Up", false, false], ["mx_reaction", "Reaction", false, true], ["mx_walk", "Walk_Casual", true, true],
+]
+
 ## Full body locomotion / action states.
 const LOCO_STATES := [
 	"Idle", "Walk", "Jog_Fwd", "Sprint", "Crouch_Idle", "Crouch_Fwd",
@@ -45,9 +57,10 @@ const LOCO_STATES := [
 	"Idle_Talking", "Idle_TalkingPhone", "Idle_FoldArms", "Dance", "Walk_Formal",
 	"Punch_Jab", "Punch_Cross", "Melee_Hook", "OverhandThrow", "Interact", "PickUp_Table",
 	"Fixing_Kneeling", "Zombie_Walk_Fwd", "Idle_No", "Yes", "ClimbUp_1m", "Push",
+	"Run_Back", "Rifle_Run", "Point", "Kneel", "CPR", "CPR_Recv", "Stand_Up", "Reaction", "Walk_Casual",
 ]
 ## Upper body overlay states (aiming, reloading, punching while moving).
-const UPPER_STATES := ["Pistol_Idle", "Pistol_Reload", "Pistol_Shoot", "Punch_Jab", "Punch_Cross", "OverhandThrow", "Idle_TalkingPhone"]
+const UPPER_STATES := ["Pistol_Idle", "Pistol_Reload", "Pistol_Shoot", "Punch_Jab", "Punch_Cross", "OverhandThrow", "Idle_TalkingPhone", "Rifle_Fire", "Interact"]
 
 static var _anim_lib: AnimationLibrary
 static var _mat_cache: Dictionary = {}
@@ -86,6 +99,13 @@ static func get_anim_library() -> AnimationLibrary:
 			if not _anim_lib.has_animation(n):
 				_anim_lib.add_animation(n, lib.get_animation(n))
 		s.free()
+	for m in MOCAP:
+		var mx := _load_mocap(m[0], m[3])
+		if mx:
+			mx.loop_mode = Animation.LOOP_LINEAR if m[2] else Animation.LOOP_NONE
+			if _anim_lib.has_animation(m[1]):
+				_anim_lib.remove_animation(m[1])
+			_anim_lib.add_animation(m[1], mx)
 	# Loop fixes for locomotion clips that must cycle
 	for n in ["Idle", "Walk", "Jog_Fwd", "Sprint", "Crouch_Idle", "Crouch_Fwd", "Jump", "Swim_Idle", "Swim_Fwd",
 			"Driving", "Sitting_Idle", "Idle_Talking", "Idle_TalkingPhone", "Idle_FoldArms", "Dance", "Walk_Formal",
@@ -93,6 +113,33 @@ static func get_anim_library() -> AnimationLibrary:
 		if _anim_lib.has_animation(n):
 			_anim_lib.get_animation(n).loop_mode = Animation.LOOP_LINEAR
 	return _anim_lib
+
+
+## First animation of a mocap glb; optionally removes the forward drift of the hips (root motion)
+## while keeping the natural sway, so walk/run cycles play in place.
+static func _load_mocap(file: String, strip: bool) -> Animation:
+	var ps: PackedScene = load("res://assets/characters/mocap/%s.glb" % file)
+	if ps == null:
+		return null
+	var s: Node = ps.instantiate()
+	var ap: AnimationPlayer = s.find_child("AnimationPlayer", true, false)
+	var a: Animation = ap.get_animation(ap.get_animation_list()[0]).duplicate(true) if ap and ap.get_animation_list().size() > 0 else null
+	s.free()
+	if a == null:
+		return null
+	if strip:
+		var t := a.find_track(NodePath(SKELETON_PATH + ":Hips"), Animation.TYPE_POSITION_3D)
+		if t >= 0 and a.track_get_key_count(t) > 1:
+			var n := a.track_get_key_count(t)
+			var p0: Vector3 = a.track_get_key_value(t, 0)
+			var p1: Vector3 = a.track_get_key_value(t, n - 1)
+			var t1 := a.track_get_key_time(t, n - 1)
+			for i in n:
+				var k: float = a.track_get_key_time(t, i) / maxf(t1, 0.001)
+				var v: Vector3 = a.track_get_key_value(t, i)
+				var drift := p0.lerp(p1, k)
+				a.track_set_key_value(t, i, Vector3(v.x - drift.x, v.y, v.z - drift.z))
+	return a
 
 
 ## Model ids a character of this gender can wear (civilian clothes).
