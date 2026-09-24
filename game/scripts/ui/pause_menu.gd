@@ -56,16 +56,19 @@ func _build() -> void:
 	sett.name = "Ajustes"
 	sett.columns = 2
 	_tabs.add_child(sett)
-	_slider(sett, "Sensibilidad del ratón", 0.05, 1.0, Game.settings.mouse_sens, func(v): Game.settings.mouse_sens = v)
+	_slider(sett, "Sensibilidad de la cámara" if Game.touch else "Sensibilidad del ratón", 0.05, 1.0, Game.settings.mouse_sens, func(v): Game.settings.mouse_sens = v)
 	_slider(sett, "Campo de visión (FOV)", 55.0, 100.0, Game.settings.fov, func(v): Game.settings.fov = v)
 	_slider(sett, "Volumen", 0.0, 1.0, Game.settings.volume, _set_volume)
 	_slider(sett, "Densidad de tráfico y peatones", 0.2, 1.5, 1.0, _set_density)
 	_check(sett, "Invertir eje Y", Game.settings.invert_y, func(v): Game.settings.invert_y = v)
 	_check(sett, "Mostrar FPS", Game.settings.show_fps, func(v): Game.settings.show_fps = v)
-	_check(sett, "Sombras", true, _set_shadows)
-	_check(sett, "Pantalla completa", false, _set_fullscreen)
-	_check(sett, "SSAO (oclusión ambiental)", true, _set_ssao)
-	_check(sett, "Reflejos en pantalla (SSR)", true, func(v): if Game.sky: Game.sky.env.ssr_enabled = v)
+	_check(sett, "Sombras", Game.sky.sun.shadow_enabled if Game.sky else true, _set_shadows)
+	if not Game.mobile:
+		_check(sett, "Pantalla completa", false, _set_fullscreen)
+	_check(sett, "SSAO (oclusión ambiental)", Game.sky.env.ssao_enabled if Game.sky else true, _set_ssao)
+	_check(sett, "Reflejos en pantalla (SSR)", Game.sky.env.ssr_enabled if Game.sky else true, func(v): if Game.sky: Game.sky.env.ssr_enabled = v)
+	if Game.mobile:
+		_slider(sett, "Resolución 3D", 0.4, 1.0, get_tree().root.scaling_3d_scale, func(v): get_tree().root.scaling_3d_scale = v)
 	# CONTROLS
 	var help := Label.new()
 	help.name = "Controles"
@@ -92,12 +95,25 @@ GENERAL
 TRUCOS: DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS, DEPORTIVO, DRAGSTER, MONSTRUO, F1,
         PATRULLA, TAXI, AMBULANCIA, BOMBEROS, CAMION, AUTOBUS, AVIONETA, JET, CAZA, JUMBO, HELICOPTERO, HELIPOLICIA, LANCHA,
         TORMENTA, SOL, NOCHE, MEDIODIA, RAPIDO, CAOS, TELEPORT"""
+	if Game.touch:
+		help.text = """PANTALLA TÁCTIL
+  Mitad izquierda: joystick para moverte (llévalo al borde para correr; en vehículos acelera, frena y gira)
+  Mitad derecha: arrastra el dedo para mover la cámara (también mientras mantienes DISPARAR o APUNTAR)
+  DISPARAR (mantener)   APUNTAR (tocar para activar/desactivar)   SALTAR   AGACHAR   R Recargar   ARMA ▸ Cambiar arma
+  F  Entrar / salir del vehículo (mantener para darle la vuelta)   E  Usar (tiendas, gasolineras, guardar)   G  Granada
+  En coche: FRENO MANO, CLAXON, SIRENA, RADIO y VISTA     En helicóptero: SUBIR / BAJAR     En avión: FRENOS
+  Arriba: II pausa, MAPA (toca para marcar destino), Z cambiar Jason/Lucía, T trucos, VISTA cámara
+  Botón «atrás» de Android: pausa / cerrar menús
+
+TRUCOS: DINERO, ARMAS, VIDA, DIOS, MUNICION, SINPOLICIA, POLICIA5, SUPERCOCHE, INFERNUS, DEPORTIVO, DRAGSTER, MONSTRUO, F1,
+        PATRULLA, TAXI, AMBULANCIA, BOMBEROS, CAMION, AUTOBUS, AVIONETA, JET, CAZA, JUMBO, HELICOPTERO, HELIPOLICIA, LANCHA,
+        TORMENTA, SOL, NOCHE, MEDIODIA, RAPIDO, CAOS, TELEPORT"""
 	_tabs.add_child(help)
 	# GAME
 	var game := VBoxContainer.new()
 	game.name = "Partida"
 	_tabs.add_child(game)
-	for pair in [["Continuar", toggle.bind(false)], ["Guardar partida", _do_save], ["Cargar partida", _do_load], ["Salir al escritorio", _do_quit]]:
+	for pair in [["Continuar", toggle.bind(false)], ["Guardar partida", _do_save], ["Cargar partida", _do_load], ["Salir del juego" if Game.mobile else "Salir al escritorio", _do_quit]]:
 		var b := Button.new()
 		b.text = pair[0]
 		b.custom_minimum_size = Vector2(360, 54)
@@ -212,8 +228,9 @@ func _update_stats() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _cheat.visible:
-		if event.is_action_pressed("ui_cancel"):
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 			_close_cheat()
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("pause"):
 		toggle()

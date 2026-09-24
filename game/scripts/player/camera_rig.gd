@@ -151,12 +151,12 @@ func _update_aim(ex: Array[RID]) -> void:
 	var p: Vector3 = aim_hit.position if not aim_hit.is_empty() else from + dir * 800.0
 	# don't aim at points behind the character (camera between wall and player)
 	aim_point = p
-	# mild aim assist toward humanoids near the crosshair
-	if target.aiming and not scoped:
-		var best := 0.9965
+	# mild aim assist toward humanoids near the crosshair (wider with touch controls, also for hip fire)
+	if (target.aiming or (Game.touch and Input.is_action_pressed("fire"))) and not scoped:
+		var best := 0.985 if Game.touch else 0.9965
 		var best_p := Vector3.ZERO
 		for h in get_tree().get_nodes_in_group("humanoids"):
-			if h == target or h.dead:
+			if h == target or h.dead or h.team == target.team:
 				continue
 			var chest: Vector3 = h.global_position + Vector3.UP * 1.25
 			var to: Vector3 = chest - from

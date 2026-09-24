@@ -38,11 +38,28 @@ var god_mode := false
 var infinite_ammo := false
 var stats := {"kills": 0, "cops_killed": 0, "cars_stolen": 0, "distance": 0.0, "busted": 0, "wasted": 0, "robberies": 0}
 var settings := {"mouse_sens": 0.25, "invert_y": false, "fov": 70.0, "volume": 0.8, "shadows": 2, "view_distance": 1.0, "show_fps": false}
+## Android/iOS build (or `--mobile` on the command line): touch controls and lighter graphics.
+var mobile := false
+## Touch controls on screen (mobile, or `--touch` to try them on a PC with the mouse).
+var touch := false
 
 
 func _ready() -> void:
 	rng.randomize()
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	var args := OS.get_cmdline_user_args()
+	mobile = OS.has_feature("mobile") or "--mobile" in args
+	touch = mobile or "--touch" in args
+	if mobile:
+		settings.mouse_sens = 0.35
+		# the HUD is laid out for 1600x900: scale it to the phone screen, render 3D below native
+		var root := get_tree().root
+		root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+		root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+		root.content_scale_size = Vector2i(1600, 900)
+		root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+		root.scaling_3d_scale = 0.7
+		RenderingServer.directional_shadow_atlas_set_size(2048, true)
 	load_settings()
 
 

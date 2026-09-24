@@ -22,6 +22,11 @@ var density := 1.0
 
 
 func _ready() -> void:
+	if Game.mobile:
+		max_peds = 18
+		max_traffic = 12
+		max_parked = 6
+		max_boats = 3
 	Game.population = self
 	rng.randomize()
 

@@ -61,7 +61,10 @@ func add_occupant(hm: Node, s: int) -> void:
 		sleeping = false
 		_engine_snd.play()
 		if hm is Humanoid and hm.is_player:
-			Game.msg("Helicóptero: Espacio subir · C bajar · W/S adelante/atrás · A/D lateral · la cámara marca el rumbo · F saltar", 7.0)
+			if Game.touch:
+				Game.msg("Helicóptero: SUBIR / BAJAR · joystick adelante/atrás/lateral · la cámara marca el rumbo", 7.0)
+			else:
+				Game.msg("Helicóptero: Espacio subir · C bajar · W/S adelante/atrás · A/D lateral · la cámara marca el rumbo · F saltar", 7.0)
 
 
 func get_exit_position(s: int) -> Vector3:

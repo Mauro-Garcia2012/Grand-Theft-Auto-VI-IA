@@ -58,6 +58,10 @@ func _ready() -> void:
 	var menu := PauseMenu.new()
 	menu.name = "PauseMenu"
 	hud_layer.add_child(menu)
+	if Game.touch:
+		var tc := TouchControls.new()
+		tc.name = "TouchControls"
+		add_child(tc)
 	var inter := Interactions.new()
 	inter.name = "Interactions"
 	add_child(inter)
@@ -71,7 +75,10 @@ func _ready() -> void:
 	ready_done = true
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	Game.big_message.emit("VICE CITY", "Leonida · Mundo libre", Color(1, 0.4, 0.7))
-	Game.msg("WASD mover · Ratón apuntar · F coche · M mapa · Z cambiar Jason/Lucía · ESC menú", 8.0)
+	if Game.touch:
+		Game.msg("Joystick a la izquierda para moverte · arrastra a la derecha para la cámara · II menú (controles en Pausa)", 8.0)
+	else:
+		Game.msg("WASD mover · Ratón apuntar · F coche · M mapa · Z cambiar Jason/Lucía · ESC menú", 8.0)
 	if _test_mode != "":
 		var tester = load("res://tools/hud_debug.gd" if _test_mode == "hud" else "res://tools/auto_test.gd").new()
 		tester.mode = _test_mode

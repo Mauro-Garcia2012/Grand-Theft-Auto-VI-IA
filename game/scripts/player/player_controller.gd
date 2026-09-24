@@ -27,10 +27,12 @@ static func setup_input() -> void:
 			var e := InputEventKey.new()
 			e.physical_keycode = k
 			InputMap.action_add_event(a, e)
-	_mouse("fire", MOUSE_BUTTON_LEFT)
-	_mouse("aim", MOUSE_BUTTON_RIGHT)
-	_mouse("weapon_next", MOUSE_BUTTON_WHEEL_DOWN)
-	_mouse("weapon_prev", MOUSE_BUTTON_WHEEL_UP)
+	# on phones the screen buttons fire and aim (a tap in a menu must not shoot)
+	if not Game.touch:
+		_mouse("fire", MOUSE_BUTTON_LEFT)
+		_mouse("aim", MOUSE_BUTTON_RIGHT)
+		_mouse("weapon_next", MOUSE_BUTTON_WHEEL_DOWN)
+		_mouse("weapon_prev", MOUSE_BUTTON_WHEEL_UP)
 	# gamepad
 	_joy_axis("move_left", JOY_AXIS_LEFT_X, -1.0)
 	_joy_axis("move_right", JOY_AXIS_LEFT_X, 1.0)
@@ -243,7 +245,7 @@ func _toggle_vehicle() -> void:
 			# jump out: the parachute opens after a moment
 			h.exit_vehicle(true)
 			h.parachute_in = 1.0
-			Game.msg("¡Paracaídas! Se abrirá enseguida · WASD para planear", 3.0)
+			Game.msg("¡Paracaídas! Se abrirá enseguida · %s para planear" % ("joystick" if Game.touch else "WASD"), 3.0)
 			return
 		if v.linear_velocity.length() > 12.0:
 			# bail out at speed

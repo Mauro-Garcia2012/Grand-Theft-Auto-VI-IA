@@ -49,6 +49,11 @@ func _ready() -> void:
 	env.ssr_max_steps = 48
 	env.ssr_fade_in = 0.15
 	env.ssr_fade_out = 2.0
+	if Game.mobile:
+		# screen-space effects are the most expensive part on phones
+		env.ssao_enabled = false
+		env.ssr_enabled = false
+		sky.radiance_size = Sky.RADIANCE_SIZE_64
 	env.glow_enabled = true
 	env.glow_intensity = 0.7
 	env.glow_bloom = 0.08
@@ -70,6 +75,9 @@ func _ready() -> void:
 	sun.shadow_enabled = true
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	sun.directional_shadow_max_distance = 220.0
+	if Game.mobile:
+		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+		sun.directional_shadow_max_distance = 110.0
 	sun.shadow_bias = 0.04
 	sun.light_angular_distance = 0.5
 	add_child(sun)

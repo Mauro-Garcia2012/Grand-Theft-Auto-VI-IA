@@ -15,7 +15,7 @@ func _ready() -> void:
 	print("[test] mode=", mode)
 	Game.settings.show_fps = true
 	var pc = Game.player.get_node_or_null("PlayerController")
-	if pc:
+	if pc and mode != "touch":
 		pc.set_physics_process(false)
 
 
@@ -78,6 +78,8 @@ func _process(delta: float) -> void:
 			_anims()
 		"gunshop":
 			_gunshop()
+		"touch":
+			_touch()
 		"traffic":
 			_traffic()
 		"chase":
@@ -695,6 +697,109 @@ func _gunshop() -> void:
 	_place_cam(gs.to_global(Vector3(3.5, 1.8, -17.0)), tgt)
 	await _wait(0.1)
 	await _shot("gs_target_swing")
+	get_tree().quit()
+
+
+## Touch events are injected in window pixels; the tests give HUD (content-scaled) coordinates.
+func _tev(i: int, pos: Vector2, pressed: bool) -> void:
+	var e := InputEventScreenTouch.new()
+	e.index = i
+	e.position = get_tree().root.get_final_transform() * pos
+	e.pressed = pressed
+	Input.parse_input_event(e)
+
+
+func _tdrag(i: int, pos: Vector2, rel: Vector2) -> void:
+	var e := InputEventScreenDrag.new()
+	e.index = i
+	e.position = get_tree().root.get_final_transform() * pos
+	e.relative = get_tree().root.get_final_transform().basis_xform(rel)
+	Input.parse_input_event(e)
+
+
+func _tbutton(tc: TouchControls, action: String) -> Vector2:
+	for b in tc._buttons:
+		if b[0] == action:
+			return b[3]
+	return Vector2(-1000, -1000)
+
+
+## Plays with the on-screen controls (run with `-- --test=touch --mobile`): joystick, camera drag,
+## fire and aim buttons, getting into a car. Takes a screenshot when rendering (TOUCH_SHOT=1).
+func _touch() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	var tc: TouchControls = get_tree().root.find_children("*", "TouchControls", true, false)[0]
+	var p := Game.player
+	Game.population.set_physics_process(false)
+	Game.population.clear_all()
+	await _wait(0.3)
+	var sz: Vector2 = tc._pad.size
+	print("[touch] window=%s xform=%s" % [get_tree().root.size, get_tree().root.get_final_transform()])
+	print("[touch] mobile=%s pad=%s mode=%s buttons=%d scale3d=%.2f ssao=%s" % [Game.mobile, sz, tc._mode, tc._buttons.size(), get_tree().root.scaling_3d_scale, Game.sky.env.ssao_enabled])
+	# joystick: push up (forward) to the rim -> run
+	var start := p.global_position
+	var o := Vector2(320, sz.y - 260)
+	_tev(0, o, true)
+	await _wait(0.05)
+	_tdrag(0, o + Vector2(0, -120), Vector2(0, -120))
+	await _wait(0.5)
+	print("[touch] dbg vec=%s strength=%.2f move_dir=%s vel=%s floor=%s" % [Input.get_vector("move_left", "move_right", "move_forward", "move_back"), Input.get_action_strength("move_forward"), p.move_dir, p.velocity, p.is_on_floor()])
+	await _wait(1.0)
+	print("[touch] joystick: moved %.1f m sprint=%s anim=%s" % [p.global_position.distance_to(start), Input.is_action_pressed("sprint"), p.model.current_loco])
+	_tev(0, o + Vector2(0, -120), false)
+	await _wait(0.3)
+	# look: drag on the right half
+	var yaw0: float = Game.camera_rig.yaw
+	var lp := Vector2(sz.x * 0.62, 260)
+	_tev(1, lp, true)
+	_tdrag(1, lp + Vector2(150, 0), Vector2(150, 0))
+	_tev(1, lp + Vector2(150, 0), false)
+	await _wait(0.1)
+	print("[touch] look: yaw %.2f -> %.2f" % [yaw0, Game.camera_rig.yaw])
+	# fire with a pistol
+	p.give_weapon("pistol", 40, true)
+	await _wait(0.4)
+	var clip0: int = p.weapons[p.weapon_index].clip
+	var fb := _tbutton(tc, "fire")
+	_tev(2, fb, true)
+	await _wait(0.15)
+	_tev(2, fb, false)
+	await _wait(0.2)
+	print("[touch] fire: clip %d -> %d  wanted=%d" % [clip0, p.weapons[p.weapon_index].clip, Game.get_wanted()])
+	# aim toggle
+	var ab := _tbutton(tc, "aim")
+	_tev(3, ab, true)
+	_tev(3, ab, false)
+	await _wait(0.2)
+	print("[touch] aim toggled: aiming=%s" % p.aiming)
+	if OS.get_environment("TOUCH_SHOT") != "":
+		await _wait(0.5)
+		await _shot("touch_foot")
+	_tev(3, ab, true)
+	_tev(3, ab, false)
+	# car: spawn one next to the player and press F
+	var car = VehicleDB.spawn("p_sedan", p.global_position + p.global_basis.x * 3.0, p.rotation.y)
+	await _wait(0.6)
+	var fbtn := _tbutton(tc, "enter_vehicle")
+	_tev(4, fbtn, true)
+	await _wait(0.1)
+	_tev(4, fbtn, false)
+	await _wait(3.0)
+	print("[touch] vehicle: in=%s mode=%s buttons=%d" % [p.vehicle != null, tc._mode, tc._buttons.size()])
+	if p.vehicle:
+		_tev(0, o, true)
+		_tdrag(0, o + Vector2(0, -110), Vector2(0, -110))
+		await _wait(2.0)
+		print("[touch] driving: %.0f km/h" % p.vehicle.speed_kmh)
+		_tev(0, o, false)
+		if OS.get_environment("TOUCH_SHOT") != "":
+			await _shot("touch_car")
+	# Android back button -> pause
+	tc._notification(NOTIFICATION_WM_GO_BACK_REQUEST)
+	await _wait(0.2)
+	print("[touch] back button: paused=%s  emulate_mouse=%s" % [Game.paused, Input.emulate_mouse_from_touch])
 	get_tree().quit()
 
 

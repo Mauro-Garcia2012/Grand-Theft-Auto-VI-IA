@@ -121,7 +121,10 @@ func add_occupant(hm: Node, s: int) -> void:
 		sleeping = false
 		_engine_snd.play()
 		if hm is Humanoid and hm.is_player:
-			Game.msg("W/S potencia · el avión vuela hacia donde mira la cámara · A/D alabeo · Espacio frenos · F saltar en paracaídas", 7.0)
+			if Game.touch:
+				Game.msg("Joystick arriba/abajo potencia · el avión vuela hacia donde mira la cámara · izquierda/derecha alabeo · F saltar", 7.0)
+			else:
+				Game.msg("W/S potencia · el avión vuela hacia donde mira la cámara · A/D alabeo · Espacio frenos · F saltar en paracaídas", 7.0)
 
 
 func remove_occupant(hm: Node) -> void:
