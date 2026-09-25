@@ -158,8 +158,9 @@ func _store(p: Humanoid, delta: float) -> void:
 			Pickups.spawn_money(clerk.global_position + current.clerk_face * 1.5 + Vector3.UP * 0.2, amount)
 			Game.stats.robberies += 1
 			SocialFeed.event("robbery")
-			Game.msg("¡Atraco completado! Coge el dinero y huye.", 3.0)
-			Game.wanted.set_level(maxi(Game.get_wanted(), 2))
+			Game.msg("¡Atraco completado! Coge el dinero y huye antes de que salte la alarma.", 3.0)
+			# the silent alarm reaches the police a few seconds later
+			Game.wanted.alarm(2, randf_range(3.0, 6.0), p.global_position)
 			if clerk.brain:
 				clerk.brain.state = PedBrain.S.COWER
 				clerk.brain.t = 20.0

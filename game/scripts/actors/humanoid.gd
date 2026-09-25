@@ -244,13 +244,13 @@ func try_fire() -> bool:
 	fire_cd = float(d.rate)
 	var npc := not is_player and team != "player"
 	if npc:
-		# NPCs fire in slower bursts
-		fire_cd *= randf_range(1.8, 3.0)
+		# NPCs fire in slower bursts (police and soldiers shoot more often)
+		fire_cd *= randf_range(1.2, 1.9) if team == "police" else randf_range(1.8, 3.0)
 	var from := muzzle_position()
 	var aim := aim_point
 	if aim == Vector3.ZERO:
 		aim = from - global_basis.z * 50.0
-	if npc and randf() < Game.by_difficulty([0.72, 0.55, 0.4, 0.25]):
+	if npc and randf() < Game.by_difficulty([0.72, 0.55, 0.4, 0.25]) * (0.6 if team == "police" else 1.0):
 		# deliberate miss (GTA-style forgiving NPC accuracy)
 		aim += Vector3(randf_range(-1.6, 1.6), randf_range(-0.6, 1.4), randf_range(-1.6, 1.6))
 	if d.type == "launcher" and d.get("projectile", "") == "shell":
@@ -261,7 +261,7 @@ func try_fire() -> bool:
 		var pellets: int = int(d.get("pellets", 1))
 		var spread: float = float(d.spread) + spread_bloom * (0.5 if crouching else 1.0)
 		if not is_player:
-			spread *= Game.by_difficulty([2.8, 2.2, 1.7, 1.3])
+			spread *= Game.by_difficulty([2.8, 2.2, 1.7, 1.3]) * (0.7 if team == "police" else 1.0)
 		for i in pellets:
 			var dir := (aim - from).normalized()
 			dir = Combat.apply_spread(dir, spread)

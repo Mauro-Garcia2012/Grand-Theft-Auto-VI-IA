@@ -254,9 +254,9 @@ func _spawn_gang_group(pos: Vector3, gang: String) -> void:
 func spawn_cop(pos: Vector3, swat := false) -> Humanoid:
 	var g := "male" if rng.randf() < 0.75 else "female"
 	var h := spawn_ped(pos, g, "swat" if swat else "police", "police")
-	h.max_health = 150.0 if swat else 110.0
+	h.max_health = 180.0 if swat else 140.0
 	h.health = h.max_health
-	h.armor = 50.0 if swat else 0.0
+	h.armor = 100.0 if swat else 30.0
 	h.give_weapon("carbine" if swat else ("shotgun" if rng.randf() < 0.2 else "pistol"), 200)
 	h.select_weapon(1)
 	h.brain.aggressive = true

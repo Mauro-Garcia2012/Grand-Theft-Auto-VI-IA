@@ -245,7 +245,7 @@ func _pursue(delta: float) -> void:
 		var lead := tp
 		if target is Humanoid and target.vehicle:
 			lead = tp + target.vehicle.linear_velocity * 0.5
-		var spd := 28.0 if dist > 15.0 else maxf(4.0, dist)
+		var spd := 36.0 if dist > 15.0 else maxf(6.0, dist * 1.5)
 		if not (target is Humanoid and target.vehicle) and dist < 12.0:
 			spd = 0.0
 		_drive_to(lead, spd, delta)
@@ -256,7 +256,7 @@ func _pursue(delta: float) -> void:
 		path = Game.city.find_path(v.global_position, tp)
 		path_i = 0
 	if path.size() < 2:
-		_drive_to(tp, 25.0, delta)
+		_drive_to(tp, 30.0, delta)
 		return
 	while path_i < path.size() - 1 and v.global_position.distance_to(path[path_i]) < 12.0:
 		path_i += 1
@@ -266,4 +266,4 @@ func _pursue(delta: float) -> void:
 		var d := (path[path_i] - path[path_i - 1])
 		d.y = 0
 		p += d.normalized().cross(Vector3.UP) * 3.0
-	_drive_to(p, 26.0, delta)
+	_drive_to(p, 32.0, delta)

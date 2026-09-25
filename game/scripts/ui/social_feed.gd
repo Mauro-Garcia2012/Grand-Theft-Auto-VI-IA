@@ -18,6 +18,8 @@ const POSTS := {
 		["@leonida_news", "Varios heridos en %s. La policía busca a un sospechoso armado"]],
 	"explosion": [["@vice_drift_club", "Un coche acaba de volar por los aires en %s 💥 grabado en 4K"],
 		["@florida_man_daily", "Florida man hace explotar un coche en %s «por aburrimiento»"]],
+	"jets": [["@leonida_news", "ÚLTIMA HORA: cazas de las fuerzas aéreas sobrevuelan %s. Se pide a la población que se refugie"],
+		["@spotters_vice", "Un Rafale haciendo pasadas a ras de suelo por %s 😳✈️ esto no es un simulacro"]],
 	"shootdown_heli": [["@vicecity_live", "¡Han derribado el helicóptero de la policía en %s! 🚁🔥"]],
 }
 const COLORS := [Color(1, 0.35, 0.6), Color(0.3, 0.75, 1), Color(1, 0.7, 0.2), Color(0.5, 1, 0.5), Color(0.8, 0.5, 1)]
@@ -56,7 +58,9 @@ func on_player_kill() -> void:
 
 
 func _on_wanted(stars: int) -> void:
-	if stars >= 5:
+	if stars >= 6:
+		_post("jets")
+	elif stars >= 5:
 		_post("army")
 	elif stars >= 3:
 		_post("chase")

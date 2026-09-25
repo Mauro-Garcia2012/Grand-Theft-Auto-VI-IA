@@ -43,7 +43,7 @@ var _hit_t := 0.0
 var _last_health := 0.0
 var _hurt := 0.0
 var _star_flash := 0.0
-var _star_cols: Array = [null, null, null, null, null]
+var _star_cols: Array = [null, null, null, null, null, null]
 var _mm_t := 0.0
 
 
@@ -136,8 +136,8 @@ void fragment() {
 	stars_row.alignment = BoxContainer.ALIGNMENT_END
 	stars_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tr.add_child(stars_row)
-	for i in 5:
-		var s := _lbl("★", 34, Color(1, 1, 1, 0.18), font_black, 6)
+	for i in 6:
+		var s := _lbl("★", 32, Color(1, 1, 1, 0.18), font_black, 6)
 		stars_row.add_child(s)
 		_stars.append(s)
 	_clock_label = _lbl("18:00", 26, Color(1, 1, 1), font_bold, 6)
@@ -259,7 +259,7 @@ func _process(delta: float) -> void:
 	var st := Game.get_wanted()
 	_star_flash = maxf(0.0, _star_flash - delta)
 	var searching: bool = Game.wanted and not Game.wanted.seen and st > 0
-	for i in 5:
+	for i in 6:
 		var on := i < st
 		var c := Color(1, 1, 1, 0.18)
 		if on:

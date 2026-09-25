@@ -90,6 +90,8 @@ func _process(delta: float) -> void:
 			_planes()
 		"gtahud":
 			_gtahud()
+		"crime":
+			_crime()
 		"traffic":
 			_traffic()
 		"chase":
@@ -1163,6 +1165,103 @@ func _gtahud() -> void:
 	menu._map.zoom = 0.3
 	await _wait(0.3)
 	await _shot("gtahud_map")
+	get_tree().quit()
+
+
+## Crimes are reported with a chance (higher when repeated) and a delay; a witness can be silenced;
+## a cop reacts in 1-2.5 s; 6 stars brings a fighter jet.
+func _crime() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	var pop: Population = Game.population
+	pop.set_physics_process(false)
+	pop.clear_all()
+	Game.god_mode = true
+	var p := Game.player
+	var w: WantedSystem = Game.wanted
+	p.give_weapon("pistol", 200, true)
+	var fwd := -p.global_basis.z
+	# 1) a civilian witness, shots in the air every 3 s
+	var civ: Humanoid = pop.spawn_ped(p.global_position + fwd * 12.0 + Vector3.UP * 0.2, "female", "")
+	civ.brain.set_physics_process(false)
+	var t0 := Time.get_ticks_msec() / 1000.0
+	var reported_at := -1.0
+	for i in 8:
+		p.aim_point = p.global_position + Vector3(0, 30, 0) + fwd * 5.0
+		p.fire_cd = 0.0
+		p.try_fire()
+		var shot_t := Time.get_ticks_msec() / 1000.0 - t0
+		await _wait(0.1)
+		print("[crime] shot %d at %.1fs: pending=%d stars=%d" % [i + 1, shot_t, w.pending.size(), w.stars])
+		for k in 30:
+			await _wait(0.1)
+			if w.stars > 0:
+				break
+		if w.stars > 0:
+			reported_at = Time.get_ticks_msec() / 1000.0 - t0
+			print("[crime] police alerted at %.1fs after %d shots" % [reported_at, i + 1])
+			break
+	w.clear()
+	w.pending.clear()
+	w._recent.clear()
+	await _wait(0.5)
+	# 2) silence the witness while she is on the phone
+	var civ2: Humanoid = pop.spawn_ped(p.global_position + fwd * 10.0 + Vector3.UP * 0.2, "male", "")
+	civ2.brain.set_physics_process(false)
+	await _wait(0.3)
+	var n0 := w.pending.size()
+	w._queue(p.global_position, "murder", civ2, false, 4.0)
+	await _wait(1.0)
+	civ2.take_damage(500.0, p, civ2.global_position + Vector3.UP, fwd, "bullet")
+	w.pending = w.pending.filter(func(r): return r.kind != "murder" or r.witness == civ2)
+	await _wait(4.0)
+	print("[crime] witness killed during the call: stars=%d (queued %d -> %d)" % [w.stars, n0, w.pending.size()])
+	w.clear()
+	w.pending.clear()
+	# 3) a cop sees it
+	var cop: Humanoid = pop.spawn_cop(p.global_position + fwd * 20.0 + Vector3.UP * 0.2, false)
+	cop.brain.set_physics_process(false)
+	await _wait(0.5)
+	var tc := Time.get_ticks_msec() / 1000.0
+	p.aim_point = p.global_position + Vector3(0, 30, 0)
+	p.fire_cd = 0.0
+	p.try_fire()
+	await _wait(0.1)
+	print("[crime] cop witness: pending police=%s stars right away=%d" % [not w.pending.is_empty() and w.pending[0].police, w.stars])
+	while w.stars == 0 and Time.get_ticks_msec() / 1000.0 - tc < 5.0:
+		await _wait(0.1)
+	print("[crime] cop reacted after %.1fs, stars=%d" % [Time.get_ticks_msec() / 1000.0 - tc, w.stars])
+	# 4) six stars: army, three helicopters and a fighter jet
+	w.set_level(6)
+	for i in 6:
+		w.dispatch_t = 0.0
+		await _wait(0.5)
+	print("[crime] 6 stars: units=%d helis=%d jets=%d hud stars=%d" % [w.units.size(), w.helis.size(), w.jets.size(), Game.hud._stars.size()])
+	if not w.jets.is_empty():
+		var jet = w.jets[0]
+		var ai = jet.get_node("JetAI")
+		var phases := {}
+		var min_alt := 9999.0
+		var shots := 0
+		for i in 280:
+			await _wait(0.25)
+			if not is_instance_valid(jet) or jet.destroyed:
+				print("[crime] jet lost: valid=%s" % is_instance_valid(jet))
+				break
+			phases[ai._phase] = phases.get(ai._phase, 0) + 1
+			min_alt = minf(min_alt, jet.altitude)
+			shots = ai._shot
+			if OS.get_environment("JET_SHOT") != "" and ai._phase == "attack" and ai._shot > 4 and not get_meta("jet_shot", false):
+				set_meta("jet_shot", true)
+				var jp: Vector3 = jet.global_position
+				_place_cam(p.global_position + Vector3.UP * 3.0 - (jp - p.global_position).normalized() * 12.0, jp)
+				await get_tree().process_frame
+				await _shot("jet_strafe")
+			if jet.altitude < 110.0 or jet.health < 2500.0:
+				print("[crime] jet t=%.1f phase=%s alt=%.0f vy=%.0f spd=%.0f hp=%.0f dir=%s" % [i * 0.25, ai._phase, jet.altitude, jet.linear_velocity.y, jet.speed_kmh, jet.health, ai._dir])
+		print("[crime] jet lowest altitude %.0f m" % min_alt)
+		print("[crime] jet after 70 s: phases=%s cannon shells=%d" % [phases, shots])
 	get_tree().quit()
 
 

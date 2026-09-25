@@ -107,10 +107,18 @@ Los dos archivos los compila y publica GitHub Actions automáticamente en cada c
   conductor muerto se queda desplomado en el asiento, el coche sigue rodando sin control (a veces
   con el claxon pegado) y los pasajeros huyen; puedes sacar el cadáver y llevarte el coche. Si
   matas al piloto de un helicóptero o avioneta, se estrella.
-- **Policía al estilo GTA V**: cuando te pierden de vista buscan en tu última posición conocida
-  (las estrellas parpadean), **controles de carretera** delante de ti a partir de 3 estrellas,
-  SWAT en todoterrenos a 4 estrellas y **el ejército** con dos helicópteros a 5 estrellas.
-  **¡WASTED!** y **¡BUSTED!**.
+- **La policía no aparece por arte de magia**: un disparo o un atropello no te da estrellas al
+  momento. Alguien tiene que verlo: un policía reacciona en 1-2 segundos; un civil saca el móvil y
+  tarda unos segundos en llamar (📱 «Un testigo está llamando a la policía»), y si lo impides no
+  llega la llamada. Que llamen o no depende del delito y de **cuántas veces lo repitas**: el
+  primer tiro al aire casi nunca, el tercero o cuarto casi siempre. Los atracos disparan la
+  alarma silenciosa unos segundos después.
+- **Policía más dura, al estilo GTA V, con 6 estrellas**: apuntan mejor y disparan más seguido,
+  aguantan más (chaleco), persiguen más rápido y disparan desde el coche a partir de 2 estrellas.
+  Cuando te pierden de vista buscan en tu última posición conocida (las estrellas parpadean).
+  3★ helicóptero y **controles de carretera**, 4★ SWAT, 5★ **el ejército** y dos helicópteros,
+  **6★ tres helicópteros y un caza Rafale de las fuerzas aéreas** que hace pasadas en picado
+  ametrallándote con su cañón de 30 mm. Cuesta más despistarlos. **¡WASTED!** y **¡BUSTED!**.
 - **Tráfico aéreo que se puede derribar**: avionetas, jets y Airbus cruzan el cielo; con un
   cohete (o matando al piloto) caen ardiendo, se desintegran en pedazos y explotan al estrellarse.
 - **Dificultad** (Fácil, Normal, Difícil, Realista) en Pausa → Ajustes: cambia el daño que
@@ -158,7 +166,7 @@ Los dos archivos los compila y publica GitHub Actions automáticamente en cada c
 | Guardar / cargar | F5 / F9 | — |
 | Trucos | T | — |
 
-**Trucos:** `DINERO`, `ARMAS`, `VIDA`, `DIOS`, `MUNICION`, `SINPOLICIA`, `POLICIA5`,
+**Trucos:** `DINERO`, `ARMAS`, `VIDA`, `DIOS`, `MUNICION`, `SINPOLICIA`, `POLICIA5`, `POLICIA6`,
 `SUPERCOCHE` (McLaren F1), `INFERNUS` (Ferrari), `DEPORTIVO` (BMW M5), `DRAGSTER` (Porsche),
 `MCLAREN`, `MONSTRUO` (monster truck), `F1` (Fórmula 1), `PATRULLA`, `TAXI`, `AMBULANCIA`, `BOMBEROS`, `CAMION`, `AUTOBUS`,
 `AVIONETA`, `JET`, `CAZA`, `JUMBO` (te sube a un avión de pasajeros en la pista),

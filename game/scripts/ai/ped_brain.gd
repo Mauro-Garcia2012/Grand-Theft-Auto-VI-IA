@@ -166,7 +166,7 @@ func _flee(_delta: float) -> void:
 		start_wander()
 	if not called_police and threat == Game.player and randf() < 0.01:
 		called_police = true
-		Game.report_crime(h.global_position, 0.0, "call")
+		Game.report_crime(h.global_position, 0.0, "call", h)
 
 
 func _fight(delta: float) -> void:
@@ -290,7 +290,7 @@ func on_carjacked(by: Node) -> void:
 		threat_pos = by.global_position
 		state = S.FLEE
 		t = 10.0
-	Game.report_crime(h.global_position, 0.0, "call")
+	Game.report_crime(h.global_position, 0.0, "call", h)
 
 
 func on_gunshot(pos: Vector3, shooter: Node) -> void:

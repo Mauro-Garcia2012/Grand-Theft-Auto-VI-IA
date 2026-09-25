@@ -37,6 +37,8 @@ static func apply(code: String) -> void:
 			Game.wanted.clear()
 		"POLICIA5", "WANTED":
 			Game.wanted.set_level(5)
+		"POLICIA6", "WANTED6":
+			Game.wanted.set_level(6)
 		"SUPERCOCHE", "SUPERCAR":
 			_spawn("b_mclaren")
 		"DEPORTIVO":

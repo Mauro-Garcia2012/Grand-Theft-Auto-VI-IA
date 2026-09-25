@@ -96,9 +96,9 @@ func player_pos() -> Vector3:
 	return player.global_position
 
 
-func report_crime(pos: Vector3, severity: float, kind := "") -> void:
+func report_crime(pos: Vector3, severity: float, kind := "", witness: Node = null) -> void:
 	if wanted:
-		wanted.report_crime(pos, severity, kind)
+		wanted.report_crime(pos, severity, kind, witness)
 
 
 func get_wanted() -> int:

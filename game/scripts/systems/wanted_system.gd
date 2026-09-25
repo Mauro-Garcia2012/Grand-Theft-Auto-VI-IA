@@ -1,6 +1,7 @@
 class_name WantedSystem
 extends Node
-## Wanted level (1-5 stars), police dispatch, search area & evasion, BUSTED / WASTED.
+## Wanted level (1-6 stars), police dispatch, search area & evasion, BUSTED / WASTED.
+## 1-2: patrols, 3: helicopter and roadblocks, 4: SWAT, 5: the army, 6: the air force (fighter jet).
 
 var stars := 0
 var heat := 0.0
@@ -14,6 +15,7 @@ var helis: Array = []           # one at 3-4 stars, two at 5
 var foot_cops: Array = []
 var roadblocks: Array = []      # police cars parked across the road + their cops (3+ stars)
 var _roadblock_t := 15.0
+var jets: Array = []            # air force fighters (6 stars)
 var _search: Node3D             # where units go when they have lost sight of the player
 var _search_t := 0.0
 var bust_t := 0.0
@@ -28,66 +30,145 @@ func _ready() -> void:
 	add_child(_search)
 
 
-func report_crime(pos: Vector3, severity: float, kind := "") -> void:
+## Chance that someone reports each kind of crime the first time (it grows with every repeat).
+const REPORT_CHANCE := {"shots": 0.2, "hit_ped": 0.25, "assault": 0.15, "carjack": 0.3, "explosive": 0.35,
+	"murder": 0.55, "explosion": 0.6, "robbery": 0.9, "cop_killed": 1.0}
+## Minimum wanted level of each crime once reported.
+const MIN_STARS := {"shots": 1, "hit_ped": 1, "assault": 1, "carjack": 1, "explosive": 2, "murder": 2,
+	"explosion": 2, "robbery": 2, "cop_killed": 3}
+
+var pending: Array = []         # reports on their way: {due, kind, pos, witness, police}
+var _recent: Array = []         # [time, kind] of the player's recent crimes (repeats raise the odds)
+
+
+## A crime happened. It is not reported straight away: somebody has to see it (a cop or a
+## civilian), and whether they report it depends on the crime and on how many times the player
+## has done it lately. A cop reacts in 1-2.5 s; a civilian takes a few seconds to phone the police
+## (kill them before they finish and there is no call). Crimes seen by cops while already wanted
+## raise the level the same way.
+func report_crime(pos: Vector3, severity: float, kind := "", witness: Node = null) -> void:
 	if respawning or Game.player == null or Game.player.dead:
 		return
 	var now := Time.get_ticks_msec() / 1000.0
 	if kind == "call":
-		# a witness called the police
-		if stars == 0 and heat > 0.0:
-			_set_stars(1)
+		# a victim/witness decided to phone (from the ped brains)
+		if heat > 0.0 and witness != null and not _has_pending_from(witness):
+			_queue(witness.global_position, "call", witness, false, randf_range(5.0, 9.0))
 		return
-	if _crime_cd.get(kind, 0.0) > now and kind in ["shots", "assault"]:
+	if _crime_cd.get(kind, 0.0) > now and kind in ["shots", "assault", "hit_ped"]:
 		return
 	_crime_cd[kind] = now + 2.0
-	# witnesses?
-	var witnessed := false
+	heat += severity
+	_recent.append([now, kind])
+	while not _recent.is_empty() and now - float(_recent[0][0]) > 150.0:
+		_recent.pop_front()
+	var repeats := 0
+	for r in _recent:
+		repeats += 1 if r[1] == kind else 0
+	# who saw it?
+	var cop: Node = null
+	var civ: Node = null
+	var best_cop := 55.0 if stars == 0 else 80.0
+	var best_civ := 35.0
 	for h in get_tree().get_nodes_in_group("humanoids"):
-		if h.dead or h == Game.player or h.team == "player":
+		if h.dead or h == Game.player or h.team == "player" or str(h.team).begins_with("gang"):
 			continue
 		var d: float = h.global_position.distance_to(pos)
-		if d < (70.0 if h.team == "police" else 35.0):
-			witnessed = true
-			break
-	heat += severity
-	if not witnessed and stars == 0:
+		if h.team == "police" and d < best_cop:
+			var eye: Vector3 = h.global_position + Vector3.UP * 1.6
+			if Combat.raycast(eye, pos + Vector3.UP * 1.2, [h, Game.player, h.vehicle, Game.player.vehicle], Game.LAYER_WORLD).is_empty():
+				best_cop = d
+				cop = h
+		elif h.team != "police" and d < best_civ and h.vehicle == null:
+			best_civ = d
+			civ = h
+	if cop != null:
+		_queue(pos, kind, cop, true, randf_range(1.0, 2.5))
 		return
-	var min_stars := 0
-	match kind:
-		"shots": min_stars = 1
-		"assault": min_stars = 1 if heat > 1.5 else 0
-		"carjack": min_stars = 1
-		"hit_ped": min_stars = 1 if heat > 2.0 else 0
-		"murder": min_stars = 2
-		"cop_killed": min_stars = 3
-		"explosion": min_stars = 2
-		"robbery": min_stars = 2
-	var from_heat := 0
-	if heat >= 3: from_heat = 1
-	if heat >= 8: from_heat = 2
-	if heat >= 18: from_heat = 3
-	if heat >= 32: from_heat = 4
-	if heat >= 50: from_heat = 5
-	var ns := clampi(maxi(maxi(stars, min_stars), from_heat), 0, 5)
-	if kind in ["cop_killed", "murder"] and stars >= min_stars:
-		heat += 4.0
-	last_seen = pos
-	if ns > stars:
-		_set_stars(ns)
+	if civ == null:
+		return
+	var chance: float = REPORT_CHANCE.get(kind, 0.3) + 0.22 * (repeats - 1)
+	chance *= Game.by_difficulty([0.7, 1.0, 1.25, 1.5])
+	if stars > 0:
+		chance += 0.25          # people are already on the lookout
+	if randf() > chance or _has_pending_from(civ):
+		return
+	_queue(pos, kind, civ, false, randf_range(4.0, 8.0) * Game.by_difficulty([1.3, 1.0, 0.8, 0.7]))
+
+
+## Store alarms and such: the police are told after `delay` seconds, no matter what.
+func alarm(min_stars: int, delay: float, pos: Vector3) -> void:
+	pending.append({"due": Time.get_ticks_msec() / 1000.0 + delay, "kind": "alarm", "pos": pos, "witness": null,
+		"police": true, "min": min_stars})
+
+
+func _has_pending_from(w: Node) -> bool:
+	for r in pending:
+		if r.witness == w:
+			return true
+	return false
+
+
+func _queue(pos: Vector3, kind: String, witness: Node, police: bool, delay: float) -> void:
+	pending.append({"due": Time.get_ticks_msec() / 1000.0 + delay, "kind": kind, "pos": pos, "witness": witness,
+		"police": police, "min": MIN_STARS.get(kind, 1)})
+	if not police and witness is Humanoid:
+		# the witness gets the phone out (GTA IV/V style)
+		var w: Humanoid = witness
+		if w.brain and "state" in w.brain and w.brain.state in [PedBrain.S.WANDER, PedBrain.S.IDLE, PedBrain.S.BEACH]:
+			w.move_dir = Vector3.ZERO
+			w.brain.state = PedBrain.S.IDLE
+			w.brain.t = delay + 1.0
+			w.brain.idle_anim = "Idle_TalkingPhone"
+		if w.global_position.distance_to(Game.player_pos()) < 60.0:
+			Game.msg("📱 Un testigo está llamando a la policía...", 2.5)
+
+
+func _process_pending() -> void:
+	if pending.is_empty():
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	for i in range(pending.size() - 1, -1, -1):
+		var r: Dictionary = pending[i]
+		if now < float(r.due):
+			continue
+		pending.remove_at(i)
+		var w = r.witness
+		if r.kind != "alarm" and (w == null or not is_instance_valid(w) or w.dead):
+			if not r.police:
+				Game.msg("El testigo no llegó a llamar", 2.0)
+			continue
+		if respawning or Game.player == null or Game.player.dead:
+			continue
+		var from_heat := 0
+		for th in [[3.0, 1], [8.0, 2], [18.0, 3], [32.0, 4], [50.0, 5], [75.0, 6]]:
+			if heat >= th[0]:
+				from_heat = th[1]
+		var ns := clampi(maxi(maxi(stars, int(r.min)), mini(from_heat, stars + 1)), 0, 6)
+		if r.kind in ["cop_killed", "murder"] and stars >= int(r.min):
+			heat += 4.0
+			ns = clampi(maxi(ns, mini(from_heat, 6)), 0, 6)
+		last_seen = r.pos
+		if ns > stars:
+			_set_stars(ns)
+		elif stars > 0:
+			# already wanted: the report refreshes where they look for you
+			evade_t = 0.0
 
 
 func set_level(n: int) -> void:
-	heat = [0.0, 3.0, 8.0, 18.0, 32.0, 50.0][clampi(n, 0, 5)]
+	heat = [0.0, 3.0, 8.0, 18.0, 32.0, 50.0, 75.0][clampi(n, 0, 6)]
 	_set_stars(n)
 
 
 func _set_stars(n: int) -> void:
 	var old := stars
-	stars = clampi(n, 0, 5)
+	stars = clampi(n, 0, 6)
 	if stars > old:
 		Sfx.play("wanted", -4.0)
 		evade_t = 0.0
-		dispatch_t = 0.5
+		# the first units need a few seconds to be sent
+		dispatch_t = randf_range(2.0, 4.0) if old == 0 else 1.0
 	Game.wanted_changed.emit(stars)
 	if stars == 0:
 		_stand_down()
@@ -99,7 +180,7 @@ func clear() -> void:
 
 
 func search_radius() -> float:
-	return 70.0 + stars * 45.0
+	return 80.0 + stars * 55.0
 
 
 func _stand_down() -> void:
@@ -110,6 +191,12 @@ func _stand_down() -> void:
 				ai.leaving = true
 	helis.clear()
 	heli = null
+	for j in jets:
+		if j != null and is_instance_valid(j):
+			var ja = j.get_node_or_null("JetAI")
+			if ja:
+				ja.leaving = true
+	jets.clear()
 	_clear_roadblocks(0.0)
 	for v in units:
 		if is_instance_valid(v):
@@ -133,6 +220,7 @@ func _physics_process(delta: float) -> void:
 	if p.dead and not respawning:
 		_wasted()
 		return
+	_process_pending()
 	if stars == 0:
 		heat = maxf(0.0, heat - delta * 0.15)
 		return
@@ -159,7 +247,7 @@ func _physics_process(delta: float) -> void:
 			evade_t += delta
 		else:
 			evade_t += delta * 0.25
-		if evade_t > (8.0 + stars * 4.0) * Game.by_difficulty([0.6, 1.0, 1.3, 1.6]):
+		if evade_t > (10.0 + stars * 5.0) * Game.by_difficulty([0.6, 1.0, 1.3, 1.6]):
 			Game.msg("Has despistado a la policía", 3.0)
 			clear()
 			return
@@ -191,11 +279,17 @@ func _dispatch() -> void:
 		var hh = helis[i]
 		if hh == null or not is_instance_valid(hh) or hh.destroyed or hh.active_driver() == null:
 			helis.remove_at(i)
-	var want_helis := 0 if stars < 3 else (1 if stars < 5 else 2)
+	var want_helis: int = 0 if stars < 3 else [1, 1, 2, 3][stars - 3]
 	if helis.size() < want_helis:
 		_spawn_heli()
 	heli = helis[0] if not helis.is_empty() else null
-	var want_cars := clampi(stars + int(Game.by_difficulty([-1, 0, 1, 1])), 1, 6)
+	# 6 stars: the air force sends a fighter jet
+	for i in range(jets.size() - 1, -1, -1):
+		if jets[i] == null or not is_instance_valid(jets[i]) or jets[i].destroyed:
+			jets.remove_at(i)
+	if stars >= 6 and jets.is_empty():
+		_spawn_jet()
+	var want_cars := clampi(stars + 1 + int(Game.by_difficulty([-1, 0, 1, 2])), 2, 8)
 	var alive := 0
 	for i in range(units.size() - 1, -1, -1):
 		var u = units[i]
@@ -211,7 +305,7 @@ func _dispatch() -> void:
 	if sp.is_empty():
 		return
 	# 4 stars: SWAT; 5 stars: the army joins in (soldiers in military pickups)
-	var army := stars >= 5 and randf() < 0.55
+	var army := stars >= 6 or (stars >= 5 and randf() < 0.55)
 	var swat := army or (stars >= 4 and randf() < 0.5)
 	var id: String = "b_canyon" if army else ("p_suv" if swat else "p_police")
 	var v := pop.spawn_traffic_car(id, sp.pos, sp.yaw, sp.a, sp.b, "police")
@@ -234,6 +328,32 @@ func _dispatch() -> void:
 	if army and randf() < 0.5:
 		Game.msg("¡El ejército se une a la persecución!", 2.5)
 	units.append(v)
+
+
+## Air force fighter (Rafale) that makes strafing runs with its cannon (6 stars).
+func _spawn_jet() -> void:
+	var pp := Game.player_pos()
+	var a := randf() * TAU
+	var pos := pp + Vector3(cos(a), 0, sin(a)) * 1400.0
+	pos.y = maxf(pp.y, 0.0) + 220.0
+	var dir := (pp - pos)
+	dir.y = 0.0
+	dir = dir.normalized()
+	var jet: Aircraft = VehicleDB.spawn("fighter", pos, atan2(-dir.x, -dir.z))
+	jet.persistent = false
+	jet.ai_owned = true
+	jet.power = 1.0
+	jet.engine_on = true
+	jet.linear_velocity = dir * float(jet.def.get("cruise", 120.0))
+	var pilot: Humanoid = Game.population.spawn_cop(pos + Vector3.UP * 3.0, true)
+	Game.population.peds.erase(pilot)
+	pilot.enter_vehicle(jet, 0)
+	pilot.brain.set_physics_process(false)
+	var ai := JetAI.new()
+	ai.name = "JetAI"
+	jet.add_child(ai)
+	jets.append(jet)
+	Game.msg("¡Las fuerzas aéreas han enviado un caza!", 3.0)
 
 
 ## VCPD Bell 407 arriving from a distance, already in the air.
@@ -280,10 +400,10 @@ func _update_units() -> void:
 					o.brain.state = PedBrain.S.FIGHT
 					o.brain.t = 60.0
 					foot_cops.append(o)
-		# drive-by shooting from cop cars at 3+ stars
-		if stars >= 3 and d < 35.0 and seen:
+		# drive-by shooting from cop cars from 2 stars
+		if stars >= 2 and d < 40.0 and seen:
 			for o in v.occupants:
-				if o != null and is_instance_valid(o) and o.seat == 1 and randf() < 0.08:
+				if o != null and is_instance_valid(o) and o.seat >= 1 and not o.dead and randf() < 0.14:
 					o.aim_point = pp + Vector3.UP
 					o.aiming = true
 					o.try_fire()
