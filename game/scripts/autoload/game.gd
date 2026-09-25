@@ -61,8 +61,10 @@ func _ready() -> void:
 		root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
 		root.content_scale_size = Vector2i(1600, 900)
 		root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
-		root.scaling_3d_scale = 0.7
-		RenderingServer.directional_shadow_atlas_set_size(2048, true)
+		root.scaling_3d_scale = 0.55
+		# simplified models from closer (the PC keeps the default, invisible 1 px threshold)
+		root.mesh_lod_threshold = 4.0
+		RenderingServer.directional_shadow_atlas_set_size(1024, true)
 	load_settings()
 
 
@@ -74,6 +76,35 @@ func difficulty() -> int:
 ## Picks the value for the current difficulty from [easy, normal, hard, realistic].
 func by_difficulty(values: Array) -> float:
 	return float(values[difficulty()])
+
+
+var _hum_cache: Array = []
+var _hum_frame := -1
+var _veh_cache: Array = []
+var _veh_frame := -1
+
+
+## Changes every rendered frame and every physics step (nodes freed in one step are gone in the next).
+func _frame_key() -> int:
+	return Engine.get_process_frames() * 16 + Engine.get_physics_frames() % 16
+
+
+## All humanoids, fetched once per frame and shared by every system that needs to scan them.
+func humanoids() -> Array:
+	var f := _frame_key()
+	if f != _hum_frame:
+		_hum_frame = f
+		_hum_cache = get_tree().get_nodes_in_group("humanoids")
+	return _hum_cache
+
+
+## All vehicles (cars, boats, aircraft), fetched once per frame.
+func vehicles() -> Array:
+	var f := _frame_key()
+	if f != _veh_frame:
+		_veh_frame = f
+		_veh_cache = get_tree().get_nodes_in_group("vehicles")
+	return _veh_cache
 
 
 func msg(text: String, seconds := 3.0) -> void:

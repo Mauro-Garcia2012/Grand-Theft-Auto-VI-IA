@@ -70,7 +70,7 @@ func report_crime(pos: Vector3, severity: float, kind := "", witness: Node = nul
 	var civ: Node = null
 	var best_cop := 55.0 if stars == 0 else 80.0
 	var best_civ := 35.0
-	for h in get_tree().get_nodes_in_group("humanoids"):
+	for h in Game.humanoids():
 		if h.dead or h == Game.player or h.team == "player" or str(h.team).begins_with("gang"):
 			continue
 		var d: float = h.global_position.distance_to(pos)
@@ -227,7 +227,7 @@ func _physics_process(delta: float) -> void:
 	# can any cop see the player?
 	seen = false
 	var pp := Game.player_pos()
-	for h in get_tree().get_nodes_in_group("humanoids"):
+	for h in Game.humanoids():
 		if h.team != "police" or h.dead:
 			continue
 		var d: float = h.global_position.distance_to(pp)

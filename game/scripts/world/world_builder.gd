@@ -5,6 +5,11 @@ extends Node3D
 
 const CELL := 8.0
 const CHUNK := 256.0
+## High-poly props (street lights, trees, air conditioners...) are grouped in smaller cells: the
+## engine picks one LOD per group from its distance, so only the groups near the camera are drawn at
+## full detail instead of every prop in a 256 m chunk.
+const DETAIL_CELL := 128.0
+const DETAIL_TRIS := 1000
 
 var city: CityMap
 var rng := RandomNumberGenerator.new()
@@ -23,6 +28,8 @@ var roof_prism: ArrayMesh
 # chunk key -> {"b": Array[[Transform3D, Color, Color]], "p": {prop_key: Array[Transform3D]}}
 var chunks := {}
 var prop_meshes := {}      # key -> Mesh
+var detail_cells := {}     # Vector2i -> {prop_key: Array[Transform3D]} for high-poly props
+var _detail_keys := {}     # prop_key -> true when it has over DETAIL_TRIS triangles
 var streetlights: Array[Vector3] = []
 var building_boxes: Array = []   # AABBs for spawning checks
 var neon_signs: Array = []
@@ -119,6 +126,7 @@ func build(p_city: CityMap, progress: Callable) -> void:
 	progress.call(0.8, "Instanciando la ciudad...")
 	await get_tree().process_frame
 	_flush_chunks()
+	_flush_occluders()
 	_flush_platforms()
 	_attach_bodies()
 	print("  flush %d ms" % (Time.get_ticks_msec() - t0)); t0 = Time.get_ticks_msec()
@@ -353,11 +361,12 @@ func _build_water() -> void:
 	var mi := MeshInstance3D.new()
 	var pm := PlaneMesh.new()
 	pm.size = Vector2(9000, 9000)
-	pm.subdivide_width = 180
-	pm.subdivide_depth = 180
+	pm.subdivide_width = 90 if Game.mobile else 180
+	pm.subdivide_depth = pm.subdivide_width
 	mi.mesh = pm
 	var m := ShaderMaterial.new()
-	m.shader = load("res://shaders/water.gdshader")
+	# phones: opaque water without the refraction / depth reads (a full screen copy per frame)
+	m.shader = load("res://shaders/water_mobile.gdshader" if Game.mobile else "res://shaders/water.gdshader")
 	mi.material_override = m
 	mi.position = Vector3((CityMap.MIN_X + CityMap.MAX_X) * 0.5, city.water_level, (CityMap.MIN_Z + CityMap.MAX_Z) * 0.5)
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -633,9 +642,7 @@ func _extract_mesh(path: String, target_h: float) -> Mesh:
 		var mi: MeshInstance3D = part[0]
 		var t: Transform3D = base * part[1]
 		for s in mi.mesh.get_surface_count():
-			var st := SurfaceTool.new()
-			st.create_from(mi.mesh, s)
-			var arr := st.commit_to_arrays()
+			var arr := mi.mesh.surface_get_arrays(s)
 			var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
 			var norms: PackedVector3Array = arr[Mesh.ARRAY_NORMAL]
 			for i in verts.size():
@@ -648,7 +655,9 @@ func _extract_mesh(path: String, target_h: float) -> Mesh:
 			# drop skinning data if any
 			arr[Mesh.ARRAY_BONES] = null
 			arr[Mesh.ARRAY_WEIGHTS] = null
-			out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+			# keep the imported LODs so distant props are drawn simplified
+			var lods := ModelUtil.surface_lods(mi.mesh, s, t.basis.get_scale().x)
+			out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr, [], lods)
 			var mat := mi.get_active_material(s)
 			out.surface_set_material(out.get_surface_count() - 1, mat)
 	inst.free()
@@ -658,10 +667,17 @@ func _extract_mesh(path: String, target_h: float) -> Mesh:
 func add_prop(key: String, pos: Vector3, yaw := 0.0, scale := 1.0, collide := 0.0) -> void:
 	if not prop_meshes.has(key):
 		return
-	var c := _chunk(pos)
-	if not c.p.has(key):
-		c.p[key] = []
-	c.p[key].append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * scale), pos))
+	var props: Dictionary = _chunk(pos).p
+	if _is_detailed(key):
+		# phones: larger cells, fewer draw calls (their GPUs suffer more from those than from triangles)
+		var cell := DETAIL_CELL * (2.0 if Game.mobile else 1.0)
+		var dk := Vector2i(floori(pos.x / cell), floori(pos.z / cell))
+		if not detail_cells.has(dk):
+			detail_cells[dk] = {}
+		props = detail_cells[dk]
+	if not props.has(key):
+		props[key] = []
+	props[key].append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * scale), pos))
 	if collide > 0.0:
 		var cs := CollisionShape3D.new()
 		var cyl := CylinderShape3D.new()
@@ -689,6 +705,53 @@ func add_box(t: Transform3D, color: Color, style: int, accent := 0.0, collide :=
 		cs.transform = Transform3D(t.basis.orthonormalized(), t.origin + t.basis.y * 0.5)
 		add_shape(cs)
 		building_boxes.append(AABB(t.origin - Vector3(sx, 0, sz) * 0.5, Vector3(sx, sy, sz)))
+		if sx >= 8.0 and sy >= 8.0 and sz >= 8.0:
+			_add_occluder(t)
+
+
+# ------------------------------------------------------------------ occlusion culling
+## Solid building blocks double as occluders: whatever is completely hidden behind them (the streets
+## and props of the blocks behind) is skipped by the renderer. No visual change; not used on phones,
+## whose CPU is the bottleneck.
+var _occluders := {}     # chunk key -> [PackedVector3Array, PackedInt32Array]
+const BOX_TRIS := [0, 4, 5, 0, 5, 1, 2, 3, 7, 2, 7, 6, 0, 2, 6, 0, 6, 4, 1, 5, 7, 1, 7, 3, 4, 6, 7, 4, 7, 5]
+
+
+func _add_occluder(t: Transform3D) -> void:
+	if Game.mobile:
+		return
+	var k := _chunk_key(t.origin)
+	if not _occluders.has(k):
+		_occluders[k] = [PackedVector3Array(), PackedInt32Array()]
+	var o: Array = _occluders[k]
+	var verts: PackedVector3Array = o[0]
+	var idx: PackedInt32Array = o[1]
+	var base := verts.size()
+	# slightly inside the walls, so it can never hide something in front of them
+	var b := t.basis.scaled_local(Vector3(0.96, 0.98, 0.96))
+	for y in [0.0, 1.0]:
+		for z in [-0.5, 0.5]:
+			for x in [-0.5, 0.5]:
+				verts.append(t.origin + b * Vector3(x, y, z))
+	for i in BOX_TRIS:
+		idx.append(base + i)
+	o[0] = verts
+	o[1] = idx
+
+
+func _flush_occluders() -> void:
+	var n := 0
+	for k in _occluders:
+		var o: Array = _occluders[k]
+		var occ := ArrayOccluder3D.new()
+		occ.set_arrays(o[0], o[1])
+		var oi := OccluderInstance3D.new()
+		oi.occluder = occ
+		add_child(oi)
+		n += o[1].size() / BOX_TRIS.size()
+	_occluders.clear()
+	if n > 0:
+		print("World: %d occluder boxes" % n)
 
 
 ## Parapet walls around flat roofs and rooftop machinery, so buildings read less like plain boxes.
@@ -731,6 +794,45 @@ func add_building(center: Vector3, size: Vector3, color: Color, style: int, acce
 	add_box(Transform3D(b, center), color, style, accent)
 
 
+func _is_detailed(key: String) -> bool:
+	if not _detail_keys.has(key):
+		var tris := 0
+		var m: Mesh = prop_meshes[key]
+		if m is ArrayMesh and not key.begins_with("bld_"):
+			for s in m.get_surface_count():
+				var n: int = (m as ArrayMesh).surface_get_array_index_len(s)
+				tris += (n if n > 0 else (m as ArrayMesh).surface_get_array_len(s)) / 3
+		_detail_keys[key] = tris > DETAIL_TRIS
+	return _detail_keys[key]
+
+
+func _flush_props(props: Dictionary) -> void:
+	for pk in props:
+		var list: Array = props[pk]
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = prop_meshes[pk]
+		mm.instance_count = list.size()
+		for i in list.size():
+			mm.set_instance_transform(i, list[i])
+		var mmi := MultiMeshInstance3D.new()
+		mmi.multimesh = mm
+		mmi.visibility_range_end = 700.0 if not pk.begins_with("palm") else 1000.0
+		if pk.begins_with("bld_") or pk == "port_crane":
+			mmi.visibility_range_end = 1800.0
+		if pk in ["traffic_light", "sign_stop", "cone"]:
+			mmi.visibility_range_end = 450.0
+		if pk in ["bin", "bench", "hydrant", "planter", "barrier", "bush2", "aircon", "utility_box"]:
+			mmi.visibility_range_end = 250.0
+			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if Game.mobile:
+			# phones: street furniture pops in closer and only trees cast shadows
+			mmi.visibility_range_end *= 0.5
+			if not (pk.begins_with("palm") or pk.begins_with("tree") or pk.begins_with("bld_")):
+				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(mmi)
+
+
 func _flush_chunks() -> void:
 	var n_build := 0
 	for k in chunks:
@@ -749,7 +851,7 @@ func _flush_chunks() -> void:
 			var mmi := MultiMeshInstance3D.new()
 			mmi.multimesh = mm
 			mmi.material_override = building_mat
-			mmi.visibility_range_end = 3000.0
+			mmi.visibility_range_end = 1500.0 if Game.mobile else 3000.0
 			add_child(mmi)
 			n_build += c.b.size()
 		if c.r.size() > 0:
@@ -766,27 +868,11 @@ func _flush_chunks() -> void:
 			var rmi := MultiMeshInstance3D.new()
 			rmi.multimesh = rm
 			rmi.material_override = building_mat
-			rmi.visibility_range_end = 1500.0
+			rmi.visibility_range_end = 800.0 if Game.mobile else 1500.0
 			add_child(rmi)
-		for pk in c.p:
-			var list: Array = c.p[pk]
-			var mm := MultiMesh.new()
-			mm.transform_format = MultiMesh.TRANSFORM_3D
-			mm.mesh = prop_meshes[pk]
-			mm.instance_count = list.size()
-			for i in list.size():
-				mm.set_instance_transform(i, list[i])
-			var mmi := MultiMeshInstance3D.new()
-			mmi.multimesh = mm
-			mmi.visibility_range_end = 700.0 if not pk.begins_with("palm") else 1000.0
-			if pk.begins_with("bld_") or pk == "port_crane":
-				mmi.visibility_range_end = 1800.0
-			if pk in ["traffic_light", "sign_stop", "cone"]:
-				mmi.visibility_range_end = 450.0
-			if pk in ["bin", "bench", "hydrant", "planter", "barrier", "bush2", "aircon", "utility_box"]:
-				mmi.visibility_range_end = 250.0
-				mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			add_child(mmi)
+		_flush_props(c.p)
+	for k in detail_cells:
+		_flush_props(detail_cells[k])
 	print("World: %d building boxes, %d chunks, %d road nodes" % [n_build, chunks.size(), city.nodes.size()])
 
 

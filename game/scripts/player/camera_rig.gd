@@ -36,7 +36,7 @@ func _ready() -> void:
 	camera = Camera3D.new()
 	camera.current = true
 	camera.near = 0.08
-	camera.far = 4000.0
+	camera.far = 1600.0 if Game.mobile else 4000.0
 	arm.add_child(camera)
 	_noise.frequency = 2.0
 
@@ -155,7 +155,7 @@ func _update_aim(ex: Array[RID]) -> void:
 	if (target.aiming or (Game.touch and Input.is_action_pressed("fire"))) and not scoped:
 		var best := 0.985 if Game.touch else 0.9965
 		var best_p := Vector3.ZERO
-		for h in get_tree().get_nodes_in_group("humanoids"):
+		for h in Game.humanoids():
 			if h == target or h.dead or h.team == target.team:
 				continue
 			var chest: Vector3 = h.global_position + Vector3.UP * 1.25

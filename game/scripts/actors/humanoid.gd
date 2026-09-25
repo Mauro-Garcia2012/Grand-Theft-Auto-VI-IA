@@ -296,7 +296,7 @@ func _melee_attack(d: Dictionary) -> void:
 	var fwd := -global_basis.z
 	var best: Node = null
 	var best_d := 99.0
-	for n in get_tree().get_nodes_in_group("humanoids"):
+	for n in Game.humanoids():
 		if n == self or n.dead:
 			continue
 		var to: Vector3 = n.global_position - global_position
@@ -311,7 +311,7 @@ func _melee_attack(d: Dictionary) -> void:
 		if (melee_combo == 2 or d.get("knockdown", false)) and best.health > 0:
 			best.knockdown(fwd * 4.0 + Vector3.UP * 2.0)
 	else:
-		for v in get_tree().get_nodes_in_group("vehicles"):
+		for v in Game.vehicles():
 			if v.global_position.distance_to(global_position) < 2.6 and fwd.dot((v.global_position - global_position).normalized()) > 0.3:
 				v.take_damage(3.0, self)
 				Sfx.play_at("punch", global_position + fwd, -4.0)

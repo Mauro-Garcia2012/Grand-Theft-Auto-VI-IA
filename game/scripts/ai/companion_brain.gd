@@ -103,7 +103,7 @@ func _run_to(target: Vector3, sprint: bool) -> void:
 func _find_enemy() -> void:
 	enemy = null
 	var best := 45.0
-	for o in get_tree().get_nodes_in_group("humanoids"):
+	for o in Game.humanoids():
 		if o.dead or o == h or o.team == "player":
 			continue
 		var hostile := false

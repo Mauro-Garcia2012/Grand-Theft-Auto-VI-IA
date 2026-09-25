@@ -129,8 +129,8 @@ class _Content extends Control:
 			draw_polyline(pts, Color(0.75, 0.35, 1.0), 5.0 / mm.zoom)
 		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 		# blips (inside)
-		for h in get_tree().get_nodes_in_group("humanoids"):
-			if h == Game.player or h.dead:
+		for h in Game.humanoids():
+			if not is_instance_valid(h) or h == Game.player or h.dead:
 				continue
 			var col := Color.TRANSPARENT
 			if h.team == "police" and Game.get_wanted() > 0:

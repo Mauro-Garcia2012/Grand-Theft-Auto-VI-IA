@@ -60,6 +60,12 @@ var _siren_t := 0.0
 var _tire_smoke: Array = []
 var _seat_offsets: Array = []
 var _exit_offsets: Array = []
+var _ray_q: PhysicsRayQueryParameters3D
+var _ped_tick := 0
+var _vis_tick := 0
+var _vis_acc := 0.0
+var _wheel_settle := 30          # frames the wheel visuals keep updating after the car stops
+var _idle_t := 0.0
 var _stuck_t := 0.0
 var last_driver: Humanoid = null
 var rest := 0.42
@@ -616,12 +622,18 @@ func _physics_process(delta: float) -> void:
 	rest = 0.42 if not is_bike else 0.35
 	var k_spring := mass * 9.8 / float(wheels.size()) / (rest * 0.35)
 	var c_damp := 2.0 * sqrt(k_spring * mass / float(wheels.size())) * 0.45
+	if _ray_q == null:
+		# one query object per vehicle, reused for every wheel and tick (no allocations)
+		_ray_q = PhysicsRayQueryParameters3D.new()
+		_ray_q.collision_mask = Game.LAYER_WORLD | Game.LAYER_VEHICLE
+		_ray_q.exclude = [get_rid()]
+	var q := _ray_q
 	for w in wheels:
 		var mount_local: Vector3 = w.pos + Vector3.UP * (rest * 0.5)
 		var mount := global_transform * mount_local
 		var ray_len: float = rest + w.radius
-		var q := PhysicsRayQueryParameters3D.create(mount, mount - up * ray_len, Game.LAYER_WORLD | Game.LAYER_VEHICLE)
-		q.exclude = [get_rid()]
+		q.from = mount
+		q.to = mount - up * ray_len
 		var hit := space.intersect_ray(q)
 		if hit.is_empty():
 			w.contact = false
@@ -679,6 +691,15 @@ func _physics_process(delta: float) -> void:
 			skid_amount = maxf(skid_amount, absf(v_lat) * 0.2 + (1.0 if handbrake and absf(v_long) > 5.0 else 0.0))
 		w.slip = absf(v_lat)
 		apply_force(ws * total.x + wf * total.y, rel)
+	# parked / abandoned and at rest: let the body sleep (the suspension springs keep it awake)
+	if drv == null and not on_fire and grounded >= 3 and linear_velocity.length() < 0.12 and angular_velocity.length() < 0.05:
+		_idle_t += delta
+		if _idle_t > 1.5:
+			_idle_t = 0.0
+			sleeping = true
+			return
+	else:
+		_idle_t = 0.0
 	# anti-roll
 	if not is_bike and grounded >= 3:
 		var roll := (comp_l - comp_r) * mass * 12.0
@@ -721,9 +742,12 @@ func _physics_process(delta: float) -> void:
 			d.knockdown(linear_velocity * 0.6 + Vector3.UP * 4.0)
 			d.take_damage(dv * 1.5, null, Vector3.ZERO, Vector3.ZERO, "fall")
 	_last_vel = linear_velocity
-	# pedestrians hit
+	# pedestrians hit (near the player every tick, farther away every other tick)
 	if linear_velocity.length() > 3.0:
-		_check_ped_hits()
+		_ped_tick += 1
+		var near := global_position.distance_squared_to(Game.player_pos()) < 120.0 * 120.0
+		if near or _ped_tick % 2 == 0:
+			_check_ped_hits(0.35 if near else 0.9)
 	_update_audio_fx(delta, skid_amount, grounded)
 
 
@@ -740,11 +764,11 @@ func flip_if_needed() -> void:
 		_unflip()
 
 
-func _check_ped_hits() -> void:
+func _check_ped_hits(margin := 0.35) -> void:
 	var inv := global_transform.affine_inverse()
-	var hx := body_size.x * 0.5 + 0.35
-	var hz := body_size.z * 0.5 + 0.35
-	for h in get_tree().get_nodes_in_group("humanoids"):
+	var hx := body_size.x * 0.5 + margin
+	var hz := body_size.z * 0.5 + margin
+	for h in Game.humanoids():
 		if h.vehicle != null or h.down_timer > 0.5:
 			continue
 		var d2: float = h.global_position.distance_squared_to(global_position)
@@ -773,7 +797,9 @@ func _check_ped_hits() -> void:
 
 func _update_audio_fx(delta: float, skid: float, grounded: int) -> void:
 	var drv := driver()
-	var near := global_position.distance_squared_to(Game.player_pos()) < 90.0 * 90.0 if Game.player else false
+	# engine sound and headlight lamps only near the player (closer still on phones)
+	var near_r := 40.0 if Game.mobile else 90.0
+	var near := global_position.distance_squared_to(Game.player_pos()) < near_r * near_r if Game.player else false
 	if engine_on and not destroyed and near:
 		if not _engine_snd.playing:
 			_engine_snd.play()
@@ -842,7 +868,20 @@ func _update_audio_fx(delta: float, skid: float, grounded: int) -> void:
 
 
 func _process(delta: float) -> void:
-	# wheel visuals
+	# wheel visuals: not for parked cars, and at a lower rate far from the camera
+	if absf(forward_speed) > 0.05 or absf(steer_angle) > 0.001:
+		_wheel_settle = 30
+	else:
+		_wheel_settle = maxi(_wheel_settle - 1, 0)
+	if sleeping or _wheel_settle <= 0:
+		return
+	_vis_tick += 1
+	var cam := get_viewport().get_camera_3d()
+	if cam and _vis_tick % 4 != 0 and global_position.distance_squared_to(cam.global_position) > 150.0 * 150.0:
+		_vis_acc += delta
+		return
+	delta += _vis_acc
+	_vis_acc = 0.0
 	for w in wheels:
 		if w.pivot == null:
 			continue

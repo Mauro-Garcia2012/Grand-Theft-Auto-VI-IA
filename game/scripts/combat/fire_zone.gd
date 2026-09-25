@@ -56,13 +56,13 @@ func _physics_process(delta: float) -> void:
 		return
 	_t = 0.25
 	var p := global_position
-	for h in get_tree().get_nodes_in_group("humanoids"):
+	for h in Game.humanoids():
 		if h.dead or h.vehicle:
 			continue
 		if Vector2(h.global_position.x - p.x, h.global_position.z - p.z).length() < RADIUS and absf(h.global_position.y - p.y) < 2.0:
 			h.take_damage(6.0, shooter, h.global_position + Vector3.UP, Vector3.UP, "fire")
 			if h.brain and h.brain.has_method("on_gunshot") and not h.dead:
 				h.brain.on_gunshot(p, shooter)
-	for v in get_tree().get_nodes_in_group("vehicles"):
+	for v in Game.vehicles():
 		if v.global_position.distance_to(p) < RADIUS + 1.5 and not v.destroyed:
 			v.take_damage(35.0, shooter)

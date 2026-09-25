@@ -36,8 +36,10 @@ aeropuerto, los Everglades/Grassrivers, los Cayos...), con Jason y Lucía como p
 2. Ábrelo e instálalo. La primera vez Android pide permiso para *instalar apps desconocidas*
    desde el navegador o el gestor de archivos: actívalo. Si Play Protect avisa, pulsa
    *Instalar de todas formas* (es una app hecha para uso privado, sin publicar en Google Play).
-3. Requisitos: Android 7 o superior de 64 bits (arm64) con Vulkan; recomendado un móvil de gama
-   media-alta con 6 GB de RAM o más. Las versiones nuevas se instalan encima de la anterior.
+3. Requisitos: Android 7 o superior de 64 bits (arm64) con OpenGL ES 3; recomendado un móvil de
+   gama media o superior con 4-6 GB de RAM. La versión de Android lleva los gráficos rebajados y usa
+   el renderizador *Compatibilidad* (OpenGL ES 3), el más ligero y el que funciona en más móviles.
+   Las versiones nuevas se instalan encima de la anterior.
 4. Se juega en horizontal con **controles táctiles**: joystick a la izquierda (llévalo al borde
    para correr), arrastra a la derecha para mover la cámara y usa los botones (disparar, apuntar,
    saltar, coche, usar...). También funciona con mando Bluetooth. En *Pausa → Ajustes* puedes
@@ -68,6 +70,15 @@ Los dos archivos los compila y publica GitHub Actions automáticamente en cada c
   relieve, iluminación con tonemapping AgX, oclusión ambiental y reflejos en pantalla.
 - Ciclo día/noche (atardeceres rosados, ciudad iluminada de noche) y clima dinámico: nublado,
   lluvia y tormenta con relámpagos y calles mojadas.
+- **Optimizado** sin bajar la calidad en PC: los modelos lejanos usan versiones simplificadas
+  (niveles de detalle), los edificios tapan lo que hay detrás (*occlusion culling*: no se dibuja lo
+  que no se ve), coches aparcados en reposo y animaciones lejanas a menor frecuencia. En el centro
+  se dibujan unas 20 veces menos triángulos que antes (de 10,7 millones por fotograma a menos de
+  medio millón).
+- **En Android los gráficos van rebajados** para que el móvil pueda moverlo: renderizador OpenGL ES 3
+  (Compatibilidad), resolución 3D al 55 %, sombras cortas y sin suavizado, sin brillo (glow), SSAO
+  ni reflejos en pantalla, agua sencilla, cielo con nubes quietas, niebla y distancia de dibujado
+  más cortas, modelos simplificados antes, menos farolas encendidas, menos gente y tráfico.
 
 **Personajes**
 - Jason y Lucía, jugables e intercambiables (tecla **Z**); el otro te sigue, sube al coche y

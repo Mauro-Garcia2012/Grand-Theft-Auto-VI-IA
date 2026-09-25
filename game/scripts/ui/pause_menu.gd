@@ -63,12 +63,13 @@ func _build() -> void:
 	_option(sett, "Dificultad", Game.DIFFICULTIES, Game.difficulty(), func(v): Game.settings.difficulty = v)
 	_check(sett, "Invertir eje Y", Game.settings.invert_y, func(v): Game.settings.invert_y = v)
 	_check(sett, "Mostrar FPS", Game.settings.show_fps, func(v): Game.settings.show_fps = v)
-	_check(sett, "Sombras", Game.sky.sun.shadow_enabled if Game.sky else true, _set_shadows)
+	_check(sett, "Sombras", Game.sky.sun_shadows if Game.sky else true, _set_shadows)
 	if not Game.mobile:
 		_check(sett, "Pantalla completa", false, _set_fullscreen)
-	_check(sett, "SSAO (oclusión ambiental)", Game.sky.env.ssao_enabled if Game.sky else true, _set_ssao)
-	_check(sett, "Reflejos en pantalla (SSR)", Game.sky.env.ssr_enabled if Game.sky else true, func(v): if Game.sky: Game.sky.env.ssr_enabled = v)
-	if Game.mobile:
+		# (the phone renderer has neither of these)
+		_check(sett, "SSAO (oclusión ambiental)", Game.sky.env.ssao_enabled if Game.sky else true, _set_ssao)
+		_check(sett, "Reflejos en pantalla (SSR)", Game.sky.env.ssr_enabled if Game.sky else true, func(v): if Game.sky: Game.sky.env.ssr_enabled = v)
+	else:
 		_slider(sett, "Resolución 3D", 0.4, 1.0, get_tree().root.scaling_3d_scale, func(v): get_tree().root.scaling_3d_scale = v)
 	# CONTROLS
 	var help := Label.new()
@@ -187,7 +188,8 @@ func _set_density(v: float) -> void:
 
 func _set_shadows(v: bool) -> void:
 	if Game.sky:
-		Game.sky.sun.shadow_enabled = v
+		Game.sky.sun_shadows = v
+		Game.sky.sun.shadow_enabled = v and Game.sky.sun.visible
 
 
 func _set_fullscreen(v: bool) -> void:

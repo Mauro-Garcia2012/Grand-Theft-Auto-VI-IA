@@ -51,6 +51,7 @@ var _alt_t := 0.0
 var _age := 0.0
 var _fire: GPUParticles3D          # engine fire when badly damaged
 var _wreck_boom := false            # the burning wreck already exploded against the ground
+var _idle_t := 0.0
 
 
 func _ready() -> void:
@@ -333,6 +334,15 @@ func _physics_process(delta: float) -> void:
 		var roll := -fwd_v * mass / 3.0 * (0.015 if not wheel_brake else 2.5)
 		roll = clampf(roll, -fn * (0.05 if not wheel_brake else 0.7), fn * (0.05 if not wheel_brake else 0.7))
 		apply_force(fwd * roll, r)
+	# parked with nobody aboard: let the body sleep (the gear springs would keep it awake forever)
+	if drv == null and not destroyed and contacts >= 2 and v.length() < 0.15 and angular_velocity.length() < 0.05:
+		_idle_t += delta
+		if _idle_t > 2.0:
+			_idle_t = 0.0
+			sleeping = true
+			return
+	else:
+		_idle_t = 0.0
 	var altitude_ok := _update_altitude(delta)
 	_check_water_and_bounds(drv, speed)
 	airborne = contacts == 0 and altitude_ok > 1.5

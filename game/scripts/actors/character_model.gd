@@ -339,29 +339,44 @@ func upper_time_left() -> float:
 var _anim_acc := 0.0
 var _anim_skip := 0
 var always_full_rate := false
+var _was_on_screen := true
 
 
 func _process(delta: float) -> void:
 	if anim_tree == null:
 		return
-	_aim_blend = move_toward(_aim_blend, _aim_target, delta * 6.0)
-	anim_tree.set("parameters/upper_blend/blend_amount", _aim_blend)
-	# animation LOD: far / off-screen characters update less often
+	var ab := move_toward(_aim_blend, _aim_target, delta * 6.0)
+	if ab != _aim_blend:
+		_aim_blend = ab
+		anim_tree.set("parameters/upper_blend/blend_amount", _aim_blend)
+	# animation LOD: far / off-screen / hidden characters update less often (a character that comes
+	# into view is updated straight away, so the lower rate is never seen)
 	_anim_acc += delta
 	var step := 1
+	var on_screen := true
 	if not always_full_rate:
-		var cam := get_viewport().get_camera_3d()
-		if cam:
-			var to := global_position - cam.global_position
-			var d2 := to.length_squared()
-			if d2 > 6400.0:
-				step = 6
-			elif d2 > 1600.0:
-				step = 3
-			elif d2 > 400.0:
-				step = 2
-			if d2 > 100.0 and to.dot(-cam.global_basis.z) < 0.0:
-				step = maxi(step, 6)
+		if not is_visible_in_tree():
+			step = 20
+			on_screen = false
+		else:
+			var cam := get_viewport().get_camera_3d()
+			if cam:
+				var to := global_position - cam.global_position
+				var d2 := to.length_squared() * (2.5 if Game.mobile else 1.0)
+				if d2 > 12100.0:
+					step = 8
+				elif d2 > 4900.0:
+					step = 5
+				elif d2 > 2025.0:
+					step = 3
+				elif d2 > 625.0:
+					step = 2
+				if d2 > 16.0 and not cam.is_position_in_frustum(global_position + Vector3.UP):
+					step = maxi(step, 12)
+					on_screen = false
+	if on_screen and not _was_on_screen:
+		_anim_skip = step
+	_was_on_screen = on_screen
 	_anim_skip += 1
 	if _anim_skip >= step:
 		_anim_skip = 0

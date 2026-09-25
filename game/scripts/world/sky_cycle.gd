@@ -22,6 +22,10 @@ var _light_t := 0.0
 var _last_hour := -1
 var _lightning_t := 5.0
 var streetlights: Array[Vector3] = []
+var _fog_begin := 350.0
+var _fog_end := 3200.0
+var _sky_wait := 0.0
+var sun_shadows := true      # the "Sombras" option in the pause menu
 
 
 func _ready() -> void:
@@ -34,7 +38,7 @@ func _ready() -> void:
 	sky_mat.shader = load("res://shaders/sky.gdshader")
 	sky.sky_material = sky_mat
 	sky.process_mode = Sky.PROCESS_MODE_REALTIME
-	sky.radiance_size = Sky.RADIANCE_SIZE_128
+	sky.radiance_size = Sky.RADIANCE_SIZE_256     # the only size realtime skies support
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
@@ -53,8 +57,10 @@ func _ready() -> void:
 		# screen-space effects are the most expensive part on phones
 		env.ssao_enabled = false
 		env.ssr_enabled = false
-		sky.radiance_size = Sky.RADIANCE_SIZE_64
-	env.glow_enabled = true
+		# fog hides the city from 1.3 km: less to draw and a shorter camera range
+		_fog_begin = 150.0
+		_fog_end = 1300.0
+	env.glow_enabled = not Game.mobile
 	env.glow_intensity = 0.7
 	env.glow_bloom = 0.08
 	env.glow_hdr_threshold = 1.1
@@ -76,8 +82,8 @@ func _ready() -> void:
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	sun.directional_shadow_max_distance = 220.0
 	if Game.mobile:
-		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
-		sun.directional_shadow_max_distance = 110.0
+		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
+		sun.directional_shadow_max_distance = 60.0
 	sun.shadow_bias = 0.04
 	sun.light_angular_distance = 0.5
 	add_child(sun)
@@ -97,7 +103,7 @@ func _ready() -> void:
 	pm.initial_velocity_max = 34.0
 	pm.gravity = Vector3(0, -10, 0)
 	_rain.process_material = pm
-	_rain.amount = 4000
+	_rain.amount = 1200 if Game.mobile else 4000
 	_rain.lifetime = 1.0
 	_rain.local_coords = false
 	var q := QuadMesh.new()
@@ -118,7 +124,7 @@ func _ready() -> void:
 	_rain_snd.volume_db = -80.0
 	_rain_snd.pitch_scale = 0.35
 	add_child(_rain_snd)
-	for i in 14:
+	for i in (5 if Game.mobile else 14):
 		var l := OmniLight3D.new()
 		l.light_color = Color(1.0, 0.78, 0.5)
 		l.light_energy = 0.0
@@ -170,15 +176,21 @@ func _apply(delta: float) -> void:
 	if t < 6.0 or t > 20.0:
 		elev = -10.0
 	var az := lerpf(-100.0, 100.0, clampf(day_frac, 0.0, 1.0))
-	sun.rotation_degrees = Vector3(-maxf(elev, 2.0), az + 180.0, 0)
 	var day := clampf((elev + 2.0) / 14.0, 0.0, 1.0)      # 0 night .. 1 day
 	var golden := clampf(1.0 - absf(elev - 6.0) / 12.0, 0.0, 1.0) * day
 	var night := 1.0 - day
 	var storm := _weather_v
-	sun.light_energy = lerpf(0.0, 1.35, day) * (1.0 - storm * 0.7)
-	sun.light_color = Color(1.0, 0.97, 0.9).lerp(Color(1.0, 0.55, 0.35), golden)
-	sun.visible = day > 0.01
-	sun.shadow_enabled = day > 0.05
+	# the sun and the sky shader change a little every frame, and every change redraws the sky's
+	# lighting cubemap: phones do it every 1.5 s (the sun moves a fraction of a degree meanwhile)
+	_sky_wait -= delta
+	var refresh := not Game.mobile or _sky_wait <= 0.0 or delta == 0.0
+	if refresh:
+		_sky_wait = 1.5
+		sun.rotation_degrees = Vector3(-maxf(elev, 2.0), az + 180.0, 0)
+		sun.light_energy = lerpf(0.0, 1.35, day) * (1.0 - storm * 0.7)
+		sun.light_color = Color(1.0, 0.97, 0.9).lerp(Color(1.0, 0.55, 0.35), golden)
+		sun.visible = day > 0.01
+		sun.shadow_enabled = day > 0.05 and sun_shadows
 	moon.light_energy = night * 0.3
 	moon.rotation_degrees = Vector3(-45, 30, 0)
 	# sky colors: vice city pink/orange sunsets, deep purple nights
@@ -193,20 +205,24 @@ func _apply(delta: float) -> void:
 	var grey := Color(0.45, 0.48, 0.52) * (0.3 + day * 0.7)
 	top = top.lerp(grey * 0.8, storm * 0.8)
 	hor = hor.lerp(grey, storm * 0.8)
-	sky_mat.set_shader_parameter("top_color", top)
-	sky_mat.set_shader_parameter("horizon_color", hor)
-	sky_mat.set_shader_parameter("ground_color", hor.darkened(0.5))
-	sky_mat.set_shader_parameter("sun_color", sun.light_color)
-	sky_mat.set_shader_parameter("night", night)
-	sky_mat.set_shader_parameter("cloud_cover", lerpf(0.3, 0.85, storm))
-	sky_mat.set_shader_parameter("cloud_dark", storm)
+	if refresh:
+		sky_mat.set_shader_parameter("top_color", top)
+		sky_mat.set_shader_parameter("horizon_color", hor)
+		sky_mat.set_shader_parameter("ground_color", hor.darkened(0.5))
+		sky_mat.set_shader_parameter("sun_color", sun.light_color)
+		sky_mat.set_shader_parameter("night", night)
+		sky_mat.set_shader_parameter("cloud_cover", lerpf(0.3, 0.85, storm))
+		sky_mat.set_shader_parameter("cloud_dark", storm)
+		if not Game.mobile:
+			# drifting clouds and twinkling stars (still on phones)
+			sky_mat.set_shader_parameter("sky_time", fmod(Time.get_ticks_msec() / 1000.0, 36000.0))
 	# sky light mixed with a warm bounce colour: shadows stay neutral instead of deep blue
 	env.ambient_light_color = Color(0.62, 0.58, 0.52).lerp(Color(0.25, 0.22, 0.35), night)
 	env.ambient_light_energy = lerpf(0.5, 0.8, day)
 	env.ambient_light_sky_contribution = lerpf(0.6, 0.55, day)
 	env.fog_light_color = hor.lerp(Color(0.6, 0.62, 0.66), storm * 0.6)
-	env.fog_depth_begin = lerpf(350.0, 80.0, storm)
-	env.fog_depth_end = lerpf(3200.0, 900.0, storm)
+	env.fog_depth_begin = lerpf(_fog_begin, 80.0, storm)
+	env.fog_depth_end = lerpf(_fog_end, 900.0, storm)
 	env.glow_intensity = lerpf(0.5, 1.1, night)
 	RenderingServer.global_shader_parameter_set("night_factor", clampf(night * 1.2 + storm * 0.3, 0.0, 1.0))
 	RenderingServer.global_shader_parameter_set("wetness", clampf((storm - 0.5) * 2.0, 0.0, 1.0))

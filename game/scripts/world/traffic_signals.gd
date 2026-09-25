@@ -192,7 +192,7 @@ func _load_model() -> bool:
 			arr[Mesh.ARRAY_NORMAL] = norms
 			arr[Mesh.ARRAY_BONES] = null
 			arr[Mesh.ARRAY_WEIGHTS] = null
-			out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+			out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr, [], ModelUtil.surface_lods(mi.mesh, s, t.basis.get_scale().x))
 			var mat := mi.get_active_material(s)
 			var mn := ModelUtil.base_name(mat) if mat else ""
 			var slot: int = {"red": 0, "yellow": 1, "green": 2, "ampel_rot": 0, "ampel_gelb": 1, "ampel_gruen": 2}.get(mn, -1)

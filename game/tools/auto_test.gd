@@ -11,6 +11,8 @@ var _shot_i := 0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	if OS.get_environment("SHOTS_DIR") != "":
+		out_dir = OS.get_environment("SHOTS_DIR")
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	print("[test] mode=", mode)
 	Game.settings.show_fps = true
@@ -92,6 +94,12 @@ func _process(delta: float) -> void:
 			_gtahud()
 		"crime":
 			_crime()
+		"prof":
+			_prof()
+		"profparts":
+			_profparts()
+		"meshstats":
+			_meshstats()
 		"traffic":
 			_traffic()
 		"chase":
@@ -1262,6 +1270,176 @@ func _crime() -> void:
 				print("[crime] jet t=%.1f phase=%s alt=%.0f vy=%.0f spd=%.0f hp=%.0f dir=%s" % [i * 0.25, ai._phase, jet.altitude, jet.linear_velocity.y, jet.speed_kmh, jet.health, ai._dir])
 		print("[crime] jet lowest altitude %.0f m" % min_alt)
 		print("[crime] jet after 70 s: phases=%s cannon shells=%d" % [phases, shots])
+	get_tree().quit()
+
+
+## Performance profile: render counts at several views (run under render.sh) and CPU time per
+## system (headless: the systems are switched off one by one).
+func _prof_sample(label: String) -> void:
+	var acc := {"obj": 0.0, "prim": 0.0, "dc": 0.0, "sdc": 0.0, "proc": 0.0, "phys": 0.0}
+	var n := 0
+	for i in 20:
+		await get_tree().process_frame
+		var vp := get_viewport()
+		acc.obj += Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)
+		acc.prim += Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)
+		acc.dc += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)
+		acc.sdc += vp.get_render_info(Viewport.RENDER_INFO_TYPE_SHADOW, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
+		acc.proc += Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0
+		acc.phys += Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
+		n += 1
+	var lights := 0
+	var vis_lights := 0
+	for l in get_tree().root.find_children("*", "Light3D", true, false):
+		lights += 1
+		if (l as Light3D).is_visible_in_tree() and (l as Light3D).light_energy > 0.0:
+			vis_lights += 1
+	print("[prof] %-14s objects=%5.0f prims=%8.0f draws=%5.0f shadow_draws=%5.0f | cpu process=%.1fms physics=%.1fms | nodes=%d lights=%d/%d humanoids=%d vehicles=%d" % [
+		label, acc.obj / n, acc.prim / n, acc.dc / n, acc.sdc / n, acc.proc / n, acc.phys / n,
+		Performance.get_monitor(Performance.OBJECT_NODE_COUNT), vis_lights, lights,
+		get_tree().get_nodes_in_group("humanoids").size(), get_tree().get_nodes_in_group("vehicles").size()])
+
+
+func _tris(m: Mesh) -> int:
+	var n := 0
+	for si in m.get_surface_count():
+		var arr := m.surface_get_arrays(si)
+		var idx = arr[Mesh.ARRAY_INDEX]
+		n += (idx.size() if idx != null else arr[Mesh.ARRAY_VERTEX].size()) / 3
+	return n
+
+
+## Triangle counts of the prop meshes and how many instances of each the world has.
+func _meshstats() -> void:
+	if step != 0 or t < 3.0:
+		return
+	step = 1
+	var wb: WorldBuilder = Game.world.builder
+	var counts := {}
+	for mmi in wb.find_children("*", "MultiMeshInstance3D", true, false):
+		var mm: MultiMesh = mmi.multimesh
+		if mm == null or mm.mesh == null:
+			continue
+		var key := str(mm.mesh.resource_name if mm.mesh.resource_name != "" else mm.mesh.get_instance_id())
+		for pk in wb.prop_meshes:
+			if wb.prop_meshes[pk] == mm.mesh:
+				key = pk
+		if not counts.has(key):
+			counts[key] = [0, _tris(mm.mesh), 0, mmi.visibility_range_end]
+		counts[key][0] += mm.instance_count
+		counts[key][2] += 1
+	var rows := []
+	for k in counts:
+		var lods := 0
+		if wb.prop_meshes.has(k):
+			lods = RenderingServer.mesh_get_surface(wb.prop_meshes[k].get_rid(), 0).get("lods", []).size()
+		rows.append([k, counts[k][0], counts[k][1], counts[k][0] * counts[k][1], counts[k][2], counts[k][3], lods])
+	rows.sort_custom(func(a, b): return a[3] > b[3])
+	for r in rows.slice(0, 25):
+		print("[mesh] %-18s instances=%5d tris=%7d total=%9d chunks=%d vis_end=%.0f lods=%d" % r)
+	print("[mesh] chunk size: ", wb.get("CHUNK") if "CHUNK" in wb else "?")
+	get_tree().quit()
+
+
+## Which kinds of object cost the most triangles/draws: hide them one by one (run under render.sh).
+func _profparts() -> void:
+	if step != 0 or t < 6.0:
+		return
+	step = 1
+	Game.sky.time_of_day = 13.0
+	var p := Game.player
+	p.global_position = Vector3(60, 1.5, 150) if OS.get_environment("PART_POS") != "beach" else Vector3(1042, 1.5, 560)
+	Game.camera_rig.yaw = 0.7
+	await _wait(4.0)
+	await _prof_sample("everything")
+	var cats := {}
+	for n in get_tree().root.find_children("*", "GeometryInstance3D", true, false):
+		var gi := n as GeometryInstance3D
+		var c := "other"
+		var a: Node = gi
+		while a != null:
+			if a is Humanoid:
+				c = "humanoids"
+				break
+			if a is Vehicle or a is Boat or a is Aircraft:
+				c = "vehicles"
+				break
+			a = a.get_parent()
+		if c == "other":
+			if gi is MultiMeshInstance3D:
+				c = "multimesh_props"
+			elif gi is MeshInstance3D and (gi as MeshInstance3D).mesh is ArrayMesh and gi.get_parent() and gi.get_parent().name == "World":
+				c = "world_meshes"
+			elif gi is GPUParticles3D:
+				c = "particles"
+			elif gi is Label3D:
+				c = "labels"
+		if not cats.has(c):
+			cats[c] = []
+		cats[c].append(gi)
+	for c in cats:
+		print("[prof] category %s: %d instances" % [c, cats[c].size()])
+	for c in ["humanoids", "vehicles", "multimesh_props", "world_meshes", "particles", "other"]:
+		if not cats.has(c):
+			continue
+		for gi in cats[c]:
+			if is_instance_valid(gi):
+				gi.visible = false
+		await _wait(0.3)
+		await _prof_sample("without_" + c)
+		for gi in cats[c]:
+			if is_instance_valid(gi):
+				gi.visible = true
+	# shadows off (to see how much of the total the shadow passes are)
+	Game.sky.sun.shadow_enabled = false
+	await _wait(0.3)
+	await _prof_sample("no_sun_shadow")
+	get_tree().quit()
+
+
+func _prof() -> void:
+	if step != 0 or t < 6.0:
+		return
+	step = 1
+	var p := Game.player
+	Game.god_mode = true
+	var hour := float(OS.get_environment("PROF_T")) if OS.get_environment("PROF_T") != "" else 13.0
+	Game.sky.time_of_day = hour
+	var spots := [["ocean_beach", Vector3(1042, 1, 560), 0.0], ["downtown", Vector3(60, 1, 150), 0.7],
+		["little_cuba", Vector3(-560, 1, 300), 2.0], ["airport", Vector3(-1300, 1, -700), 1.2]]
+	for sp in spots:
+		p.global_position = sp[1] + Vector3.UP * 0.5
+		Game.camera_rig.yaw = sp[2]
+		await _wait(4.0)
+		await _prof_sample(sp[0])
+	# aerial view over the city
+	_place_cam(Vector3(300, 180, 700), Vector3(0, 0, 0))
+	await _wait(2.0)
+	await _prof_sample("aerial")
+	if OS.get_environment("PROF_CPU") == "":
+		get_tree().quit()
+		return
+	# CPU cost per system (switch them off one by one)
+	Game.camera_rig.set_physics_process(true)
+	p.global_position = Vector3(60, 1.5, 150)
+	await _wait(4.0)
+	await _prof_sample("cpu_all")
+	for h in get_tree().get_nodes_in_group("humanoids"):
+		if h.model and h.model.anim_tree and not h.is_player:
+			h.model.anim_tree.active = false
+	await _prof_sample("cpu_no_anim")
+	for h in get_tree().get_nodes_in_group("humanoids"):
+		if not h.is_player:
+			h.set_physics_process(false)
+			if h.brain:
+				h.brain.set_physics_process(false)
+	await _prof_sample("cpu_no_peds")
+	for v in get_tree().get_nodes_in_group("vehicles"):
+		v.set_physics_process(false)
+	await _prof_sample("cpu_no_cars")
+	Game.population.set_physics_process(false)
+	Game.population.set_process(false)
+	await _prof_sample("cpu_no_pop")
 	get_tree().quit()
 
 

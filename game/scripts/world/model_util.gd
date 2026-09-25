@@ -144,3 +144,27 @@ static func make(path: String, length := 0.0, overrides := {}, height := 0.0, ke
 	var c := a.get_center() * k
 	inst.position = inst.position * k + Vector3(-c.x, 0.0 if keep_y else -a.position.y * k, -c.z)
 	return holder
+
+
+## The LOD index arrays of an imported mesh surface, ready for ArrayMesh.add_surface_from_arrays().
+## Meshes rebuilt from surface_get_arrays() lose their LODs (and would then be drawn at full detail
+## at any distance); the vertices keep their order, so the original index lists still apply.
+## `scale` converts the LOD error distances when the vertices are scaled while rebuilding.
+static func surface_lods(mesh: Mesh, s: int, scale := 1.0) -> Dictionary:
+	var out := {}
+	var data: Dictionary = RenderingServer.mesh_get_surface(mesh.get_rid(), s)
+	var lods: Array = data.get("lods", [])
+	var wide: bool = data.get("vertex_count", 0) > 65535
+	for lod: Dictionary in lods:
+		var raw: PackedByteArray = lod.get("index_data", PackedByteArray())
+		if raw.is_empty():
+			continue
+		var idx := PackedInt32Array()
+		if wide:
+			idx = raw.to_int32_array()
+		else:
+			idx.resize(raw.size() / 2)
+			for i in idx.size():
+				idx[i] = raw.decode_u16(i * 2)
+		out[float(lod.get("edge_length", 0.0)) * scale] = idx
+	return out

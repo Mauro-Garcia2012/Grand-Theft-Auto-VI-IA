@@ -11,6 +11,9 @@ uniform float night = 0.0;
 uniform float cloud_cover = 0.35;
 uniform float cloud_dark = 0.0;
 uniform vec3 moon_dir = vec3(0.3, 0.6, -0.7);
+// animation clock set by sky_cycle.gd instead of TIME: phones keep it still, so the sky (and the
+// lighting cubemap made from it) only needs to be redrawn when it really changes
+uniform float sky_time = 0.0;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float hash3(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
@@ -48,7 +51,7 @@ void sky() {
 	if (night > 0.01 && h > 0.0) {
 		vec3 sp = floor(d * 380.0);
 		float s = step(0.9965, hash3(sp));
-		float tw = 0.6 + 0.4 * sin(TIME * 3.0 + hash3(sp) * 50.0);
+		float tw = 0.6 + 0.4 * sin(sky_time * 3.0 + hash3(sp) * 50.0);
 		col += vec3(s * tw) * night * smoothstep(0.0, 0.25, h) * (1.0 - cloud_cover);
 		float md = dot(d, normalize(moon_dir));
 		col += vec3(0.85, 0.88, 1.0) * smoothstep(0.9993, 0.9996, md) * night * 3.0;
@@ -57,7 +60,7 @@ void sky() {
 	// clouds on a virtual plane
 	if (h > 0.01) {
 		vec2 uv = d.xz / (h + 0.08) * 1.4;
-		uv += vec2(TIME * 0.006, TIME * 0.003);
+		uv += vec2(sky_time * 0.006, sky_time * 0.003);
 		float n = fbm(uv * 1.2);
 		float c = smoothstep(1.0 - cloud_cover - 0.25, 1.0 - cloud_cover + 0.25, n);
 		c *= smoothstep(0.01, 0.2, h);
